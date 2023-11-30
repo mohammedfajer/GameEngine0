@@ -19,6 +19,11 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
+#include <cmath>
+#include <vector>
+
+#include <random>
+
 std::string vertex_shader = R"(
 	#version 330 core
 	layout (location = 0) in vec3 aPos;
@@ -215,7 +220,6 @@ namespace Engine {
 		return texture;
     }
 
-
 	struct OrthographicCamera {
 		glm::mat4 projection;
 		glm::vec2 position;
@@ -223,7 +227,6 @@ namespace Engine {
 		
 		OrthographicCamera(float left, float right, float bottom, float top, float zoomLevel = 1.0f)
 			: position(0.0f, 0.0f), zoom(zoomLevel) {
-			
 			set_projection(left, right, bottom, top);
 		}
 
@@ -241,6 +244,92 @@ namespace Engine {
 }
 
 
+struct Sprite {
+	glm::vec2 position;
+	glm::vec2 scale;
+	
+	glm::mat4 model;
+	float rotation;
+	
+	uint32_t texture;
+	std::string name;
+
+	Sprite(const glm::vec2& position, const glm::vec2& scale, uint32_t texture, std::string name = "untitled")
+	: position(position), scale(scale), texture(texture), rotation(0.0f), name(name) {
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(position, 0.0f));
+		model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(scale, 1.0f));
+	}
+};
+
+// Function to check if two sprites are too close to each other
+bool areSpritesTooClose(const Sprite& sprite1, const Sprite& sprite2, float minDistance) {
+	float distance = glm::length(sprite1.position - sprite2.position);
+	return distance < minDistance;
+}
+
+// Function to generate random non-overlapping positions
+glm::vec2 generateRandomPosition(const std::vector<Sprite>& sprites, float minX, float maxX,
+	float minY, float maxY, float minDistance) {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> disX(minX, maxX);
+	std::uniform_real_distribution<float> disY(minY, maxY);
+
+	glm::vec2 randomPosition;
+	bool tooClose;
+
+	do {
+		tooClose = false;
+		randomPosition.x = disX(gen);
+		randomPosition.y = disY(gen);
+
+		for (const auto& sprite : sprites) {
+			if (areSpritesTooClose(sprite, { randomPosition, glm::vec2(0.0f, 0.0f), 0 }, minDistance)) {
+				tooClose = true;
+				break;
+			}
+		}
+	} while (tooClose);
+
+	return randomPosition;
+}
+
+
+
+#define ANSI_COLOR_RESET "\x1b[0m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_LIGHT_BLUE  "\x1b[94m"
+#define ANSI_COLOR_RED     "\x1b[31m"
+
+enum class LogLevel {
+	SUCCESS,
+	INFO,
+	ERROR
+};
+
+void log(LogLevel level, const std::string& message) {
+	switch (level) {
+		case LogLevel::SUCCESS:
+			std::cout << ANSI_COLOR_GREEN << "[SUCCESS] " << message << ANSI_COLOR_RESET << std::endl;
+			break;
+		case LogLevel::INFO:
+			std::cout << ANSI_COLOR_LIGHT_BLUE << "[INFO] " << message << ANSI_COLOR_RESET << std::endl;
+			break;
+		case LogLevel::ERROR:
+			std::cerr << ANSI_COLOR_RED << "[ERROR] " << message << ANSI_COLOR_RESET << std::endl;
+			break;
+	}
+}
+
+#define SCREEN_WIDTH 1024
+#define SCREEN_HEIGHT 768
+
+
+
+
 int main(int argc, char *argv[]) {
 	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 		std::cerr << "SDL initialization failed: " << SDL_GetError() << std::endl;
@@ -248,7 +337,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	SDL_Window* window = SDL_CreateWindow("Game", SDL_WINDOWPOS_UNDEFINED,
-		SDL_WINDOWPOS_UNDEFINED, 800, 600, SDL_WINDOW_OPENGL);
+		SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL);
 	if (!window) {
 		std::cerr << "Window creation failed: " << SDL_GetError() << std::endl;
 		return (-1);
@@ -275,6 +364,10 @@ int main(int argc, char *argv[]) {
 
 	std::cout << "Result of glm vector addition : (" 
 		<< result.x << ", " << result.y << ", " << result.z << ")\n";
+
+	log(LogLevel::INFO, "Info Text");
+	log(LogLevel::SUCCESS, "Success Text");
+	log(LogLevel::ERROR, "Error Text");
 
 	// Set the clear color to green
 	//Engine::set_clear_color(0, 128, 0, 255);
@@ -321,69 +414,18 @@ int main(int argc, char *argv[]) {
     glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE, 8 *sizeof(float), (void *) (6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
-
     // Shader
 
     // Compile
     Engine::Shader shader(vertex_shader, fragment_shader);
 
-
-    // Textured Quad  
-    // Generate Texture
-    uint32_t texture = Engine::load_texture("./data/coin.png");
-    
-    /* glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    int width, height, nrChannels;
-    uint32_t *data = reinterpret_cast<uint32_t*>(stbi_load("./data/coin.png", &width, &height, &nrChannels, 0));
-    assert(nrChannels == 4 && "Image should have 4 channels");
-
-    if(data)
-    {
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-    }
-    else
-    {
-        std::cerr << "Failed to load texture \n";
-    }
-    stbi_image_free(data);
- */
-
-
-
 	// Main Loop
 	bool quit = false;
 
-    // Orthographic projection paramters
-    float left = 0.0f;
-    float right = 800.0f;
-    float bottom = 600.0f;
-
-    float top = 0.0f;
-    float nearPlane = -1.0f;
-    float farPlane = 1.0f;
-
-    // Camera position
-    float cameraX = 0.0f;
-    float cameraY = 0.0f;
-
-    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f);   // Z = 1.0 for 2D
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f); // Look at the origin
-    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);      // Up vector in the positive Y direction
-
-
-	Engine::OrthographicCamera camera (left, right, bottom, top);
+    // Camera 
+	Engine::OrthographicCamera camera (0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 	camera.position = glm::vec2(0.0f, 0.0f);
 	camera.zoom = 1.0f;
-
-
 
     // Object position and scale
     float objectX = 100.0f;
@@ -391,6 +433,35 @@ int main(int argc, char *argv[]) {
     float objectScaleX = 48.0;
     float objectScaleY = 46.0;
     float rotationAngle = 0.0f;
+
+	std::vector<Sprite> sprites;
+	uint32_t coinTexture = Engine::load_texture("./data/coin.png");
+	uint32_t backgroundTexture = Engine::load_texture("./data/bg.png");
+	
+	//Sprite background(glm::vec2(800/2, 600/2), glm::vec2(800, 600), backgroundTexture, "bg");
+	//sprites.push_back(background);
+
+	/*sprites.push_back(Sprite(glm::vec2(100.0f, 100.0f), glm::vec2(50.0f, 50.0f), coinTexture));
+	sprites.push_back(Sprite(glm::vec2(150.0f, 100.0f), glm::vec2(50.0f, 50.0f), coinTexture));
+	sprites.push_back(Sprite(glm::vec2(200.0f, 100.0f), glm::vec2(50.0f, 50.0f), coinTexture));
+	sprites.push_back(Sprite(glm::vec2(250.0f, 100.0f), glm::vec2(50.0f, 50.0f), coinTexture));
+
+	sprites.push_back(Sprite(glm::vec2(100.0f, 250.0f), glm::vec2(50.0f, 50.0f), coinTexture));
+	sprites.push_back(Sprite(glm::vec2(150.0f, 250.0f), glm::vec2(50.0f, 50.0f), coinTexture));
+	sprites.push_back(Sprite(glm::vec2(200.0f, 250.0f), glm::vec2(50.0f, 50.0f), coinTexture));
+	sprites.push_back(Sprite(glm::vec2(250.0f, 250.0f), glm::vec2(50.0f, 50.0f), coinTexture));*/
+
+
+	for (int i = 0; i < 25; ++i) {
+		glm::vec2 randomPosition = generateRandomPosition(sprites, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, 50.0f);
+		sprites.push_back(Sprite(randomPosition, glm::vec2(50.0f, 50.0f), coinTexture));
+	}
+
+
+	sprites.push_back(Sprite(glm::vec2(300, 350), glm::vec2(50, 50), Engine::load_texture("./data/plane_1_pink.png"), "player"));
+
+
+
 
 	// Enable blending
     glEnable(GL_BLEND);
@@ -402,37 +473,108 @@ int main(int argc, char *argv[]) {
 			if (event.type == SDL_QUIT) quit = true;
 		}
 
-		// Update orthographic projection matrix
-		glm::mat4 projection = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
+		// Get the current state of the keyboard
+		const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
 
-		// Update view matrix for the "camera"
-		//glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, 1.0f));
-        //glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
-
+		glm::mat4 projection = camera.projection;
 		glm::mat4 view = camera.get_view_matrix();
 
-		// Update model matrix for the object
+		for (Sprite &sprite: sprites) {
+			if (sprite.name != "bg" && sprite.name != "player")
+			{
+				auto time = SDL_GetTicks() * 0.01f;
+				sprite.position.y += 0.15f * sinf(time); // Adjust the multiplier as needed
+				sprite.position.x += 0.15f * sinf(time); // Adjust the multiplier as needed
+				sprite.model = glm::mat4(1.0f);
+				sprite.model = glm::translate(sprite.model, glm::vec3(sprite.position, 0.0f));
+				sprite.model = glm::scale(sprite.model, glm::vec3(sprite.scale, 1.0f));
+			}
 
-		glm::mat4 model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(objectX, objectY, 0.0f));
-        model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 0.0f, 1.0f));
-		model = glm::scale(model, glm::vec3(objectScaleX, objectScaleY, 1.0f));
+			if (sprite.name == "player") {
 
-        //rotationAngle += 1.0f;
+				const float speed = 50; // Adjust the speed as needed
+				auto time = SDL_GetTicks() * 0.01f;
+				static const Uint8* prevKeyboardState = nullptr;
+				bool move = false;
+				// Check for key releases
+				if (prevKeyboardState) {
+					if (!prevKeyboardState[SDL_SCANCODE_W] && keyboardState[SDL_SCANCODE_W]) {
+						// Key W released
+						std::cout << "Key W released\n";
+						 move = false;
+					}
+					if (!prevKeyboardState[SDL_SCANCODE_S] && keyboardState[SDL_SCANCODE_S]) {
+						// Key S released
+						std::cout << "Key S released\n";
+						move = false;
+					}
+					if (!prevKeyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_A]) {
+						// Key A released
+						std::cout << "Key A released\n";
+						move = false;
+					}
+					if (!prevKeyboardState[SDL_SCANCODE_D] && keyboardState[SDL_SCANCODE_D]) {
+						// Key D released
+						std::cout << "Key D released\n";
+						move = false;
+					}
+				}
+				
 
-		// Pass matrices to the shader
-		shader.use();
-		shader.set_mat4("projection", projection);
-		shader.set_mat4("view", view);
-		shader.set_mat4("model", model);
+				if (keyboardState[SDL_SCANCODE_W]) {
+					sprite.position.y -= speed * 0.016f;
+					move = true;
+				}
+				if (keyboardState[SDL_SCANCODE_S]) {
+					sprite.position.y += speed * 0.016f;
+					move = true;
+				}
+				if (keyboardState[SDL_SCANCODE_A]) {
+					sprite.position.x -= speed * 0.016f;
+					move = true;
+				}
+				if (keyboardState[SDL_SCANCODE_D]) {
+					sprite.position.x += speed * 0.016f;
+					move = true;
+				}
+
+			
+
+				sprite.rotation = -180;
+				
+				if(!move) sprite.position.y += 0.55f * sinf(time); // Adjust the multiplier as needed
+				sprite.model = glm::mat4(1.0f);
+				sprite.model = glm::translate(sprite.model, glm::vec3(sprite.position, 0.0f));
+				sprite.model = glm::rotate(sprite.model, glm::radians(sprite.rotation), glm::vec3(0.0, 0.0, 1.0f));
+				if(sprite.scale.x > 0) sprite.scale.x *= -1;
+				sprite.model = glm::scale(sprite.model, glm::vec3(sprite.scale, 1.0f));
+
+				prevKeyboardState = keyboardState;
+			}
+		}
+		//camera.zoom += 0.005f * sinf(SDL_GetTicks() * 0.001f);
+
 
 		// Rendering code goes here
 		Engine::set_clear_color({ 0, 128, 0, 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        //rotationAngle += 1.0f;
+		
+		
+	
+		for (const auto& sprite: sprites) {
+			// Pass matrices to the shader
+			shader.use();
+			shader.set_mat4("projection", projection);
+			shader.set_mat4("view", view);
+			shader.set_mat4("model", sprite.model);
+
+			glBindTexture(GL_TEXTURE_2D, sprite.texture);
+			glBindVertexArray(VAO);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		}
+
 
 		SDL_GL_SwapWindow(window);
 	}
