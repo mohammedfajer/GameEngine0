@@ -14,6 +14,8 @@
 #include <initializer_list>
 #include <array>
 
+#include <cassert>
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
@@ -50,7 +52,7 @@ std::string fragment_shader = R"(
 
 	void main()
 	{
-		FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);
+		FragColor = texture(ourTexture, TexCoord) ; //* vec4(ourColor, 1.0);
 	}
 )";
 
@@ -183,6 +185,59 @@ namespace Engine {
         }
     };
 
+
+    uint32_t load_texture(const std::string& filePath, GLenum format = GL_RGB, GLenum wrapS = GL_REPEAT,
+         GLenum wrapT = GL_REPEAT, GLenum minFilter = GL_LINEAR, GLenum magFilter = GL_LINEAR) {
+		uint32_t texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+
+		int width, height, nrChannels;
+		stbi_set_flip_vertically_on_load(true);
+		unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
+
+		if (data) {
+			GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+			GLenum internalFormat = (format == GL_RGBA) ? GL_RGBA : GL_RGB;
+			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+			glGenerateMipmap(GL_TEXTURE_2D);
+		}
+		else {
+			std::cerr << "Failed to load texture from " << filePath << "\n";
+		}
+
+		stbi_image_free(data);
+		return texture;
+    }
+
+
+	struct OrthographicCamera {
+		glm::mat4 projection;
+		glm::vec2 position;
+		float zoom;
+		
+		OrthographicCamera(float left, float right, float bottom, float top, float zoomLevel = 1.0f)
+			: position(0.0f, 0.0f), zoom(zoomLevel) {
+			
+			set_projection(left, right, bottom, top);
+		}
+
+		void set_projection(float left, float right, float bottom, float top) {
+			projection = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
+		}
+
+		glm::mat4 get_view_matrix() const {
+			auto R = glm::translate(glm::mat4(1.0f), glm::vec3(-position.x, -position.y, 1.0)) * 
+			glm::scale(glm::mat4(1.0f), glm::vec3(zoom, zoom, 1.0f));
+			return (R);
+		}
+	};
+
 }
 
 
@@ -275,8 +330,9 @@ int main(int argc, char *argv[]) {
 
     // Textured Quad  
     // Generate Texture
-    uint32_t texture;
-    glGenTextures(1, &texture);
+    uint32_t texture = Engine::load_texture("./data/coin.png");
+    
+    /* glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -285,7 +341,9 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     int width, height, nrChannels;
-    uint32_t *data = reinterpret_cast<uint32_t*>(stbi_load("./data/container.jpg", &width, &height, &nrChannels, 0));
+    uint32_t *data = reinterpret_cast<uint32_t*>(stbi_load("./data/coin.png", &width, &height, &nrChannels, 0));
+    assert(nrChannels == 4 && "Image should have 4 channels");
+
     if(data)
     {
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -296,7 +354,7 @@ int main(int argc, char *argv[]) {
         std::cerr << "Failed to load texture \n";
     }
     stbi_image_free(data);
-
+ */
 
 
 
@@ -320,12 +378,23 @@ int main(int argc, char *argv[]) {
     glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f); // Look at the origin
     glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);      // Up vector in the positive Y direction
 
+
+	Engine::OrthographicCamera camera (left, right, bottom, top);
+	camera.position = glm::vec2(0.0f, 0.0f);
+	camera.zoom = 1.0f;
+
+
+
     // Object position and scale
     float objectX = 100.0f;
     float objectY = 100.0f;
-    float objectScaleX = 100.0;
-    float objectScaleY = 100.0;
+    float objectScaleX = 48.0;
+    float objectScaleY = 46.0;
     float rotationAngle = 0.0f;
+
+	// Enable blending
+    glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	while (!quit) {
 		SDL_Event event;
@@ -337,18 +406,19 @@ int main(int argc, char *argv[]) {
 		glm::mat4 projection = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
 
 		// Update view matrix for the "camera"
-		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, 1.0f));
+		//glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, 1.0f));
         //glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
 
+		glm::mat4 view = camera.get_view_matrix();
+
 		// Update model matrix for the object
-		
 
 		glm::mat4 model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(objectX, objectY, 0.0f));
         model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 0.0f, 1.0f));
 		model = glm::scale(model, glm::vec3(objectScaleX, objectScaleY, 1.0f));
 
-        rotationAngle += 1.0f;
+        //rotationAngle += 1.0f;
 
 		// Pass matrices to the shader
 		shader.use();
