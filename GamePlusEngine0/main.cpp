@@ -16,10 +16,10 @@
 #include "Color.h"
 
 
+
 int main(int argc, char *argv[]) {
 
 	IceEngine::Engine::GetInstance().Start();
-
 
     // Geometry
     float vertices [] = {
@@ -76,52 +76,51 @@ int main(int argc, char *argv[]) {
 	camera.position = glm::vec2(0.0f, 0.0f);
 	camera.zoom = 1.0f;
 
-    // Object position and scale
-    float objectX = 100.0f;
-    float objectY = 100.0f;
-    float objectScaleX = 48.0;
-    float objectScaleY = 46.0;
-    float rotationAngle = 0.0f;
+
 
 	std::vector<IceEngine::Sprite> sprites;
 	IceEngine::Texture2D coinTexture = IceEngine::load_texture("./data/coin.png");
 	IceEngine::Texture2D backgroundTexture = IceEngine::load_texture("./data/bg.png");
-	
-	
-
 
 	for (int i = 0; i < 25; ++i) {
 		glm::vec2 randomPosition = IceEngine::generateRandomPosition(sprites, 0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, 50.0f);
 		sprites.push_back(IceEngine::Sprite(randomPosition, glm::vec2(50.0f, 50.0f), coinTexture.id));
 	}
 
-	IceEngine::Texture2D  playerTexture = IceEngine::load_texture("./data/plane_1_pink.png");
+	IceEngine::Texture2D playerTexture = IceEngine::load_texture("./data/plane_1_pink.png");
 	sprites.push_back(IceEngine::Sprite(glm::vec2(300, 350), glm::vec2(50, 50), playerTexture.id, "player"));
 
 
 
+	/*
+	
+		Engine::Run
+			Dt = Time::Instance()->Tick()l
+			m_window->Update();
+			InputManager::Instance()->Update();
+			SceneManager::Instance()->UpdateCurrentScene(dt);
+			Application::Instance()->Update(dt);
+			CollisionManager::Instance()->Update(dt);
+			AfterUpdate();
+			Render();
 
-	// Enable blending
-    glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	*/
+
 
 	while (!quit) {
-
-
 
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) quit = true;
 		}
 
-		IceEngine::Timer::GetInstance().Update();
 
-		float deltaTime = IceEngine::Timer::GetInstance().GetDeltaTime();
+		float deltaTime = IceEngine::Timer::Instance().Tick();
 
 		// calculate FPS
 		float FPS = 1.0f / deltaTime;
 
-		IceEngine::Logger::GetInstance().Log("FPS : " + std::to_string(FPS), IceEngine::LogLevel::SUCCESS); 
+		IceEngine::Logger::GetInstance().Log("FPS : " + std::to_string(FPS), IceEngine::LogLevel::INFO); 
 
 		// Get the current state of the keyboard
 		const Uint8* keyboardState = SDL_GetKeyboardState(NULL);
@@ -150,22 +149,18 @@ int main(int argc, char *argv[]) {
 				if (prevKeyboardState) {
 					if (!prevKeyboardState[SDL_SCANCODE_W] && keyboardState[SDL_SCANCODE_W]) {
 						// Key W released
-						
 						 move = false;
 					}
 					if (!prevKeyboardState[SDL_SCANCODE_S] && keyboardState[SDL_SCANCODE_S]) {
 						// Key S released
-						
 						move = false;
 					}
 					if (!prevKeyboardState[SDL_SCANCODE_A] && keyboardState[SDL_SCANCODE_A]) {
 						// Key A released
-						
 						move = false;
 					}
 					if (!prevKeyboardState[SDL_SCANCODE_D] && keyboardState[SDL_SCANCODE_D]) {
 						// Key D released
-						
 						move = false;
 					}
 				}
@@ -207,10 +202,8 @@ int main(int argc, char *argv[]) {
 		IceEngine::set_clear_color({ 0, 128, 0, 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
-        //rotationAngle += 1.0f;
-		
-		
-	
+      
+
 		for (const auto& sprite: sprites) {
 			// Pass matrices to the shader
 			shader.use();

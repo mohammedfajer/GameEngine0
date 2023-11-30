@@ -1,0 +1,33 @@
+
+
+Engine
+	[X] Orthographic Camera
+	[] Entity Component System
+	[] Scene
+	[] Scene Graph
+	[] Scene Manager
+		- State Machine
+	[] Resource Manager / Asset Manager
+	[] Profiling
+	[] Rigid Body Physics
+	[] Tiles and Tilemap
+	[] Camera System
+	[] Texture Atlasing
+	[] Animation System
+		- Camera Shake
+		- Movement (Follow Player)
+	[] Sprite Batching
+	[] Particles
+	[] Lights
+	[] Maps and Rooms
+	[] Data Structures and Algorithms
+	[] Cut Scenes
+	[] Text
+	[] Post Processing
+		- Rain
+		- Fog
+		- Clouds
+		- Noise
+	[] Multi-threading
+
+

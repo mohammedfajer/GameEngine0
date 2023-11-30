@@ -8,7 +8,8 @@ namespace IceEngine {
 	enum class LogLevel {
 		SUCCESS,
 		INFO,
-		ERROR
+		ERROR,
+		RESET
 	};
 
 	class Logger {

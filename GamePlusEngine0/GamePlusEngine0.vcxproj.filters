@@ -25,6 +25,9 @@
     <Filter Include="Source Files\Engine\Core">
       <UniqueIdentifier>{3b8a5ea1-ff8d-48fb-ac8e-260833b62df6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Input">
+      <UniqueIdentifier>{b5f50c75-f442-40f4-976a-eed06e692d75}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -44,6 +47,9 @@
     </ClCompile>
     <ClCompile Include="Texture2D.cpp">
       <Filter>Source Files\Engine\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="InputManager.cpp">
+      <Filter>Source Files\Engine\Input</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,5 +77,11 @@
     <ClInclude Include="Color.h">
       <Filter>Source Files\Engine\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="InputManager.h">
+      <Filter>Source Files\Engine\Input</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="changeLog.txt" />
   </ItemGroup>
 </Project>

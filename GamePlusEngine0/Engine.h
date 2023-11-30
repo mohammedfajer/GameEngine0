@@ -3,8 +3,8 @@
 #include <SDL.h>
 #include <GL/glew.h>
 
-#define SCREEN_WIDTH 1024
-#define SCREEN_HEIGHT 768
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
 
 namespace IceEngine {
 	
@@ -19,6 +19,8 @@ namespace IceEngine {
 		void Start();
 		void Update();
 		void Shutdown();
+
+		void Run();
 
 
 		// Disable copy and move operations
