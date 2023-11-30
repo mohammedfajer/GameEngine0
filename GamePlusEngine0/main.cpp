@@ -3,7 +3,11 @@
 #include <SDL.h>
 
 #include <GL/glew.h>
+
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 
 #include <stdint.h>
@@ -22,9 +26,14 @@ std::string vertex_shader = R"(
     out vec3 ourColor;
     out vec2 TexCoord;
 
+    uniform mat4 projection;
+    uniform mat4 view;
+    uniform mat4 model;
+    
+
 	void main()
 	{
-		gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+		gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
         ourColor = aColor;
         TexCoord = aTexCoord;
     }
@@ -157,15 +166,20 @@ namespace Engine {
 
         void use() {glUseProgram(id);}
 
-        void set_bool(std::string &name, bool value) {
+        void set_bool(const std::string &name, bool value) {
             glUniform1i(glGetUniformLocation(id, name.c_str()), (int)value);
         }
 
-        void set_int (std::string &name, int value) {
+        void set_int (const std::string &name, int value) {
             glUniform1i(glGetUniformLocation(id, name.c_str()), value);
         }
-        void set_float (std::string &name, float value) {
+        void set_float (const std::string &name, float value) {
             glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+        }
+
+        void set_mat4 (const std::string &name, glm::mat4 mat) {
+			int matLoc = glGetUniformLocation(id, name.c_str());
+			glUniformMatrix4fv(matLoc, 1, GL_FALSE, glm::value_ptr(mat));
         }
     };
 
@@ -256,50 +270,10 @@ int main(int argc, char *argv[]) {
     // Shader
 
     // Compile
-    uint32_t vertex_shader_id = glCreateShader(GL_VERTEX_SHADER);
-	const char* vs = vertex_shader.c_str();
-	const GLchar** vs_string = &vs;
-    glShaderSource(vertex_shader_id, 1, vs_string, NULL);
-    glCompileShader(vertex_shader_id);
+    Engine::Shader shader(vertex_shader, fragment_shader);
 
-    int success;
-    char info_log[512];
-    glGetShaderiv(vertex_shader_id, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        glGetShaderInfoLog(vertex_shader_id, 512, NULL, info_log);
-        std::cerr << "Error::Shader::Vertex::Compilation_Failed\n" << info_log << "\n";
-    }
 
-    uint32_t fragment_shader_id = glCreateShader(GL_FRAGMENT_SHADER);
-    const char* fs = fragment_shader.c_str();
-	const GLchar** fs_string = &fs;
-    glShaderSource(fragment_shader_id, 1, fs_string, NULL);
-    glCompileShader(fragment_shader_id);
-
-    glGetShaderiv(fragment_shader_id, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        glGetShaderInfoLog(fragment_shader_id, 512, NULL, info_log);
-        std::cerr << "Error::Shader::Fragment::Compilation_Failed\n" << info_log << "\n";
-    }
-
-    // Link
-    uint32_t shader_program = glCreateProgram();
-    glAttachShader(shader_program, vertex_shader_id);
-    glAttachShader(shader_program, fragment_shader_id);
-    glLinkProgram(shader_program);
-
-    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
-    if(!success) {
-        glGetProgramInfoLog(shader_program, 512, NULL, info_log);
-        std::cerr << "Error::ShaderProgram::Linking_Failed\n" << info_log << "\n";
-    }
-    
-    glDeleteShader(vertex_shader_id);
-    glDeleteShader(fragment_shader_id);
-
-    // Textured Quad
-  
-    
+    // Textured Quad  
     // Generate Texture
     uint32_t texture;
     glGenTextures(1, &texture);
@@ -328,20 +302,67 @@ int main(int argc, char *argv[]) {
 
 	// Main Loop
 	bool quit = false;
+
+    // Orthographic projection paramters
+    float left = 0.0f;
+    float right = 800.0f;
+    float bottom = 600.0f;
+
+    float top = 0.0f;
+    float nearPlane = -1.0f;
+    float farPlane = 1.0f;
+
+    // Camera position
+    float cameraX = 0.0f;
+    float cameraY = 0.0f;
+
+    glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 1.0f);   // Z = 1.0 for 2D
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f); // Look at the origin
+    glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);      // Up vector in the positive Y direction
+
+    // Object position and scale
+    float objectX = 100.0f;
+    float objectY = 100.0f;
+    float objectScaleX = 100.0;
+    float objectScaleY = 100.0;
+    float rotationAngle = 0.0f;
+
 	while (!quit) {
 		SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) quit = true;
 		}
 
+		// Update orthographic projection matrix
+		glm::mat4 projection = glm::ortho(left, right, bottom, top, nearPlane, farPlane);
+
+		// Update view matrix for the "camera"
+		glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(-cameraX, -cameraY, 1.0f));
+        //glm::mat4 view = glm::lookAt(cameraPos, cameraTarget, cameraUp);
+
+		// Update model matrix for the object
+		
+
+		glm::mat4 model = glm::mat4(1.0f);
+		model = glm::translate(model, glm::vec3(objectX, objectY, 0.0f));
+        model = glm::rotate(model, glm::radians(rotationAngle), glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(objectScaleX, objectScaleY, 1.0f));
+
+        rotationAngle += 1.0f;
+
+		// Pass matrices to the shader
+		shader.use();
+		shader.set_mat4("projection", projection);
+		shader.set_mat4("view", view);
+		shader.set_mat4("model", model);
+
 		// Rendering code goes here
 		Engine::set_clear_color({ 0, 128, 0, 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shader_program);
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glBindVertexArray(VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		SDL_GL_SwapWindow(window);
 	}
