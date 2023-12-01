@@ -1,34 +1,37 @@
 #include "Engine.h"
 #include "Logger.h"
-
-
-
 #include <string>
 
-
 #include "Timer.h"
+#include "InputManager.h"
+#include "SceneManager.h"
+#include "GameScene.h"
+#include "Color.h"
 
-namespace IceEngine {
-
-	
-	Engine& Engine::GetInstance() {
+namespace IceEngine 
+{
+	Engine &Engine::Instance() 
+	{
 		static Engine instance;
 		return instance;
 	}
 
 	void Engine::Start()
 	{
-		Logger::GetInstance().Log("Starting Engine");
+		Logger::Instance().Log("Starting Engine");
 
-		InitSDL();
-		CreateWindow("Game", SCREEN_WIDTH, SCREEN_HEIGHT);
-		InitGLContext();
-		InitGLEW();
+		m_window = new Window("Game", SCREEN_WIDTH, SCREEN_HEIGHT);
 
-		// Check OpenGL Version
-		const char* version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
-		if (version)
-			Logger::GetInstance().Log("OpenGL Version " + std::string(version));
+		
+
+		//// Starting Scene the game ...
+		//Scene* gameScene = new TopDownShooter::GameScene();
+		//SceneManager::Instance().AddScene("Game", gameScene);
+
+		//// Set the active Scene
+		//SceneManager::Instance().SetActiveScene("Game");
+
+		
 
 		// Enable blending
 		glEnable(GL_BLEND);
@@ -37,51 +40,44 @@ namespace IceEngine {
 
 	void Engine::Update()
 	{
-		
 	}
-
-
 
 	void Engine::Shutdown()
 	{
-		Logger::GetInstance().Log("Shutting Down Engine");
-		Logger::GetInstance().Log("", LogLevel::RESET);
+		Logger::Instance().Log("Shutting Down Engine");
+		Logger::Instance().Log("", LogLevel::RESET);
 	}
 
-	void Engine::Run() {
+	void Engine::Run() 
+	{
+		InputManager::Instance().Update();
+
 		float dt = Timer::Instance().Tick();
+		m_window->Update();
+		
+		SceneManager::Instance().UpdateCurrentScene(dt);
+		// Collision and other systems
+		AfterUpdate();
+		Render();
+	}
+
+	void Engine::AfterUpdate()
+	{
+	}
+
+	void Engine::Render()
+	{
+		Color::SetClearColor({ 66, 135, 245 , 255 });
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		SDL_GL_SwapWindow(m_window->GetWindow());
 	}
 
 
-	void Engine::InitSDL() {
-		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-			Logger::GetInstance().Log("SDL Initialization Failed : " + std::string(SDL_GetError()), LogLevel::ERROR);
-			HaltQuit();
-		}
-	}
-
-	void Engine::CreateWindow(const char* title, int width, int height) {
-		m_window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
-			SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
-
-		if (!m_window) {
-			Logger::GetInstance().Log("Window Creation Failed : " + std::string(SDL_GetError()), LogLevel::ERROR);
-			HaltQuit();
-		}
-	}
-
-	void Engine::InitGLContext() {
-		// Create an OpenGL Context
-		m_glContext = SDL_GL_CreateContext(m_window);
-	}
-
-	void Engine::InitGLEW() {
-		// Initialize GLEW
-		GLenum glewError = glewInit();
-		if (glewError != GLEW_OK) {
-			Logger::GetInstance().Log("GLEW Initialization Failed : " + std::string(SDL_GetError()), LogLevel::ERROR);
-			HaltQuit();
-		}
+	Engine::~Engine()
+	{
+		if(m_window)
+			delete m_window;
 	}
 }
 

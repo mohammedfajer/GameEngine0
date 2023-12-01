@@ -14,7 +14,7 @@ namespace IceEngine {
 
 	class Logger {
 	public:
-		static Logger& GetInstance();
+		static Logger& Instance();
 		static void Log(std::string message, LogLevel level = LogLevel::INFO);
 	
 		// Disable copy and move operations

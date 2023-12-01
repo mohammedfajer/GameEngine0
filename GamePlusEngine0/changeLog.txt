@@ -2,7 +2,7 @@
 
 Engine
 	[X] Orthographic Camera
-	[ ] InputManager
+	[x] InputManager
 	[] Entity Component System
 	[] Scene
 	[] Scene Graph

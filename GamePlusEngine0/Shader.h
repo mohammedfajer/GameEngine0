@@ -59,14 +59,14 @@ namespace IceEngine {
 					if (!success) {
 						glGetShaderInfoLog(shader, 512, NULL, info_log);
 
-						Logger::GetInstance().Log("Error::Shader::Compilation_Failed" + std::string(info_log), LogLevel::ERROR);
+						Logger::Instance().Log("Error::Shader::Compilation_Failed" + std::string(info_log), LogLevel::ERROR);
 					}
 				}
 				else {
 					glGetProgramiv(shader, GL_LINK_STATUS, &success);
 					if (!success) {
 						glGetProgramInfoLog(shader, 512, NULL, info_log);
-						Logger::GetInstance().Log("Error::Shader::Linking_Failed" + std::string(info_log), LogLevel::ERROR);
+						Logger::Instance().Log("Error::Shader::Linking_Failed" + std::string(info_log), LogLevel::ERROR);
 					}
 				}
 			};

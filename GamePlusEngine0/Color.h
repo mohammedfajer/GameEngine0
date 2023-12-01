@@ -36,29 +36,16 @@ namespace IceEngine {
 			result[3] = a / 255.0f;
 			return result;
 		}
+
+		// Wrapper function to use glClearColor with a Color object
+		static void SetClearColor(Color& c) {
+			auto values = c.flat_list();
+			glClearColor(values[0], values[1], values[2], values[3]);
+		}
+
+		static void SetClearColor(std::initializer_list<uint8_t> values) {
+			auto c = Color(values);
+			SetClearColor(c);
+		}
 	};
-
-	// Wrapper function to use glClearColor with a Color object
-	void set_clear_color(Color& c) {
-		auto values = c.flat_list();
-		glClearColor(values[0], values[1], values[2], values[3]);
-	}
-
-	void set_clear_color(std::initializer_list<uint8_t> values) {
-		auto c = Color(values);
-		set_clear_color(c);
-	}
-
-	//// Base case for the variadic template
-	//void set_clear_color() {}
-
-	//// Helper function for the variadic template
-	//template<typename T, typename... Args>
-	//void set_clear_color(const T& arg, Args... args) {
-	//	set_clear_color(arg);
-	//	set_clear_color(args...);
-	//}
-
-
-
 }

@@ -12,7 +12,7 @@ namespace IceEngine {
 	InputManager::InputManager() {
 		m_isKeyRepeat = false;
 		if (SDL_InitSubSystem(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
-			Logger::GetInstance().Log("Failed to initialize input subsystem", LogLevel::ERROR);
+			Logger::Instance().Log("Failed to initialize input subsystem", LogLevel::ERROR);
 		}
 	}
 

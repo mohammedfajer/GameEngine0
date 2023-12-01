@@ -1,0 +1,1 @@
+#include "SpriteRendererSystem.h"
