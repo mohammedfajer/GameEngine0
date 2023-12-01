@@ -34,6 +34,7 @@ namespace IceEngine {
 		Uint8 m_keyboardState	[SDL_NUM_SCANCODES];
 		Uint32 m_mouseState		[8];
 		glm::vec2 m_mousePosition;
+		bool m_isKeyRepeat;
 		Uint8 m_gamepadState	[SDL_CONTROLLER_BUTTON_MAX];
 	private:
 		InputManager();

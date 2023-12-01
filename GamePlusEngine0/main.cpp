@@ -1,4 +1,3 @@
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,8 +13,7 @@
 #include "OrthographicCamera.h"
 #include "Texture2D.h"
 #include "Color.h"
-
-
+#include "InputManager.h"
 
 int main(int argc, char *argv[]) {
 
@@ -109,12 +107,19 @@ int main(int argc, char *argv[]) {
 
 	while (!quit) {
 
-		SDL_Event event;
+		/*SDL_Event event;
 		while (SDL_PollEvent(&event)) {
 			if (event.type == SDL_QUIT) quit = true;
-		}
+		}*/
+		
+		IceEngine::InputManager::Instance().Update();
 
+		glm::vec2 position = IceEngine::InputManager::Instance().GetMousePosition();
+		IceEngine::Logger::GetInstance().Log("Mouse Pos = (" + std::to_string(position.x) + "," + std::to_string(position.y) + ")");
 
+		
+		
+		
 		float deltaTime = IceEngine::Timer::Instance().Tick();
 
 		// calculate FPS
@@ -164,6 +169,33 @@ int main(int argc, char *argv[]) {
 						move = false;
 					}
 				}
+
+				SDL_GameController *gameController = NULL;
+				for(int i=0; i<SDL_NumJoysticks(); i++) {
+					if(SDL_IsGameController(i)) {
+						gameController = SDL_GameControllerOpen(i);
+						if(gameController) {
+							break;
+						}
+					}
+				}
+
+				if(gameController) {
+					float horizontalMovement = SDL_GameControllerGetAxis(gameController,SDL_CONTROLLER_AXIS_LEFTX)/32767.0f;
+					float threshold = 0.2f;
+
+					IceEngine::InputManager &input = IceEngine::InputManager::Instance();
+					
+					if(horizontalMovement < -threshold) {
+					
+					}
+
+						if(input.IsGamepadButtonDown(SDL_CONTROLLER_BUTTON_A)) {
+							sprite.position.x -= speed * 0.016f;
+						}
+				}
+
+				
 				
 
 				if (keyboardState[SDL_SCANCODE_W]) {
@@ -199,10 +231,11 @@ int main(int argc, char *argv[]) {
 
 
 		// Rendering code goes here
-		IceEngine::set_clear_color({ 0, 128, 0, 255 });
+		IceEngine::set_clear_color({ 73, 130, 55, 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
-      
+
+		
 
 		for (const auto& sprite: sprites) {
 			// Pass matrices to the shader
