@@ -14,7 +14,7 @@ namespace IceEngine
 		
 		const std::string& GetName() const { return m_name; }
 
-		void Update(float deltaTime) 
+		virtual void Update(float deltaTime) 
 		{
 			for (auto& gameObject : m_gameObjects) 
 			{
@@ -29,6 +29,7 @@ namespace IceEngine
 				delete gameObject;
 			}	
 		}
+
 	protected:
 		std::string m_name;
 		std::vector<GameObject*> m_gameObjects;

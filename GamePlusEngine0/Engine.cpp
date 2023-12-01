@@ -22,20 +22,19 @@ namespace IceEngine
 
 		m_window = new Window("Game", SCREEN_WIDTH, SCREEN_HEIGHT);
 
-		
+		// Starting Scene the game ...
+		Scene* gameScene = new TopDownShooter::GameScene();
+		SceneManager::Instance().AddScene("Game", gameScene);
 
-		//// Starting Scene the game ...
-		//Scene* gameScene = new TopDownShooter::GameScene();
-		//SceneManager::Instance().AddScene("Game", gameScene);
-
-		//// Set the active Scene
-		//SceneManager::Instance().SetActiveScene("Game");
-
-		
+		// Set the active Scene
+		SceneManager::Instance().SetActiveScene("Game");
 
 		// Enable blending
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		m_running = true;
+		
 	}
 
 	void Engine::Update()
@@ -50,14 +49,16 @@ namespace IceEngine
 
 	void Engine::Run() 
 	{
+		float dt = Timer::Instance().Tick();
+
 		InputManager::Instance().Update();
 
-		float dt = Timer::Instance().Tick();
 		m_window->Update();
 		
 		SceneManager::Instance().UpdateCurrentScene(dt);
-		// Collision and other systems
+
 		AfterUpdate();
+		
 		Render();
 	}
 

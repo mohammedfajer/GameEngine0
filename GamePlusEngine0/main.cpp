@@ -5,9 +5,8 @@ int main(int argc, char *argv[])
 	IceEngine::Engine::Instance().Start();
 
 	// Main Loop
-	bool quit = false;
 
-	while (!quit)
+	while (IceEngine::Engine::Instance().m_running)
 	{
 		IceEngine::Engine::Instance().Run();
 	}

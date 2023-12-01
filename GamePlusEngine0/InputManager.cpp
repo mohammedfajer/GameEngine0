@@ -1,37 +1,45 @@
 #include "InputManager.h"
-
 #include "Logger.h"
+#include "Engine.h"
 
-namespace IceEngine {
-
-	InputManager& InputManager::Instance() {
+namespace IceEngine 
+{
+	InputManager& InputManager::Instance() 
+	{
 		static InputManager instance;
 		return instance;
 	}
 	
-	InputManager::InputManager() {
+	InputManager::InputManager() 
+	{
 		m_isKeyRepeat = false;
-		if (SDL_InitSubSystem(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) {
+		m_signalQuit = false;
+		if (SDL_InitSubSystem(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER) < 0) 
+		{
 			Logger::Instance().Log("Failed to initialize input subsystem", LogLevel::ERROR);
 		}
 	}
 
-	InputManager::~InputManager() {
+	InputManager::~InputManager() 
+	{
 		SDL_QuitSubSystem(SDL_INIT_EVENTS | SDL_INIT_GAMECONTROLLER);
 	}
 
-	void InputManager::Update() {
+	void InputManager::Update() 
+	{
 		SDL_Event event;
-		while(SDL_PollEvent(&event)) {
+		while(SDL_PollEvent(&event)) 
+		{
 			HandleEvent(event);
 		}
 	}
 
-	void InputManager::HandleEvent(SDL_Event &event) {
+	void InputManager::HandleEvent(SDL_Event &event) 
+	{
 		switch(event.type) {
 
 		case SDL_QUIT:
-			exit(0);
+			m_signalQuit = true;
 			break;
 			
 		case SDL_KEYDOWN:
@@ -55,50 +63,63 @@ namespace IceEngine {
 		}
 	}
 
-	void InputManager::HandleKeyboardEvent(SDL_Event &event) {
-		if(event.key.repeat == 0) {
+	void InputManager::HandleKeyboardEvent(SDL_Event &event) 
+	{
+		if(event.key.repeat == 0) 
+		{
 			m_keyboardState[event.key.keysym.scancode] = (event.type == SDL_KEYDOWN) ? 1: 0;
- 		} else {
+ 		} 
+		else 
+		{
 			m_isKeyRepeat = true;
 		}
 	}
 
-	void InputManager::HandleMouseEvent(SDL_Event &event) {
-		if(event.type == SDL_MOUSEMOTION) {
+	void InputManager::HandleMouseEvent(SDL_Event &event) 
+	{
+		if(event.type == SDL_MOUSEMOTION) 
+		{
 			m_mousePosition = glm::vec2(event.motion.x, event.motion.y);
-		} else {
+		} 
+		else 
+		{
 			m_mouseState [event.button.button] = event.button.state;
 		}
 	}
 
-	void InputManager::HandleGamepadEvent(SDL_Event &event) {
+	void InputManager::HandleGamepadEvent(SDL_Event &event)
+	{
 		m_gamepadState[event.cbutton.button] = event.cbutton.state;
 	}
 
-	
-	bool InputManager::IsKeyDown(SDL_Scancode key) const {
+	bool InputManager::IsKeyDown(SDL_Scancode key) const 
+	{
 		return m_keyboardState[key] == 1;
 	}
 
-	bool InputManager::IsKeyUp(SDL_Scancode key) const {
+	bool InputManager::IsKeyUp(SDL_Scancode key) const 
+	{
 		return m_keyboardState[key] == 0;
 	}
 
-	bool InputManager::IsMouseButtonDown(Uint8 button) const {
+	bool InputManager::IsMouseButtonDown(Uint8 button) const 
+	{
 		return m_mouseState[button] == SDL_PRESSED;
 	}
 
-	bool InputManager::IsMouseButtonUp(Uint8 button) const {
+	bool InputManager::IsMouseButtonUp(Uint8 button) const 
+	{
 		return m_mouseState[button] == SDL_RELEASED;
 	}
 
-	bool InputManager::IsGamepadButtonDown(SDL_GameControllerButton button) const {
+	bool InputManager::IsGamepadButtonDown(SDL_GameControllerButton button) const 
+	{
 		return m_gamepadState[button] == SDL_PRESSED;
 	}
 
-	bool InputManager::IsGamepadButtonUp(SDL_GameControllerButton button) const {
+	bool InputManager::IsGamepadButtonUp(SDL_GameControllerButton button) const 
+	{
 		return m_gamepadState[button] == SDL_RELEASED;
 	}
-
 }
 

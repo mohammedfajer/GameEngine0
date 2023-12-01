@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <memory>
 
 #include "Component.h"
 
@@ -11,29 +12,26 @@ namespace IceEngine
 	class GameObject 
 	{
 	public:
-
-		template<typename T>
-		T* AddComponent() 
-		{
-			T* newComponent = new T();
-			m_components[typeid(T).name()] = newComponent;
-			return newComponent;
-		}
-
-		
 		template<typename T, typename... Args>
-		T* AddComponent(Args&&... args) 
+		T* AddComponent(Args&&... args)
 		{
-			T* newComponent = new T(std::forward<Args>(args)...);
-			m_components[typeid(T).name()] = newComponent;
-			return newComponent;
+			std::unique_ptr<T> newComponent = std::make_unique<T>(std::forward<Args>(args)...);
+			m_components[typeid(T).name()] = std::move(newComponent);
+
+			return dynamic_cast<T*>(m_components[typeid(T).name()].get());
 		}
 
-		template<typename T>
+		template <typename T>
 		T* GetComponent() const 
 		{
 			auto it = m_components.find(typeid(T).name());
-			return it != m_components.end() ? dynamic_cast<T*>(it->second) : nullptr;
+			if (it != m_components.end()) 
+			{
+				Component* baseComponent = it->second.get();
+				// Use dynamic_cast to check if the cast is valid
+				return dynamic_cast<T*>(baseComponent);
+			}
+			return nullptr;
 		}
 
 		void Update(float deltaTime) 
@@ -44,22 +42,15 @@ namespace IceEngine
 			}
 		}
 
-		~GameObject() 
-		{
-			for (auto& pair : m_components) 
-			{
-				delete pair.second;
-			}
-		}
+		~GameObject() = default;
 
-		void SetName(std::string name) { m_name = name;  }
-
-
+		void SetName(std::string name) { m_name = name; }
 	private:
 		std::string m_name;
 		std::string m_tag;
 		std::string m_layer;
-		std::unordered_map<std::string, Component*> m_components;
+		std::unordered_map<std::string, std::unique_ptr<Component>> m_components;
+		std::vector<std::unique_ptr<GameObject>> m_children;
 	};
 
 }

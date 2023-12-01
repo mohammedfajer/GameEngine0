@@ -5,12 +5,28 @@
 #include "TransformComponent.h"
 #include "SpriteRendererComponent.h"
 
+#include "SpriteRendererSystem.h"
+#include "OrthographicCameraComponent.h"
 
 namespace TopDownShooter 
 {
 	GameScene::GameScene()
 	{
 		m_name = "Game";
+
+		// Create and set up the SpriteRendererSystem
+		m_spriteRendererSystem = new IceEngine::SpriteRendererSystem();
+
+		// Assuming you have a shader ready, set it in the SpriteRendererSystem
+		IceEngine::Shader* spriteShader = new IceEngine::Shader("vertex_shader.glsl", "fragment_shader.glsl");
+		m_spriteRendererSystem->SetShader(spriteShader);
+
+		IceEngine::GameObject* object = new IceEngine::GameObject();
+		object->SetName("Camera");
+		object->AddComponent<IceEngine::TransformComponent>()->position = glm::vec2(0.0f, 0.0f);
+		object->AddComponent<IceEngine::OrthographicCameraComponent>(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f)->zoom = 1.0f;
+		AddGameObject(object);
+		
 
 		// Game Objects
 		
@@ -35,5 +51,28 @@ namespace TopDownShooter
 		object1->AddComponent<IceEngine::SpriteRendererComponent>("./data/plane_1_pink.png");
 		AddGameObject(object1);
 	}
+
+	GameScene::~GameScene()
+	{
+		// Clean up resources
+		delete m_spriteRendererSystem;
+	}
+
+
+	// Override the Update function if needed
+	void GameScene::Update(float deltaTime) 
+	{
+		// Update the base scene
+		Scene::Update(deltaTime);
+
+		// Additional updates specific to the GameScene if needed
+
+		// Render game objects using the SpriteRendererSystem
+		for (auto& gameObject : m_gameObjects)
+		{
+			m_spriteRendererSystem->RenderGameObject(*gameObject);
+		}
+	}
+
 }
 

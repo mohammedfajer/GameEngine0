@@ -3,6 +3,8 @@
 #include "Logger.h"
 
 #include "Color.h"
+#include "InputManager.h"
+#include "Engine.h"
 
 namespace IceEngine {
 
@@ -22,6 +24,15 @@ namespace IceEngine {
 
 	void Window::Update()
 	{
+		if (InputManager::Instance().m_signalQuit) 
+		{
+			IceEngine::Engine::Instance().m_running = false;
+		}
+
+		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_ESCAPE))
+		{
+			IceEngine::Engine::Instance().m_running = false;
+		}
 	}
 	
 	void Window::InitSDL()

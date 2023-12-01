@@ -1,5 +1,9 @@
 #pragma once
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <stdint.h>
 #include <string>
 
@@ -7,73 +11,73 @@
 
 #include "Logger.h"
 
-std::string vertex_shader = R"(
-	#version 330 core
-	layout (location = 0) in vec3 aPos;
-    layout (location = 1) in vec3 aColor;
-    layout (location = 2) in vec2 aTexCoord;
+#include <fstream>
+#include <sstream>
+#include <cstring>  // Include the cstring header for strcpy
 
-    out vec3 ourColor;
-    out vec2 TexCoord;
 
-    uniform mat4 projection;
-    uniform mat4 view;
-    uniform mat4 model;
-    
-
-	void main()
+namespace IceEngine 
+{
+	struct Shader 
 	{
-		gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
-        ourColor = aColor;
-        TexCoord = aTexCoord;
-    }
-)";
-
-std::string fragment_shader = R"(
-	#version 330 core
-	out vec4 FragColor;
-
-    in vec3 ourColor;
-    in vec2 TexCoord;
-
-    uniform sampler2D ourTexture;
-
-	void main()
-	{
-		FragColor = texture(ourTexture, TexCoord) ; //* vec4(ourColor, 1.0);
-	}
-)";
-
-namespace IceEngine {
-
-	struct Shader {
-
 		uint32_t id = 0;
 
-		Shader(std::string vertex_source, std::string fragment_source) {
-			auto check_error = [](uint32_t shader, std::string type) {
+		const char* LoadShaderFromFile(const char* filePath)
+		{
+			std::ifstream file(filePath);
+
+			if (!file.is_open())
+			{
+				Logger::Instance().Log("Error opening file: " + std::string(filePath), LogLevel::ERROR);
+				return nullptr;
+			}
+
+			// Read the entire file into a stringstream
+			std::stringstream stream;
+			stream << file.rdbuf();
+
+			// Allocate memory for a C-style string and copy the contents
+			std::string shaderSource = stream.str();
+			char* shaderSourceCStr = new char[shaderSource.length() + 1];
+
+			// Use strcpy_s instead of strcpy
+			strcpy_s(shaderSourceCStr, shaderSource.length() + 1, shaderSource.c_str());
+
+			file.close();
+
+			return shaderSourceCStr;
+		}
+
+
+		Shader(std::string vertexShaderFilePath, std::string fragmentShaderFilePath) 
+		{
+			auto check_error = [](uint32_t shader, std::string type) 
+			{
 				int success;
 				char info_log[512];
-				if (type == "program") {
+				if (type == "program") 
+				{
 					glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-					if (!success) {
+					if (!success) 
+					{
 						glGetShaderInfoLog(shader, 512, NULL, info_log);
-
 						Logger::Instance().Log("Error::Shader::Compilation_Failed" + std::string(info_log), LogLevel::ERROR);
 					}
 				}
-				else {
+				else 
+				{
 					glGetProgramiv(shader, GL_LINK_STATUS, &success);
-					if (!success) {
+					if (!success) 
+					{
 						glGetProgramInfoLog(shader, 512, NULL, info_log);
 						Logger::Instance().Log("Error::Shader::Linking_Failed" + std::string(info_log), LogLevel::ERROR);
 					}
 				}
 			};
 
-			const char* vs = vertex_shader.c_str();
+			const char* vs = LoadShaderFromFile(vertexShaderFilePath.c_str());
 			const GLchar** vs_string = &vs;
-			const char* fs = fragment_shader.c_str();
+			const char* fs = LoadShaderFromFile(fragmentShaderFilePath.c_str());
 			const GLchar** fs_string = &fs;
 
 			uint32_t vertex_shader_id, fragment_shader_id;
@@ -103,20 +107,27 @@ namespace IceEngine {
 			glDeleteShader(fragment_shader_id);
 		}
 
-		void use() { glUseProgram(id); }
+		void Bind() { glUseProgram(id); }
 
-		void set_bool(const std::string& name, bool value) {
+		void UnBind() { glUseProgram(0); }
+
+		void SetBool(const std::string& name, bool value) 
+		{
 			glUniform1i(glGetUniformLocation(id, name.c_str()), (int)value);
 		}
 
-		void set_int(const std::string& name, int value) {
+		void SetInt(const std::string& name, int value)
+		{
 			glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 		}
-		void set_float(const std::string& name, float value) {
+
+		void SetFloat(const std::string& name, float value) 
+		{
 			glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 		}
 
-		void set_mat4(const std::string& name, glm::mat4 mat) {
+		void SetMat4(const std::string& name, glm::mat4 mat) 
+		{
 			int matLoc = glGetUniformLocation(id, name.c_str());
 			glUniformMatrix4fv(matLoc, 1, GL_FALSE, glm::value_ptr(mat));
 		}
