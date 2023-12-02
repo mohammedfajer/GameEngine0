@@ -55,6 +55,15 @@
     <Filter Include="Resource Files\Shaders">
       <UniqueIdentifier>{5a42afa6-bd78-434a-89a0-d818a7c0eb7a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Editors">
+      <UniqueIdentifier>{4d713b41-4400-46a7-8a44-263cedb10ff1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Tilemaps">
+      <UniqueIdentifier>{368d021e-c63c-42cc-98e3-79ba56128233}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Resources">
+      <UniqueIdentifier>{88fa133f-8b12-4c3a-946f-acbc5b591cbc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -110,6 +119,12 @@
     </ClCompile>
     <ClCompile Include="VertexBuffer.cpp">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="TileMapEditor.cpp">
+      <Filter>Source Files\Editors</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>Source Files\Engine\Resources</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -188,9 +203,15 @@
     <ClInclude Include="VertexBuffer.h">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
     </ClInclude>
+    <ClInclude Include="FileIO.h">
+      <Filter>Source Files\Engine\Resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="changeLog.txt" />
+    <Text Include="Map0.txt">
+      <Filter>Resource Files\Tilemaps</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <None Include="vertex_shader.glsl">

@@ -23,6 +23,7 @@ namespace IceEngine {
 		}
 
 		logger.Log("Loading texture " + filePath);
+		logger.Log("");
 
 		Texture2D texture;
 		glGenTextures(1, &texture.id);
@@ -32,9 +33,12 @@ namespace IceEngine {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
 
-		stbi_set_flip_vertically_on_load(true);
+		stbi_set_flip_vertically_on_load(false);
 		unsigned char* data = stbi_load(filePath.c_str(), &texture.width, &texture.height, &texture.nrChannels, 0);
 		if (data) {
+			
+			
+
 			GLenum format = (texture.nrChannels == 4) ? GL_RGBA : GL_RGB;
 			GLenum internalFormat = (format == GL_RGBA) ? GL_RGBA : GL_RGB;
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width, texture.height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -46,7 +50,11 @@ namespace IceEngine {
 		else {
 			logger.Log("Failed to load texture from " + filePath, LogLevel::ERROR);
 		}
+		
 		logger.Log("Successfully loaded texture " + filePath, LogLevel::SUCCESS);
+		logger.Log("Texture Width = " + std::to_string(texture.width) + " Height = " + std::to_string(texture.height));
+		logger.Log("");
+
 		stbi_image_free(data);
 
 		return texture;

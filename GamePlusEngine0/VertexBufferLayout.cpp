@@ -1,10 +1,8 @@
 #include "VertexBufferLayout.h"
-
 #include <GL/glew.h>
 
 namespace IceEngine
 {
-
 	VertexBufferLayout::VertexBufferLayout()
 	{
 	}
@@ -32,5 +30,4 @@ namespace IceEngine
 
 		m_stride += count * VertexBufferElement::GetSizeOfType(GL_UNSIGNED_BYTE);
 	}
-
 }

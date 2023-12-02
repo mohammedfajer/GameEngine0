@@ -11,10 +11,8 @@
 
 #include "Logger.h"
 
-#include <fstream>
-#include <sstream>
-#include <cstring>  // Include the cstring header for strcpy
 
+#include "FileIO.h"
 
 namespace IceEngine 
 {
@@ -24,28 +22,11 @@ namespace IceEngine
 
 		const char* LoadShaderFromFile(const char* filePath)
 		{
-			std::ifstream file(filePath);
+		
+			const char* shaderSourceCStr = LoadTextFile(filePath);
 
-			if (!file.is_open())
-			{
-				Logger::Instance().Log("Error opening file: " + std::string(filePath), LogLevel::ERROR);
-				return nullptr;
-			}
-
-			// Read the entire file into a stringstream
-			std::stringstream stream;
-			stream << file.rdbuf();
-
-			// Allocate memory for a C-style string and copy the contents
-			std::string shaderSource = stream.str();
-			char* shaderSourceCStr = new char[shaderSource.length() + 1];
-
-			// Use strcpy_s instead of strcpy
-			strcpy_s(shaderSourceCStr, shaderSource.length() + 1, shaderSource.c_str());
-
-			file.close();
-
-			Logger::Instance().Log("Successfully loaded shader file " + std::string(filePath), LogLevel::SUCCESS);
+			if(shaderSourceCStr)
+				Logger::Instance().Log("Successfully loaded shader file " + std::string(filePath), LogLevel::SUCCESS);
 
 			return shaderSourceCStr;
 		}

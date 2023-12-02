@@ -20,7 +20,4 @@ namespace IceEngine
 		std::vector<VertexBufferElement> m_elements;
 		uint32_t m_stride;
 	};
-
-	
-	
 }
