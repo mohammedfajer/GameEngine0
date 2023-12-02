@@ -14,6 +14,7 @@ namespace IceEngine
 		void AddScene(const std::string& sceneName, Scene* scene);
 		void SetActiveScene(const std::string& sceneName);
 		void UpdateCurrentScene(float deltaTime);
+		void RenderCurrentScene();
 	public:
 		// Disable copy and move operations
 		SceneManager(SceneManager const&) = delete;

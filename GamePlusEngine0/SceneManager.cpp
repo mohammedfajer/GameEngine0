@@ -32,11 +32,19 @@ namespace IceEngine
 		}
 	}
 
+	void SceneManager::RenderCurrentScene()
+	{
+		if (m_currentScene)
+		{
+			m_currentScene->Render();
+		}
+	}
+
 	SceneManager::~SceneManager()
 	{
-		for (auto& pair : m_scenes) 
+		/*for (auto& pair : m_scenes)
 		{
 			delete pair.second;
-		}
+		}*/
 	}
 }

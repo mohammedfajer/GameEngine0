@@ -45,6 +45,8 @@ namespace IceEngine
 
 			file.close();
 
+			Logger::Instance().Log("Successfully loaded shader file " + std::string(filePath), LogLevel::SUCCESS);
+
 			return shaderSourceCStr;
 		}
 

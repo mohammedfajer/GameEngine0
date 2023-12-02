@@ -2,9 +2,13 @@
 
 #include "TransformComponent.h"
 
+#include "SpriteRendererComponent.h"
+
 #include <vector>
 
 #include "VertexBuffer.h"
+
+
 
 
 namespace IceEngine
@@ -31,8 +35,12 @@ namespace IceEngine
 		vertexLayout.Push<float>(3);  // Color
 		vertexLayout.Push<float>(2);  // Texture Coordinates
 
+		m_vertexArray.Bind();
+
 		m_vertexBuffer.SetData(vertices.data(), vertices.size() * sizeof(Vertex));
+
 		m_vertexArray.AddBuffer(m_vertexBuffer, vertexLayout);
+		
 		m_indexBuffer.SetData(indices.data(), indices.size());
 	}
 
@@ -47,22 +55,27 @@ namespace IceEngine
 
 	void IceEngine::SpriteRendererSystem::RenderGameObject(GameObject& gameObject)
 	{
-		// Assuming you have a SpriteComponent (you might have different components)
-		TransformComponent* spriteComponent = gameObject.GetComponent<TransformComponent>();
+		
+		TransformComponent* transformComponent = gameObject.GetComponent<TransformComponent>();
+		SpriteRendererComponent* spriteComponent = gameObject.GetComponent<SpriteRendererComponent>();
 
-		if (spriteComponent)
+		if (transformComponent && spriteComponent)
 		{
+			m_shader->Bind();
+
 			// Bind necessary buffers
 			m_vertexArray.Bind();
 			m_indexBuffer.Bind();
 			m_vertexBuffer.Bind();
 
 			// Set shader uniforms, e.g., sprite position, size, etc.
-			m_shader->SetMat4("u_Model", spriteComponent->GetModelMatrix());
+			m_shader->SetMat4("model", transformComponent->GetModelMatrix());
+
+			glBindTexture(GL_TEXTURE_2D, spriteComponent->m_texture.id);
 
 			// Draw the sprite
 			// You'll need to customize this based on your rendering setup
-			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>( m_indexBuffer.GetCount()), GL_UNSIGNED_INT, nullptr);
+			glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(m_indexBuffer.GetCount()), GL_UNSIGNED_INT, 0);
 
 			// Unbind buffers
 			m_vertexArray.Unbind();

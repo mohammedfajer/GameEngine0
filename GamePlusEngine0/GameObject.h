@@ -42,6 +42,11 @@ namespace IceEngine
 			}
 		}
 
+		void Render()
+		{
+
+		}
+
 		~GameObject() = default;
 
 		void SetName(std::string name) { m_name = name; }

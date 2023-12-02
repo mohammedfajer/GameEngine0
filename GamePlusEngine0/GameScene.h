@@ -11,8 +11,11 @@ namespace TopDownShooter
 		GameScene();
 		~GameScene();
 		void Update(float deltaTime) override;
+		void Render() override;
 	private:
 		IceEngine::SpriteRendererSystem *m_spriteRendererSystem;
+		IceEngine::Shader* spriteShader;
+		IceEngine::GameObject* CameraGameObject;
 	};
 }
 

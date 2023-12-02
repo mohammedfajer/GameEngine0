@@ -24,6 +24,8 @@ namespace IceEngine
 	}
 	void IndexBuffer::SetData(const uint32_t* data, size_t count)
 	{
+		m_count = count;
+
 		glGenBuffers(1, &m_EBO_ID);
 
 		Bind();

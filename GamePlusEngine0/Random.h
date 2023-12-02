@@ -3,9 +3,9 @@
 #include <glm/glm.hpp>
 #include <random>
 
-namespace IceEngine {
-
-	glm::vec2 GetRandomPosition(float minX, float maxX, float minY, float maxY, float minDistance) 
+namespace IceEngine 
+{
+	glm::vec2 GetRandomPosition(float minX, float maxX, float minY, float maxY, float minDistance, const std::vector<glm::vec2>& existingPositions)
 	{
 		// Seed the random number generator with the current time
 		std::mt19937 rng(static_cast<unsigned int>(std::time(nullptr)));
@@ -14,17 +14,27 @@ namespace IceEngine {
 		std::uniform_real_distribution<float> distX(minX, maxX);
 		std::uniform_real_distribution<float> distY(minY, maxY);
 
-		// Generate random x and y values
-		float randomX = distX(rng);
-		float randomY = distY(rng);
+		glm::vec2 randomPosition;
+		bool tooClose = false;
+		do {
+			// Generate random x and y values
+			randomPosition.x = distX(rng);
+			randomPosition.y = distY(rng);
 
-		// Ensure the generated position is at least minDistance away from the origin (0, 0)
-		while (glm::length(glm::vec2(randomX, randomY)) < minDistance) 
-		{
-			randomX = distX(rng);
-			randomY = distY(rng);
-		}
+			// Check the distance to existing positions
+			tooClose = false;
+			for (const auto& existingPos : existingPositions) 
+			{
+				if (glm::length(randomPosition - existingPos) < minDistance) 
+				{
+					tooClose = true;
+					break;
+				}
+			}
 
-		return glm::vec2(randomX, randomY);
+			// If too close, generate a new position
+		} while (tooClose);
+
+		return randomPosition;
 	}
 }

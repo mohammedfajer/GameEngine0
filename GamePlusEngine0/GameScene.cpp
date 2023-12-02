@@ -18,28 +18,39 @@ namespace TopDownShooter
 		m_spriteRendererSystem = new IceEngine::SpriteRendererSystem();
 
 		// Assuming you have a shader ready, set it in the SpriteRendererSystem
-		IceEngine::Shader* spriteShader = new IceEngine::Shader("vertex_shader.glsl", "fragment_shader.glsl");
+		spriteShader = new IceEngine::Shader("vertex_shader.glsl", "fragment_shader.glsl");
+
+		CameraGameObject = new IceEngine::GameObject();
+		CameraGameObject->SetName("Camera");
+		CameraGameObject->AddComponent<IceEngine::TransformComponent>(glm::vec2(0.0f, 0.0f), glm::vec2(50,50), 0.0f);
+		auto camera = CameraGameObject->AddComponent<IceEngine::OrthographicCameraComponent>(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
+		AddGameObject(CameraGameObject);
+
+		
+		
+
 		m_spriteRendererSystem->SetShader(spriteShader);
 
-		IceEngine::GameObject* object = new IceEngine::GameObject();
-		object->SetName("Camera");
-		object->AddComponent<IceEngine::TransformComponent>()->position = glm::vec2(0.0f, 0.0f);
-		object->AddComponent<IceEngine::OrthographicCameraComponent>(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f)->zoom = 1.0f;
-		AddGameObject(object);
-		
-
 		// Game Objects
-		
+		std::vector<glm::vec2> coinPositions;
+
 		// Coins
 		for (int i = 0; i < 25; i++) 
 		{
-			glm::vec2 randomPosition = IceEngine::GetRandomPosition(0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, 50.0f);
+			glm::vec2 randomPosition = IceEngine::GetRandomPosition(0.0f, SCREEN_WIDTH, 0.0f, SCREEN_HEIGHT, 50.0f, coinPositions);
+			coinPositions.push_back(randomPosition);
+		}
+
+		for (int i = 0; i < 25; i++)
+		{
 			IceEngine::GameObject* object = new IceEngine::GameObject();
 			object->SetName("Coin");
-			object->AddComponent<IceEngine::TransformComponent>()->position = randomPosition;
+			object->AddComponent<IceEngine::TransformComponent>(coinPositions[i], glm::vec2(50.0f, 50.0f), 0.0f);
 			object->AddComponent<IceEngine::SpriteRendererComponent>("./data/coin.png");
 			AddGameObject(object);
+
 		}
+			
 
 		// Player
 		IceEngine::GameObject* object1 = new IceEngine::GameObject();
@@ -66,13 +77,20 @@ namespace TopDownShooter
 		Scene::Update(deltaTime);
 
 		// Additional updates specific to the GameScene if needed
+	}
 
+	void GameScene::Render()
+	{
 		// Render game objects using the SpriteRendererSystem
 		for (auto& gameObject : m_gameObjects)
 		{
+			spriteShader->Bind();
+
+			spriteShader->SetMat4("projection", CameraGameObject->GetComponent<IceEngine::OrthographicCameraComponent>()->projection);
+			spriteShader->SetMat4("view", CameraGameObject->GetComponent<IceEngine::OrthographicCameraComponent>()->GetViewMatrix());
+
 			m_spriteRendererSystem->RenderGameObject(*gameObject);
 		}
 	}
-
 }
 

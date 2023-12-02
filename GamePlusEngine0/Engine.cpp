@@ -71,6 +71,10 @@ namespace IceEngine
 		Color::SetClearColor({ 66, 135, 245 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// Rendering should go here
+
+		SceneManager::Instance().RenderCurrentScene();
+
 		SDL_GL_SwapWindow(m_window->GetWindow());
 	}
 

@@ -22,6 +22,11 @@ namespace IceEngine
 			}
 		}
 
+		virtual void Render()
+		{
+
+		}
+
 		~Scene() 
 		{
 			for (auto& gameObject : m_gameObjects) 
