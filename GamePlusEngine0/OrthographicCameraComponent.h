@@ -23,6 +23,12 @@ namespace IceEngine
 			projection = glm::ortho(left, right, bottom, top, -1.0f, 1.0f);
 		}
 
+		void SetFollowPosition(const glm::vec2& playerPosition, const glm::vec2& screenSize)
+		{
+			position.x = playerPosition.x - screenSize.x / (2.0f * zoom);
+			position.y = playerPosition.y - screenSize.y / (2.0f * zoom);
+		}
+
 		glm::mat4 GetViewMatrix() const 
 		{
 			auto Result = glm::translate(glm::mat4(1.0f), glm::vec3(-position.x, -position.y, 1.0)) * glm::scale(glm::mat4(1.0f), glm::vec3(zoom, zoom, 1.0f));

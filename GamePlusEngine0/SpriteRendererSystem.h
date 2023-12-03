@@ -8,20 +8,19 @@
 #include "VertexBufferElement.h"
 #include "VertexBufferLayout.h"
 
+#include <vector>
+
+
 namespace IceEngine 
 {
-	struct Vertex
-	{
-		glm::vec3 position;
-		glm::vec3 color;
-		glm::vec2 texCoords;
-	};
+	
 
 	class SpriteRendererSystem
 	{
 
 	public:
-		SpriteRendererSystem();
+	
+		SpriteRendererSystem(const std::vector<glm::vec2>& textureCoords = { {1.0f, 1.0f}, {1.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 1.0f} });
 		~SpriteRendererSystem();
 
 		void SetShader(Shader* shader);
@@ -36,6 +35,8 @@ namespace IceEngine
 
 		VertexBuffer m_vertexBuffer;
 		VertexBufferLayout m_vertexBufferLayout;
+
+		std::vector<glm::vec2> m_textureCoords;
 	};
 }
 

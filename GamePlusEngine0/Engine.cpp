@@ -6,6 +6,8 @@
 #include "InputManager.h"
 #include "SceneManager.h"
 #include "GameScene.h"
+#include "SpritesheetScene.h"
+#include "SpriteBatchScene.h"
 #include "Color.h"
 
 namespace IceEngine 
@@ -26,19 +28,38 @@ namespace IceEngine
 		Scene* gameScene = new TopDownShooter::GameScene();
 		SceneManager::Instance().AddScene("Game", gameScene);
 
+		Scene* spriteBatchScene = new TopDownShooter::SpriteBatchScene();
+		SceneManager::Instance().AddScene("SpriteBatchScene", spriteBatchScene);
+
+		Scene* spriteSheetScene = new TopDownShooter::SpriteSheetScene();
+		SceneManager::Instance().AddScene("SpriteSheetScene", spriteSheetScene);
+
 		// Set the active Scene
-		SceneManager::Instance().SetActiveScene("Game");
+		SceneManager::Instance().SetActiveScene("SpriteBatchScene");
 
 		// Enable blending
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		m_running = true;
-		
 	}
 
 	void Engine::Update()
 	{
+		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_1))
+		{
+			SceneManager::Instance().SetActiveScene("Game");
+		}
+
+		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_2))
+		{
+			SceneManager::Instance().SetActiveScene("SpriteSheetScene");
+		}
+
+		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_3))
+		{
+			SceneManager::Instance().SetActiveScene("SpriteBatchScene");
+		}
 	}
 
 	void Engine::Shutdown()
@@ -56,6 +77,8 @@ namespace IceEngine
 		m_window->Update();
 		
 		SceneManager::Instance().UpdateCurrentScene(dt);
+
+		Update();
 
 		AfterUpdate();
 		

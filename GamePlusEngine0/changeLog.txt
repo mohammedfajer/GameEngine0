@@ -11,12 +11,16 @@ Engine
 	[X] Scene Manager
 		[]- State Machine
 	
-	[] Tiles and Tilemap
-	[] Camera System (follow player)
+	[x] Tiles and Tilemap
+	[x] Camera System (follow player)
+    [] Player Shooting Ability
+	[] Build Few Levels, Doors, Scene Transition Effects
+	[] Integrate ImGui
+
 	[] Texture Atlasing
 	[] Animation System
 	- Camera Shake
-	- Movement (Follow Player)
+	[x] Movement (Follow Player)
 	
 	[] Resource Manager / Asset Manager
 	[] Profiling

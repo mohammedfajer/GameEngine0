@@ -64,6 +64,30 @@
     <Filter Include="Source Files\Engine\Resources">
       <UniqueIdentifier>{88fa133f-8b12-4c3a-946f-acbc5b591cbc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Collision">
+      <UniqueIdentifier>{0843c194-68ae-4273-941b-f6476b2ac84c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Physics">
+      <UniqueIdentifier>{11e5737d-77ca-4546-8e0b-d0fc2a0bef34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Audio">
+      <UniqueIdentifier>{9186fa71-98e6-43bc-9a35-55b5723106b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\VFX">
+      <UniqueIdentifier>{90d65e7f-8f26-4f00-ad8d-d9529f769d57}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\GUI">
+      <UniqueIdentifier>{7392b81f-9ed9-45ad-b5cd-d32883399f9f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\UI">
+      <UniqueIdentifier>{22c98396-1791-4d3c-be0c-1a4429a9e898}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\OS">
+      <UniqueIdentifier>{ea1febe1-a023-494c-800e-eb4ec07e9cca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\Math">
+      <UniqueIdentifier>{e3c91388-e5ba-4966-b42b-909efa16882a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -125,6 +149,18 @@
     </ClCompile>
     <ClCompile Include="FileIO.cpp">
       <Filter>Source Files\Engine\Resources</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerScene.cpp">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="SpritesheetScene.cpp">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteBatch.cpp">
+      <Filter>Source Files\Engine\Graphics\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SpriteBatchScene.cpp">
+      <Filter>Source Files\Game\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +241,18 @@
     </ClInclude>
     <ClInclude Include="FileIO.h">
       <Filter>Source Files\Engine\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerScene.h">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="SpritesheetScene.h">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteBatch.h">
+      <Filter>Source Files\Engine\Graphics\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SpriteBatchScene.h">
+      <Filter>Source Files\Game\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

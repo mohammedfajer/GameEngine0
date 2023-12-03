@@ -50,6 +50,7 @@ namespace IceEngine
 		~GameObject() = default;
 
 		void SetName(std::string name) { m_name = name; }
+		std::string GetName() const { return m_name; }
 	private:
 		std::string m_name;
 		std::string m_tag;

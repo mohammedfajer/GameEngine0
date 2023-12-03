@@ -25,7 +25,5 @@ namespace IceEngine {
 			std::cerr << "\x1b[0m" << std::endl;
 			break;
 		}
-
-		
 	}
 } 
