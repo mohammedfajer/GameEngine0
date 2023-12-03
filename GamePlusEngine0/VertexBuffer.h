@@ -12,6 +12,7 @@ namespace IceEngine
 		~VertexBuffer();
 
 		void SetData(const void* data, size_t size);
+		void SetDataDynamics(size_t size);
 
 		void Bind() const;
 		void Unbind() const;

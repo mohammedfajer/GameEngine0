@@ -277,6 +277,7 @@ namespace TopDownShooter
 			if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_L))
 			{
 				CameraComponent->zoom += 0.05f;
+
 			}
 			if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_K))
 			{

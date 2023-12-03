@@ -12,8 +12,6 @@
 namespace IceEngine
 {
 
-
-
 	const std::string vertex_shader = R"(
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
@@ -58,7 +56,6 @@ namespace IceEngine
 
 	void SpriteBatch::Begin()
 	{
-
 		// Load Texture 1
 		Texture2D coinTexture   = IceEngine::TextureLoader::LoadTexture("./data/coin.png");
 		m_coinTextureId = coinTexture.id;
@@ -66,10 +63,6 @@ namespace IceEngine
 		// Load Texture 2
 		Texture2D playerTexture = IceEngine::TextureLoader::LoadTexture("./data/player.png");
 		m_playerTextureId = playerTexture.id;
-
-
-		
-
 
 		// Setup Shader
 		m_shader = new IceEngine::Shader();
@@ -87,8 +80,6 @@ namespace IceEngine
 
 		// Set up vertices for a quad with positions, colors, and texture coordinates
 
-		
-
 		std::vector<float> vertices = {
 			// Position					// Color				// Texture Coordinate			// Texture Index
 			-1.5f, -0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		0.0f, 0.0f,						0.0f,
@@ -102,7 +93,12 @@ namespace IceEngine
 			 0.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 1.0f,						1.0f
 		};
 
-		
+
+
+
+
+
+
 
 
 
@@ -159,7 +155,6 @@ namespace IceEngine
 		
 		// Unbind buffers
 		m_vertexArray.Unbind();
-	
 	}
 
 	void SpriteBatch::End()
