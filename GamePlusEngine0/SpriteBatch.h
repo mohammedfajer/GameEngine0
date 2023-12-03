@@ -25,5 +25,8 @@ namespace IceEngine
 
 		OrthographicCameraComponent* m_cameraComponent;
 		TransformComponent* m_transformComponent;
+
+		uint32_t m_coinTextureId;
+		uint32_t m_playerTextureId;
 	};
 }

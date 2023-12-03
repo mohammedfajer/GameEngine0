@@ -18,11 +18,10 @@ namespace IceEngine
 		TransformComponent(glm::vec2 position, glm::vec2 scale, float rotation = 0.0f) :
 			position(position), scale(scale), rotation(rotation) {}
 
-		// Get the model matrix
 		glm::mat4 GetModelMatrix() const
 		{
-			// Translation matrix
-			glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(position.x, position.y, 0.0f));
+			// Translation matrix with the pivot adjustment
+			glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, 0.0f));
 
 			// Rotation matrix (assuming rotation is in radians)
 			glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));

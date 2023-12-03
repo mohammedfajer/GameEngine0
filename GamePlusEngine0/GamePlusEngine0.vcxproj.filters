@@ -88,6 +88,9 @@
     <Filter Include="Source Files\Engine\Math">
       <UniqueIdentifier>{e3c91388-e5ba-4966-b42b-909efa16882a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Graphics\Lights">
+      <UniqueIdentifier>{c5558f51-b19b-41f8-be8e-dcd4481494c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
