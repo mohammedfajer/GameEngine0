@@ -8,9 +8,48 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "TextureLoader.h"
+#include <array>
 
 namespace IceEngine
 {
+	struct MyVertex
+	{
+		glm::vec3 Position;
+		glm::vec3 Color;
+		glm::vec2 TexCoords;
+		float TexID;
+	};
+
+	static std::array<MyVertex, 4> CreateQuad(float x, float y, float textureID)
+	{
+		float size = 1.0f;
+
+		MyVertex v0;
+		v0.Position		= { x, y, 0.0f };
+		v0.Color		= { 0.18f, 0.6f, 0.96f };
+		v0.TexCoords	= { 0.0f, 0.0f };
+		v0.TexID		= textureID;
+		
+		MyVertex v1;
+		v1.Position		= { x + size, y, 0.0f };
+		v1.Color		= { 0.18f, 0.6f, 0.96f };
+		v1.TexCoords	= { 1.0f, 0.0f };
+		v1.TexID		= textureID;
+
+		MyVertex v2;
+		v2.Position		= { x + size, y + size, 0.0f };
+		v2.Color		= { 0.18f, 0.6f, 0.96f };
+		v2.TexCoords	= { 1.0f, 1.0f };
+		v2.TexID		= textureID;
+
+		MyVertex v3;
+		v3.Position		= { x, y + size, 0.0f };
+		v3.Color		= { 0.18f, 0.6f, 0.96f };
+		v3.TexCoords	= { 0.0f, 1.0f };
+		v3.TexID		= textureID;
+
+		return { v0, v1, v2, v3 };
+	}
 
 	const std::string vertex_shader = R"(
 		#version 330 core
@@ -73,43 +112,24 @@ namespace IceEngine
 		int samplers[2] = { 0, 1 };
 		glUniform1iv(loc, 2, samplers);
 
-
 		// Setup Vertex Buffer
 
 		// Set up Index Buffer
 
 		// Set up vertices for a quad with positions, colors, and texture coordinates
 
-		std::vector<float> vertices = {
-			// Position					// Color				// Texture Coordinate			// Texture Index
-			-1.5f, -0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		0.0f, 0.0f,						0.0f,
-			-0.5f, -0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		1.0f, 0.0f,						0.0f,
-			-0.5f,  0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		1.0f, 1.0f,						0.0f,
-			-1.5f,  0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		0.0f, 1.0f,						0.0f,
+		//std::vector<float> vertices = {
+		//	// Position					// Color				// Texture Coordinate			// Texture Index
+		//	-1.5f, -0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		0.0f, 0.0f,						0.0f,
+		//	-0.5f, -0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		1.0f, 0.0f,						0.0f,
+		//	-0.5f,  0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		1.0f, 1.0f,						0.0f,
+		//	-1.5f,  0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		0.0f, 1.0f,						0.0f,
 
-			 0.5f, -0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 0.0f,						1.0f,
-			 1.5f, -0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		1.0f, 0.0f,						1.0f,
-			 1.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		1.0f, 1.0f,						1.0f,
-			 0.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 1.0f,						1.0f
-		};
-
-
-
-
-
-
-
-
-
-
-		// Set up indices for a quad
-		std::vector<unsigned int> indices = {
-			0, 1, 3, // first triangle
-			1, 2, 3, // second triangle
-
-			4, 5, 6,
-			6, 7, 4
-		};
+		//	 0.5f, -0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 0.0f,						1.0f,
+		//	 1.5f, -0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		1.0f, 0.0f,						1.0f,
+		//	 1.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		1.0f, 1.0f,						1.0f,
+		//	 0.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 1.0f,						1.0f
+		//};
 
 		// Assuming you have VertexBufferLayout and VertexBuffer classes
 		VertexBufferLayout vertexLayout;
@@ -120,14 +140,39 @@ namespace IceEngine
 
 		m_vertexArray.Bind();
 
-		m_vertexBuffer.SetData(vertices.data(), vertices.size() * sizeof(float));
+		//m_vertexBuffer.SetData(vertices.data(), vertices.size() * sizeof(float));
+		m_vertexBuffer.SetDataDynamics(sizeof(MyVertex) * 1000);
 
 		m_vertexArray.AddBuffer(m_vertexBuffer, vertexLayout);
+
+		// Index Buffer
+		
+		// Set up indices for a quad
+		std::vector<unsigned int> indices = {
+			//0, 1, 2, // first triangle
+			//2, 3, 0, // second triangle
+
+			//4, 5, 6,
+			//6, 7, 4
+		};
+
+		for (int i = 0; i < 1000 * 4; i += 4) {
+			indices.push_back(i);
+			indices.push_back(i + 1);
+			indices.push_back(i + 2);
+
+			indices.push_back(i + 2);
+			indices.push_back(i + 3);
+			indices.push_back(i);
+		}
+
+
+		// TODO(mo) set the indices to take care of any arbitrarily amount of quads.
 
 		m_indexBuffer.SetData(indices.data(), indices.size());
 
 		// Setup Camera
-		m_cameraComponent = new  IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
+		m_cameraComponent = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 		m_transformComponent = new IceEngine::TransformComponent(glm::vec2(0,0), glm::vec2(100, 100), 0.0f);
 
 		m_cameraComponent->SetFollowPosition(m_transformComponent->position, glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
@@ -138,7 +183,35 @@ namespace IceEngine
 		Color::SetClearColor({ 1, 71, 94 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// Setup Camera View Transform
+		static float inc = 0.1f;
+	
+		// Set Dynamic Vertex Buffer
+		//std::vector<float> vertices = {
+		//	// Position					// Color				// Texture Coordinate			// Texture Index
+		//	-1.5f, -0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		0.0f, 0.0f,						0.0f,
+		//	-0.5f, -0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		1.0f, 0.0f,						0.0f,
+		//	-0.5f,  0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		1.0f, 1.0f,						0.0f,
+		//	-1.5f,  0.5f, 0.0f,			0.18f, 0.6f, 0.96f,		0.0f, 1.0f,						0.0f,
+
+		//	 0.5f, -0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 0.0f,						1.0f,
+		//	 1.5f, -0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		1.0f, 0.0f,						1.0f,
+		//	 1.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		1.0f, 1.0f,						1.0f,
+		//	 0.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 1.0f,						1.0f
+		//};
+
+		auto q0 = CreateQuad(-1.5f + inc, -0.5f, 0.0f);
+		auto q1 = CreateQuad(0.5f, -0.5f, 1.0f);
+		auto q3 = CreateQuad(-1.5f, -0.5f, 1.0f);
+
+		MyVertex vertices[12];
+		memcpy(vertices, q0.data(), q0.size() * sizeof(MyVertex));
+		memcpy(vertices + q0.size(), q1.data(), q1.size() * sizeof(MyVertex));
+		memcpy(vertices + q0.size() + q1.size(), q3.data(), q3.size() * sizeof(MyVertex));
+
+		m_vertexBuffer.Bind();
+
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+
 
 		// Render Vertex Array 
 
@@ -146,6 +219,8 @@ namespace IceEngine
 		glBindTextureUnit(0, m_coinTextureId);
 		glBindTextureUnit(1, m_playerTextureId);
 
+		
+		// Setup Camera View Transform
 		m_shader->SetMat4("projection", m_cameraComponent->projection);
 		m_shader->SetMat4("view", m_cameraComponent->GetViewMatrix());
 		m_shader->SetMat4("model", m_transformComponent->GetModelMatrix());
@@ -155,6 +230,8 @@ namespace IceEngine
 		
 		// Unbind buffers
 		m_vertexArray.Unbind();
+	
+		inc += 0.008f;
 	}
 
 	void SpriteBatch::End()

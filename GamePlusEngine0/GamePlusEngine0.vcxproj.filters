@@ -91,6 +91,12 @@
     <Filter Include="Source Files\Engine\Graphics\Lights">
       <UniqueIdentifier>{c5558f51-b19b-41f8-be8e-dcd4481494c1}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Platform">
+      <UniqueIdentifier>{18fcb281-211f-44a7-8bfa-2bc70beda21f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Engine\GUI\ImGui">
+      <UniqueIdentifier>{54231c45-6388-43c7-895c-809bc40960ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
