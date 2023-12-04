@@ -5,14 +5,27 @@
 #include "IndexBuffer.h"
 #include "OrthographicCameraComponent.h"
 #include "TransformComponent.h"
+#include <array>
 
 namespace IceEngine
 {
+#pragma pack(push, 1)
+	struct MyVertex
+	{
+		glm::vec3 Position;
+		glm::vec3 Color;
+		glm::vec2 TexCoords;
+		float TexID;
+	};
+#pragma pack(pop)
+
+
 	class SpriteBatch
 	{
 	public:
 		void Begin();
 		void Render();
+		void Update(float deltaTime);
 		void End();
 	private:
 		Shader* m_shader;
@@ -28,5 +41,8 @@ namespace IceEngine
 
 		uint32_t m_coinTextureId;
 		uint32_t m_playerTextureId;
+
+		std::array<MyVertex, 1000> vertices;
+		MyVertex* buffer;
 	};
 }

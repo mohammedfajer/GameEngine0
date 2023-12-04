@@ -10,7 +10,8 @@
 
 namespace IceEngine
 {
-	SpriteRendererSystem::SpriteRendererSystem(const std::vector<glm::vec2>& textureCoords) : m_shader(nullptr), m_textureCoords(textureCoords)
+	SpriteRendererSystem::SpriteRendererSystem(const std::vector<glm::vec2>& textureCoords) 
+        : m_shader(nullptr), m_textureCoords(textureCoords)
 	{
 		// Set up vertices for a quad with positions, colors, and texture coordinates
 		std::vector<Vertex> vertices = {

@@ -27,7 +27,8 @@ namespace TopDownShooter
 		int tileWidth = 64;
 		int tileHeight = 64;
 
-		IceEngine::Logger::Instance().Log(IceEngine::LogLevel::INFO, "Texture width = %, height = %, tile width = %, tile height = %", textureWidth, textureHeight, tileWidth, tileHeight);
+		IceEngine::Logger::Instance().Log(IceEngine::LogLevel::INFO,
+         "Texture width = %, height = %, tile width = %, tile height = %", textureWidth, textureHeight, tileWidth, tileHeight);
 
 		/*
 			std::vector<Vertex> vertices = {

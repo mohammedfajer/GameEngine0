@@ -10,16 +10,11 @@
 #include "TextureLoader.h"
 #include <array>
 
+#include "InputManager.h"
+
 namespace IceEngine
 {
-	struct MyVertex
-	{
-		glm::vec3 Position;
-		glm::vec3 Color;
-		glm::vec2 TexCoords;
-		float TexID;
-	};
-
+	
 	static std::array<MyVertex, 4> CreateQuad(float x, float y, float textureID)
 	{
 		float size = 1.0f;
@@ -50,6 +45,50 @@ namespace IceEngine
 
 		return { v0, v1, v2, v3 };
 	}
+
+
+	static MyVertex * CreateQuad(MyVertex *target, float x, float y, float textureID)
+	{
+		if (target)
+		{
+			float size = 1.0f;
+
+			target->Position = { x, y, 0.0f };
+			target->Color = { 0.18f, 0.6f, 0.96f };
+			target->TexCoords = { 0.0f, 0.0f };
+			target->TexID = textureID;
+			target++;
+			if (!target) return target;
+
+			target->Position = { x + size, y, 0.0f };
+			target->Color = { 0.18f, 0.6f, 0.96f };
+			target->TexCoords = { 1.0f, 0.0f };
+			target->TexID = textureID;
+			target++;
+			if (!target) return target;
+
+			target->Position = { x + size, y + size, 0.0f };
+			target->Color = { 0.18f, 0.6f, 0.96f };
+			target->TexCoords = { 1.0f, 1.0f };
+			target->TexID = textureID;
+			target++;
+			if (!target) return target;
+
+			target->Position = { x, y + size, 0.0f };
+			target->Color = { 0.18f, 0.6f, 0.96f };
+			target->TexCoords = { 0.0f, 1.0f };
+			target->TexID = textureID;
+			target++;
+			if (!target) return target;
+		}
+
+
+
+		
+
+		return target;
+	}
+
 
 	const std::string vertex_shader = R"(
 		#version 330 core
@@ -112,6 +151,10 @@ namespace IceEngine
 		int samplers[2] = { 0, 1 };
 		glUniform1iv(loc, 2, samplers);
 
+		const size_t MaxQuadCount = 1000;
+		const size_t MaxVertexCount = MaxQuadCount * 4;
+		const size_t MaxIndexCount = MaxQuadCount * 6;
+
 		// Setup Vertex Buffer
 
 		// Set up Index Buffer
@@ -166,6 +209,23 @@ namespace IceEngine
 			indices.push_back(i);
 		}
 
+		/*
+			uint32_t indices[MaxIndexCount];
+			uint32_t offset =  0;
+			for(size_t i = 0; i < MaxIndexCount; i += 6)
+			{
+				indices[i + 0] = 0 + offset;
+				indices[i + 1] = 1 + offset;
+				indices[i + 2] = 2 + offset;
+
+				indices[i + 3] = 2 + offset;
+				indices[i + 4] = 3 + offset;
+				indices[i + 5] = 0 + offset;
+
+				offset += 4;
+			}
+		*/
+
 
 		// TODO(mo) set the indices to take care of any arbitrarily amount of quads.
 
@@ -176,7 +236,10 @@ namespace IceEngine
 		m_transformComponent = new IceEngine::TransformComponent(glm::vec2(0,0), glm::vec2(100, 100), 0.0f);
 
 		m_cameraComponent->SetFollowPosition(m_transformComponent->position, glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
+	
+		buffer = vertices.data();
 	}
+	
 
 	void SpriteBatch::Render()
 	{
@@ -199,18 +262,29 @@ namespace IceEngine
 		//	 0.5f,  0.5f, 0.0f,			1.0f, 0.93f, 0.24f,		0.0f, 1.0f,						1.0f
 		//};
 
-		auto q0 = CreateQuad(-1.5f + inc, -0.5f, 0.0f);
+		// Access violation reading location 0xFFFFFFFFFFFFFFFF.
+		
+		for (int y = 0; y < 5; y++)
+		{
+			for (int x = 0; x < 5; x++)
+			{
+				buffer = CreateQuad(buffer, x, y, (x + y) % 2);
+			}
+		}
+
+
+		/*auto q0 = CreateQuad(-1.5f + inc, -0.5f, 0.0f);
 		auto q1 = CreateQuad(0.5f, -0.5f, 1.0f);
 		auto q3 = CreateQuad(-1.5f, -0.5f, 1.0f);
 
 		MyVertex vertices[12];
 		memcpy(vertices, q0.data(), q0.size() * sizeof(MyVertex));
 		memcpy(vertices + q0.size(), q1.data(), q1.size() * sizeof(MyVertex));
-		memcpy(vertices + q0.size() + q1.size(), q3.data(), q3.size() * sizeof(MyVertex));
+		memcpy(vertices + q0.size() + q1.size(), q3.data(), q3.size() * sizeof(MyVertex));*/
 
 		m_vertexBuffer.Bind();
 
-		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(MyVertex), vertices.data());
 
 
 		// Render Vertex Array 
@@ -232,6 +306,27 @@ namespace IceEngine
 		m_vertexArray.Unbind();
 	
 		inc += 0.008f;
+	
+		buffer = vertices.data();
+
+		m_cameraComponent->SetFollowPosition(glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
+	}
+
+	void SpriteBatch::Update(float deltaTime)
+	{
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_L))
+		{
+			m_cameraComponent->zoom += 0.05f;
+
+		}
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_K))
+		{
+			m_cameraComponent->zoom -= 0.05f;
+		}
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_P))
+		{
+			m_cameraComponent->zoom = 1.0f;
+		}
 	}
 
 	void SpriteBatch::End()

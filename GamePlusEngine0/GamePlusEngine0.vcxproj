@@ -152,6 +152,7 @@
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="PlayerScene.cpp" />
+    <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SpriteBatch.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="OrthographicCameraComponent.h" />
     <ClInclude Include="PlayerScene.h" />
     <ClInclude Include="Random.h" />
+    <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Shader.h" />
