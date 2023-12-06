@@ -7,9 +7,6 @@
 
 namespace IceEngine
 {
-
-	
-
 	static const size_t MaxQuadCount = 1000;
 	static const size_t MaxVertexCount = MaxQuadCount * 4;
 	static const size_t MaxIndexCount = MaxQuadCount * 6;
@@ -34,8 +31,8 @@ namespace IceEngine
 
 		uint32_t IndexCount = 0;
 
-		TheVertex* QuadBuffer = nullptr;
-		TheVertex* QuadBufferPtr = nullptr;
+		TheVertex *QuadBuffer = nullptr;
+		TheVertex *QuadBufferPtr = nullptr;
 
 		std::array<uint32_t, MaxTextures> TextureSlots;
 		uint32_t TextureSlotIndex = 1;
@@ -43,9 +40,7 @@ namespace IceEngine
 		Renderer::Stats RenderStats;
 	};
 
-
 	static RendererData s_Data;
-
 
 	void Renderer::Init()
 	{
@@ -179,7 +174,6 @@ namespace IceEngine
 
 		s_Data.IndexCount += 6;
 		s_Data.RenderStats.QuadCount++;
-
 	}
 	
 	void Renderer::DrawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID)
@@ -192,7 +186,9 @@ namespace IceEngine
 		}
 
 		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
 		float textureIndex = 0.0f;
+		
 		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)
 		{
 			if (s_Data.TextureSlots[i] == textureID)
@@ -209,24 +205,28 @@ namespace IceEngine
 			s_Data.TextureSlotIndex++;
 		}
 
+		// Top Left
 		s_Data.QuadBufferPtr->Position = { position.x, position.y, 0.0f };
 		s_Data.QuadBufferPtr->Color = color;
 		s_Data.QuadBufferPtr->TexCoords = { 0.0f, 0.0f };
 		s_Data.QuadBufferPtr->TexIndex = textureIndex;
 		s_Data.QuadBufferPtr++;
 
+		// Top Right
 		s_Data.QuadBufferPtr->Position = { position.x + size.x, position.y, 0.0f };
 		s_Data.QuadBufferPtr->Color = color;
 		s_Data.QuadBufferPtr->TexCoords = { 1.0f, 0.0f };
 		s_Data.QuadBufferPtr->TexIndex = textureIndex;
 		s_Data.QuadBufferPtr++;
 
+		// Bottom Right
 		s_Data.QuadBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
 		s_Data.QuadBufferPtr->Color = color;
 		s_Data.QuadBufferPtr->TexCoords = { 1.0f, 1.0f };
 		s_Data.QuadBufferPtr->TexIndex = textureIndex;
 		s_Data.QuadBufferPtr++;
 
+		// Bottom Left
 		s_Data.QuadBufferPtr->Position = { position.x, position.y + size.y, 0.0f };
 		s_Data.QuadBufferPtr->Color = color;
 		s_Data.QuadBufferPtr->TexCoords = { 0.0f, 1.0f };
@@ -236,6 +236,67 @@ namespace IceEngine
 		s_Data.IndexCount += 6;
 		s_Data.RenderStats.QuadCount++;
 
+	}
+
+	void Renderer::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, uint32_t textureID, std::vector<glm::vec2> textureCoords)
+	{
+		if (s_Data.IndexCount >= MaxIndexCount || s_Data.TextureSlotIndex > 31)
+		{
+			EndBatch();
+			Flush();
+			BeginBatch();
+		}
+
+		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		float textureIndex = 0.0f;
+
+		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)
+		{
+			if (s_Data.TextureSlots[i] == textureID)
+			{
+				textureIndex = (float)i;
+				break;
+			}
+		}
+
+		if (textureIndex == 0.0f)
+		{
+			textureIndex = (float)s_Data.TextureSlotIndex;
+			s_Data.TextureSlots[s_Data.TextureSlotIndex] = textureID;
+			s_Data.TextureSlotIndex++;
+		}
+
+		// Top Left
+		s_Data.QuadBufferPtr->Position = { position.x, position.y, 0.0f };
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[0];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		// Top Right
+		s_Data.QuadBufferPtr->Position = { position.x + size.x, position.y, 0.0f };
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[1];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		// Bottom Right
+		s_Data.QuadBufferPtr->Position = { position.x + size.x, position.y + size.y, 0.0f };
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[2];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		// Bottom Left
+		s_Data.QuadBufferPtr->Position = { position.x, position.y + size.y, 0.0f };
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[3];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		s_Data.IndexCount += 6;
+		s_Data.RenderStats.QuadCount++;
 	}
 	
 	const Renderer::Stats& Renderer::GetStats()

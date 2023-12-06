@@ -76,14 +76,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;$(ProjectDir)..\ThirdpartyLibs\Box2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;$(ProjectDir)..\ThirdpartyLibs\Box2D\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;$(ProjectDir)..\ThirdpartyLibs\Box2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -102,8 +102,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;$(ProjectDir)..\ThirdpartyLibs\Box2D\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -112,14 +112,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;$(ProjectDir)..\ThirdpartyLibs\Box2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;$(ProjectDir)..\ThirdpartyLibs\Box2D\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\include;$(ProjectDir)..\ThirdpartyLibs\glm;$(ProjectDir)..\ThirdpartyLibs\glew\include;$(ProjectDir)..\ThirdpartyLibs\Box2d\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -138,26 +138,28 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ProjectDir)..\ThirdpartyLibs\SDL2\lib\x64;$(ProjectDir)..\ThirdpartyLibs\glew\lib\Release\x64;$(ProjectDir)..\ThirdpartyLibs\glew\bin\Release\x64;$(ProjectDir)..\ThirdpartyLibs\Box2D\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL2.lib;SDL2main.lib;glew32.lib;opengl32.lib;box2d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AnimationScene.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="GameObject.h" />
-    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="IndexBuffer.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Main.cpp" />
-    <ClCompile Include="PlayerScene.cpp" />
+    <ClCompile Include="ParticlesScene.cpp" />
+    <ClCompile Include="ParticleSystem.cpp" />
+    <ClCompile Include="Random.cpp" />
     <ClCompile Include="Renderer.cpp" />
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SpriteBatch.cpp" />
     <ClCompile Include="SpriteBatchScene.cpp" />
-    <ClCompile Include="SpriteRendererSystem.cpp" />
+    <ClCompile Include="SpritesheetLoader.cpp" />
     <ClCompile Include="SpritesheetScene.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
@@ -170,17 +172,18 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AnimationScene.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FileIO.h" />
-    <ClInclude Include="GameScene.h" />
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="OrthographicCameraComponent.h" />
-    <ClInclude Include="PlayerScene.h" />
+    <ClInclude Include="ParticlesScene.h" />
+    <ClInclude Include="ParticleSystem.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Renderer.h" />
     <ClInclude Include="Scene.h" />
@@ -189,8 +192,8 @@
     <ClInclude Include="SpriteBatch.h" />
     <ClInclude Include="SpriteBatchScene.h" />
     <ClInclude Include="SpriteRendererComponent.h" />
-    <ClInclude Include="SpriteRendererSystem.h" />
     <ClInclude Include="SpritesheetScene.h" />
+    <ClInclude Include="SpritsheetLoader.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="TextureComponent.h" />
     <ClInclude Include="TextureLoader.h" />

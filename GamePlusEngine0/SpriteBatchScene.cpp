@@ -16,7 +16,6 @@
 
 namespace TopDownShooter
 {
-
 	const std::string vertex_shader = R"(
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
@@ -100,9 +99,9 @@ namespace TopDownShooter
 		m_cameraComponent = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 	
 
-		m_transformComponent = new IceEngine::TransformComponent(glm::vec2(0, 0), glm::vec2(100, 100), 0.0f);
+		m_transformComponent = new IceEngine::TransformComponent(glm::vec2(SCREEN_WIDTH/2, SCREEN_HEIGHT/2), glm::vec2(100, 100), 0.0f);
 
-		m_cameraComponent->SetFollowPosition(m_transformComponent->position, glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
+		m_cameraComponent->SetFollowPosition(glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
 
 		//m_cameraComponent->SetFollowPosition(glm::vec2(SCREEN_WIDTH/2, SCREEN_HEIGHT/2), glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
 		
@@ -157,21 +156,21 @@ namespace TopDownShooter
 		IceEngine::Renderer::ResetStats();
 		IceEngine::Renderer::BeginBatch();
 
-		for (float y = -12.5f; y < 12.5f; y += 0.25f)
+		/*for (float y = -12.5f; y < 12.5f; y += 0.25f)
 		{
 			for (float x = -125; x < 125.0f; x += 0.25f)
 			{
 				glm::vec4 color = { (x + 10) / 20.0f, 0.2f, (y + 10) / 20.f, 1.0f };
 				IceEngine::Renderer::DrawQuad({ x,y }, { 0.25f, 0.25f }, color);
 			}
-		}
+		}*/
 
-		for (int y = 0; y < 5; y++)
+		for (int y = 0; y < 1; y++)
 		{
-			for (int x = 0; x < 5; x++)
+			for (int x = 0; x < 1; x++)
 			{
 				GLuint tex = (x + y) % 2 == 0 ? m_coinTextureId : m_playerTextureId;
-				IceEngine::Renderer::DrawQuad({ x,y }, { 1.0f, 1.0f }, tex);
+				IceEngine::Renderer::DrawQuad({ x,y }, { 1, 1 }, tex);
 			}
 		}
 		
@@ -181,13 +180,10 @@ namespace TopDownShooter
 		IceEngine::Renderer::EndBatch();
 
 		// Setup Camera View Transform
-		m_shader->SetMat4("projection", m_cameraComponent->projection);
-		m_shader->SetMat4("view", m_cameraComponent->GetViewMatrix());
-		m_shader->SetMat4("model", m_transformComponent->GetModelMatrix());
+		m_shader->SetMat4("projection"	, m_cameraComponent->projection);
+		m_shader->SetMat4("view"		, m_cameraComponent->GetViewMatrix());
+		m_shader->SetMat4("model"		, m_transformComponent->GetModelMatrix());		
 
-
-
-
-		
+		IceEngine::Renderer::Flush();
 	}
 }

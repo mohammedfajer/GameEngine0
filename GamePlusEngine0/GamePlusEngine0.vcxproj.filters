@@ -97,6 +97,9 @@
     <Filter Include="Source Files\Engine\GUI\ImGui">
       <UniqueIdentifier>{54231c45-6388-43c7-895c-809bc40960ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Graphics\Font">
+      <UniqueIdentifier>{27b4506f-f008-4e94-bc61-79aadd7abf7e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -126,12 +129,6 @@
     <ClCompile Include="Scene.cpp">
       <Filter>Source Files\Engine\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="GameScene.cpp">
-      <Filter>Source Files\Game\Scenes</Filter>
-    </ClCompile>
-    <ClCompile Include="SpriteRendererSystem.cpp">
-      <Filter>Source Files\Engine\System</Filter>
-    </ClCompile>
     <ClCompile Include="TextureLoader.cpp">
       <Filter>Source Files\Engine\Graphics\Texture</Filter>
     </ClCompile>
@@ -159,9 +156,6 @@
     <ClCompile Include="FileIO.cpp">
       <Filter>Source Files\Engine\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerScene.cpp">
-      <Filter>Source Files\Game\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="SpritesheetScene.cpp">
       <Filter>Source Files\Game\Scenes</Filter>
     </ClCompile>
@@ -173,6 +167,21 @@
     </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="SpritesheetLoader.cpp">
+      <Filter>Source Files\Engine\Graphics\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="AnimationScene.cpp">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticlesScene.cpp">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="Random.cpp">
+      <Filter>Source Files\Engine\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="ParticleSystem.cpp">
+      <Filter>Source Files\Engine\VFX</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -202,12 +211,6 @@
     </ClInclude>
     <ClInclude Include="Defines.h">
       <Filter>Source Files\Engine\Utility</Filter>
-    </ClInclude>
-    <ClInclude Include="GameScene.h">
-      <Filter>Source Files\Game\Scenes</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteRendererSystem.h">
-      <Filter>Source Files\Engine\System</Filter>
     </ClInclude>
     <ClInclude Include="Component.h">
       <Filter>Source Files\Engine\Component</Filter>
@@ -254,9 +257,6 @@
     <ClInclude Include="FileIO.h">
       <Filter>Source Files\Engine\Resources</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerScene.h">
-      <Filter>Source Files\Game\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="SpritesheetScene.h">
       <Filter>Source Files\Game\Scenes</Filter>
     </ClInclude>
@@ -268,6 +268,18 @@
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="SpritsheetLoader.h">
+      <Filter>Source Files\Engine\Graphics\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="AnimationScene.h">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticlesScene.h">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="ParticleSystem.h">
+      <Filter>Source Files\Engine\VFX</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

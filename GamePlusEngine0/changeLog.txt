@@ -17,7 +17,7 @@ Engine
 	[] Build Few Levels, Doors, Scene Transition Effects
 	[] Integrate ImGui
 
-	[] Texture Atlasing
+	[x] Texture Atlasing
 	[] Animation System
 	- Camera Shake
 	[x] Movement (Follow Player)
@@ -43,6 +43,10 @@ Engine
 		- Clouds
 		- Noise
 	[] Multi-threading
+
+
+    [] Refactor code to use spritebatching
+    
 
 
 

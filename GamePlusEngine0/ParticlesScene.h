@@ -7,20 +7,16 @@
 
 namespace TopDownShooter
 {
-	class SpriteBatchScene : public IceEngine::Scene
+	class ParticlesScene : public IceEngine::Scene
 	{
 	public:
-		SpriteBatchScene();
-		~SpriteBatchScene();
+		ParticlesScene();
+		~ParticlesScene();
 		void Update(float deltaTime) override;
 		void Render() override;
 	private:
 		IceEngine::Shader* m_shader;
 		IceEngine::OrthographicCameraComponent* m_cameraComponent;
 		IceEngine::TransformComponent* m_transformComponent;
-
-		uint32_t m_coinTextureId;
-		uint32_t m_playerTextureId;
 	};
 }
-

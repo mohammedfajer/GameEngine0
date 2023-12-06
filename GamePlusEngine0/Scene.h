@@ -15,11 +15,13 @@ namespace IceEngine
 		
 		const std::string& GetName() const { return m_name; }
 
-		// Function to get a GameObject by name
 		GameObject* GetGameObjectByName(const std::string& name)
 		{
-			auto it = std::find_if(m_gameObjects.begin(), m_gameObjects.end(), [&name](const GameObject* obj) 
-            { return obj->GetName() == name; });
+
+			auto CompareNameFuc = [&name](const GameObject* obj) { return obj->GetName() == name; };
+
+			auto it = std::find_if(m_gameObjects.begin(), m_gameObjects.end(),
+			                       CompareNameFuc);
 
 			if (it != m_gameObjects.end())
 			{

@@ -5,7 +5,7 @@
 #include "Timer.h"
 #include "InputManager.h"
 #include "SceneManager.h"
-#include "GameScene.h"
+
 #include "SpritesheetScene.h"
 #include "SpriteBatchScene.h"
 #include "Color.h"
@@ -25,8 +25,7 @@ namespace IceEngine
 		m_window = new Window("Game", SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		// Starting Scene the game ...
-		Scene* gameScene = new TopDownShooter::GameScene();
-		SceneManager::Instance().AddScene("Game", gameScene);
+	
 
 		Scene* spriteBatchScene = new TopDownShooter::SpriteBatchScene();
 		SceneManager::Instance().AddScene("SpriteBatchScene", spriteBatchScene);
@@ -46,17 +45,13 @@ namespace IceEngine
 
 	void Engine::Update()
 	{
+		
 		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_1))
-		{
-			SceneManager::Instance().SetActiveScene("Game");
-		}
-
-		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_2))
 		{
 			SceneManager::Instance().SetActiveScene("SpriteSheetScene");
 		}
 
-		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_3))
+		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_2))
 		{
 			SceneManager::Instance().SetActiveScene("SpriteBatchScene");
 		}

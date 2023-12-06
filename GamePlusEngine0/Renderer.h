@@ -1,5 +1,6 @@
 #pragma once
 #include <glm/glm.hpp>
+#include <vector>
 
 namespace IceEngine
 {
@@ -17,8 +18,9 @@ namespace IceEngine
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, const glm::vec4& color);
 
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID);
-		
 
+		static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, uint32_t textureID, std::vector<glm::vec2> textureCoords);
+		
 		// Stats
 		struct Stats
 		{
