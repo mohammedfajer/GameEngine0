@@ -158,7 +158,6 @@
     <ClCompile Include="Scene.cpp" />
     <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="SpriteBatch.cpp" />
-    <ClCompile Include="SpriteBatchScene.cpp" />
     <ClCompile Include="SpritesheetLoader.cpp" />
     <ClCompile Include="SpritesheetScene.cpp" />
     <ClCompile Include="Texture2D.cpp" />
@@ -190,7 +189,6 @@
     <ClInclude Include="SceneManager.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SpriteBatch.h" />
-    <ClInclude Include="SpriteBatchScene.h" />
     <ClInclude Include="SpriteRendererComponent.h" />
     <ClInclude Include="SpritesheetScene.h" />
     <ClInclude Include="SpritsheetLoader.h" />

@@ -298,6 +298,74 @@ namespace IceEngine
 		s_Data.IndexCount += 6;
 		s_Data.RenderStats.QuadCount++;
 	}
+
+	void Renderer::DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::mat4 &modelMatrix, uint32_t textureID, std::vector<glm::vec2> textureCoords)
+	{
+		if (s_Data.IndexCount >= MaxIndexCount || s_Data.TextureSlotIndex > 31)
+		{
+			EndBatch();
+			Flush();
+			BeginBatch();
+		}
+
+		constexpr glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+		float textureIndex = 0.0f;
+
+		for (uint32_t i = 1; i < s_Data.TextureSlotIndex; i++)
+		{
+			if (s_Data.TextureSlots[i] == textureID)
+			{
+				textureIndex = (float)i;
+				break;
+			}
+		}
+
+		if (textureIndex == 0.0f)
+		{
+			textureIndex = (float)s_Data.TextureSlotIndex;
+			s_Data.TextureSlots[s_Data.TextureSlotIndex] = textureID;
+			s_Data.TextureSlotIndex++;
+		}
+
+		// Apply the model matrix to the quad vertices
+		glm::vec4 transformedTopLeft = modelMatrix * glm::vec4(-0.5f, 0.5f, 0.0f, 1.0f);
+		glm::vec4 transformedTopRight = modelMatrix * glm::vec4(0.5f + size.x, 0.5f, 0.0f, 1.0f);
+		glm::vec4 transformedBottomRight = modelMatrix * glm::vec4(0.5f + size.x, -0.5f + size.y, 0.0f, 1.0f);
+		glm::vec4 transformedBottomLeft = modelMatrix * glm::vec4(-0.5f, -0.5f + size.y, 0.0f, 1.0f);
+
+		// Top Left
+		s_Data.QuadBufferPtr->Position = { transformedTopLeft.x, transformedTopLeft.y, 0.0f};
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[0];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		// Top Right
+		s_Data.QuadBufferPtr->Position = { transformedTopRight.x, transformedTopRight.y, 0.0f};
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[1];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		// Bottom Right
+		s_Data.QuadBufferPtr->Position = { transformedBottomRight.x, transformedBottomRight.y, 0.0f};
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[2];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		// Bottom Left
+		s_Data.QuadBufferPtr->Position = { transformedBottomLeft.x, transformedBottomLeft.y, 0.0f};
+		s_Data.QuadBufferPtr->Color = color;
+		s_Data.QuadBufferPtr->TexCoords = textureCoords[3];
+		s_Data.QuadBufferPtr->TexIndex = textureIndex;
+		s_Data.QuadBufferPtr++;
+
+		s_Data.IndexCount += 6;
+		s_Data.RenderStats.QuadCount++;
+	}
+
 	
 	const Renderer::Stats& Renderer::GetStats()
 	{

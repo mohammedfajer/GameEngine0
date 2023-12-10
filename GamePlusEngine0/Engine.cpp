@@ -7,7 +7,7 @@
 #include "SceneManager.h"
 
 #include "SpritesheetScene.h"
-#include "SpriteBatchScene.h"
+
 #include "Color.h"
 
 namespace IceEngine 
@@ -22,19 +22,18 @@ namespace IceEngine
 	{
 		Logger::Instance().Log("Starting Engine");
 
+		m_runMode = RunMode::GameMode;
+
 		m_window = new Window("Game", SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		// Starting Scene the game ...
-	
 
-		Scene* spriteBatchScene = new TopDownShooter::SpriteBatchScene();
-		SceneManager::Instance().AddScene("SpriteBatchScene", spriteBatchScene);
 
 		Scene* spriteSheetScene = new TopDownShooter::SpriteSheetScene();
 		SceneManager::Instance().AddScene("SpriteSheetScene", spriteSheetScene);
 
 		// Set the active Scene
-		SceneManager::Instance().SetActiveScene("SpriteBatchScene");
+		SceneManager::Instance().SetActiveScene("SpriteSheetScene");
 
 		// Enable blending
 		glEnable(GL_BLEND);
@@ -46,15 +45,18 @@ namespace IceEngine
 	void Engine::Update()
 	{
 		
-		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_1))
+
+		// Toggle Play mode or editor mode
+
+		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_E))
 		{
-			SceneManager::Instance().SetActiveScene("SpriteSheetScene");
+			m_runMode = (m_runMode == RunMode::GameMode) ? RunMode::EditorMode : RunMode::GameMode;
+			if (m_runMode == RunMode::EditorMode)
+			{
+				Logger::Instance().Log("Editor Mode", LogLevel::SUCCESS);
+			}
 		}
 
-		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_2))
-		{
-			SceneManager::Instance().SetActiveScene("SpriteBatchScene");
-		}
 	}
 
 	void Engine::Shutdown()
@@ -76,8 +78,15 @@ namespace IceEngine
 		Update();
 
 		AfterUpdate();
-		
+
 		Render();
+
+		/*if (m_runMode == RunMode::GameMode) {
+
+
+		}*/
+
+		
 	}
 
 	void Engine::AfterUpdate()

@@ -9,6 +9,15 @@
 
 namespace TopDownShooter
 {
+	struct Tile_Info {
+		std::string name;
+		int x_offset;
+		int y_offset;
+		int width;
+		int height;
+		std::vector<glm::vec2> textureCoords;
+	};
+
 	class SpriteSheetScene : public IceEngine::Scene
 	{
 	public:
@@ -22,10 +31,12 @@ namespace TopDownShooter
 		IceEngine::OrthographicCameraComponent *m_cameraComponent;
 		IceEngine::TransformComponent *m_transformComponent;
 
-		uint32_t m_floorTileTexture;
-		uint32_t m_wallTileTexture;
+		uint32_t m_tilesetTexture;
+	
 		std::vector<glm::vec2> m_textureCoords;
-		glm::vec2 prevMousePos;
-		
+		glm::vec2 m_prevMousePos;
+
+		std::vector<Tile_Info> m_tilesInfo;
+		int m_spriteIndex = 0;
 	};
 }

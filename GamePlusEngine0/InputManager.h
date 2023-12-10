@@ -3,6 +3,7 @@
 #include <SDL.h>
 #include <glm/glm.hpp>
 #include "Logger.h"
+#include <unordered_set>
 
 namespace IceEngine {
 	class InputManager
@@ -24,6 +25,9 @@ namespace IceEngine {
 
 		bool IsGamepadButtonDown(SDL_GameControllerButton button) const;
 		bool IsGamepadButtonUp(SDL_GameControllerButton button) const;
+
+		bool IsKeyPressed(SDL_Scancode key) const;
+		bool IsKeyReleased(SDL_Scancode key) const;
 	
 	private:
 		void HandleEvent(SDL_Event &event);
@@ -32,13 +36,16 @@ namespace IceEngine {
 		void HandleGamepadEvent(SDL_Event& event);
 	public:
 		bool m_signalQuit;
+		bool m_isKeyRepeat;
 	private:
 		Uint8 m_keyboardState	[SDL_NUM_SCANCODES];
 		Uint32 m_mouseState		[8];
 		glm::vec2 m_mousePosition;
-		bool m_isKeyRepeat;
+		
 		Uint8 m_gamepadState	[SDL_CONTROLLER_BUTTON_MAX];
 		
+		// Keep track of keys that were pressed in the current frame
+		std::unordered_set<SDL_Scancode> m_keysPressed;
 	private:
 		InputManager();
 		~InputManager();

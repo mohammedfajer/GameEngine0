@@ -26,7 +26,7 @@ Engine
 	[] Profiling
 	[] Rigid Body Physics
 	[] Docking ImGUi
-	[] Box2D physics
+	[x] Box2D physics
 
 	
 

@@ -8,13 +8,12 @@
 #include "stb_image.h"
 
 namespace IceEngine {
-	
+
 	std::unordered_map<std::string, Texture2D> TextureLoader::textureCache;
 
-	Texture2D TextureLoader::LoadTexture(const std::string& filePath, GLenum format, GLenum wrapS,
-     GLenum wrapT, GLenum minFilter, GLenum magFilter) {
-		
-		IceEngine::Logger& logger = IceEngine::Logger::Instance();
+	Texture2D TextureLoader::LoadTexture(const std::string &filePath, GLenum format, GLenum wrapS,
+		GLenum wrapT, GLenum minFilter, GLenum magFilter) {
+		IceEngine::Logger &logger = IceEngine::Logger::Instance();
 
 		// Check if texture is already in the cache
 		auto it = textureCache.find(filePath);
@@ -26,28 +25,41 @@ namespace IceEngine {
 		logger.Log("Loading texture " + filePath);
 		logger.Log("");
 
+		// Check for anisotropic filtering support
+		GLfloat maxAnisotropy;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &maxAnisotropy);
+
+		// Enable anisotropic filtering with the maximum supported degree
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY, maxAnisotropy);
+
 		Texture2D texture;
 		glGenTextures(1, &texture.id);
 		glBindTexture(GL_TEXTURE_2D, texture.id);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapS);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter);
+
+		// @nocheckin maxFilter was set to GL_LINEAR and when I have changed it to GL_NEAREST it made my texture more clear and remove the blurryness. 
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 		stbi_set_flip_vertically_on_load(false);
-		unsigned char* data = stbi_load(filePath.c_str(), &texture.width, &texture.height, &texture.nrChannels, 0);
+
+		unsigned char *data = stbi_load(filePath.c_str(), &texture.width, &texture.height, &texture.nrChannels, 0);
 		if (data) {
 			GLenum format = (texture.nrChannels == 4) ? GL_RGBA : GL_RGB;
-			GLenum internalFormat = (format == GL_RGBA) ? GL_RGBA : GL_RGB;
+			GLenum internalFormat = (format == GL_RGBA) ? GL_SRGB_ALPHA : GL_SRGB;  // Use GL_SRGB for gamma correction
 			glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, texture.width, texture.height, 0, format, GL_UNSIGNED_BYTE, data);
 			glGenerateMipmap(GL_TEXTURE_2D);
+			
+
 			// Cache the loaded texture
 			textureCache[filePath] = texture;
 		}
 		else {
 			logger.Log("Failed to load texture from " + filePath, LogLevel::ERROR);
 		}
-		
+
 		logger.Log("Successfully loaded texture " + filePath, LogLevel::SUCCESS);
 		logger.Log("Texture Width = " + std::to_string(texture.width) + " Height = " + std::to_string(texture.height));
 		logger.Log("");
@@ -56,5 +68,4 @@ namespace IceEngine {
 
 		return texture;
 	}
-
-} // namespace IceEngine
+}

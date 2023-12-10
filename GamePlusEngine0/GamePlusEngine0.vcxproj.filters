@@ -162,9 +162,6 @@
     <ClCompile Include="SpriteBatch.cpp">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="SpriteBatchScene.cpp">
-      <Filter>Source Files\Game\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="Renderer.cpp">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
     </ClCompile>
@@ -262,9 +259,6 @@
     </ClInclude>
     <ClInclude Include="SpriteBatch.h">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
-    </ClInclude>
-    <ClInclude Include="SpriteBatchScene.h">
-      <Filter>Source Files\Game\Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Renderer.h">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>

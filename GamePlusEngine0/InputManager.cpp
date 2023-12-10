@@ -27,6 +27,9 @@ namespace IceEngine
 
 	void InputManager::Update() 
 	{
+		// clear the set of keys pressed in the previous frame
+		m_keysPressed.clear();
+
 		SDL_Event event;
 		while(SDL_PollEvent(&event)) 
 		{
@@ -67,7 +70,17 @@ namespace IceEngine
 	{
 		if(event.key.repeat == 0) 
 		{
-			m_keyboardState[event.key.keysym.scancode] = (event.type == SDL_KEYDOWN) ? 1: 0;
+			m_keyboardState[event.key.keysym.scancode] = 1;
+
+			// If the key was not repeated and m_isKeyRepeat is true, it means the key was released
+			if (m_isKeyRepeat)
+			{
+				m_keyboardState[event.key.keysym.scancode] = 0;
+			}
+
+			m_keysPressed.insert(event.key.keysym.scancode);
+
+			m_isKeyRepeat = false;
  		} 
 		else 
 		{
@@ -120,6 +133,17 @@ namespace IceEngine
 	bool InputManager::IsGamepadButtonUp(SDL_GameControllerButton button) const 
 	{
 		return m_gamepadState[button] == SDL_RELEASED;
+	}
+	bool InputManager::IsKeyPressed(SDL_Scancode key) const
+	{
+		// Check if the key is in the set of keys pressed in the current frame
+		return m_keysPressed.count(key) > 0;
+	}
+
+	bool InputManager::IsKeyReleased(SDL_Scancode key) const
+	{
+		// Check if the key is released in the current frame
+		return (m_keyboardState[key] == 0);
 	}
 }
 

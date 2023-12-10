@@ -37,6 +37,10 @@ namespace IceEngine {
 	
 	void Window::InitSDL()
 	{
+
+		
+	
+
 		if (SDL_Init(SDL_INIT_VIDEO) < 0) {
 			Logger::Instance().Log("SDL Initialization Failed : " + std::string(SDL_GetError()), LogLevel::ERROR);
 			exit(-1);
@@ -47,7 +51,7 @@ namespace IceEngine {
 	{
 
 		m_window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED,
-			SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL);
+			SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
 
 		if (!m_window) {
 			Logger::Instance().Log("Window Creation Failed : " + std::string(SDL_GetError()), LogLevel::ERROR);

@@ -20,6 +20,10 @@ namespace IceEngine
 		static void DrawQuad(const glm::vec2& position, const glm::vec2& size, uint32_t textureID);
 
 		static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, uint32_t textureID, std::vector<glm::vec2> textureCoords);
+		static void DrawQuad(const glm::vec2 &position, const glm::vec2 &size, const glm::mat4 &modelMatrix, uint32_t textureID, std::vector<glm::vec2> textureCoords);
+		
+
+
 		
 		// Stats
 		struct Stats
