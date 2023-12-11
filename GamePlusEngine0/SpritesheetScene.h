@@ -6,6 +6,7 @@
 #include "OrthographicCameraComponent.h"
 
 #include "Shader.h"
+#include "Tilesystem.h"
 
 namespace TopDownShooter
 {
@@ -25,6 +26,7 @@ namespace TopDownShooter
 		~SpriteSheetScene();
 		void Update(float deltaTime) override;
 		void Render() override;
+		Tile_Info *GetTileByName(const std::string &name);
 	private:
 		
 		IceEngine::Shader *m_shader;
@@ -38,5 +40,13 @@ namespace TopDownShooter
 
 		std::vector<Tile_Info> m_tilesInfo;
 		int m_spriteIndex = 0;
+
+
+
+		
+
+
+		IceEngine::Tileset *m_tileset;
+		IceEngine::Tilemap *m_tilemap;
 	};
 }

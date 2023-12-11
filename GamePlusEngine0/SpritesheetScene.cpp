@@ -17,8 +17,15 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
+
+
+
 namespace TopDownShooter
 {
+
+	
+
+
 	const std::string vertex_shader = R"(
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
@@ -132,11 +139,39 @@ namespace TopDownShooter
 	{
 		m_name = "SpriteSheetScene";
 
+
+		// Parse the .csv files
+		// Build a map with layers and tiles types
+		// Prepare for render
+		// Render
+
+
+		m_tileset = new IceEngine::Tileset("./data/Asset0/0x72_DungeonTilesetII_v1.6/0x72_DungeonTilesetII_v1.6.png",
+			"./data/Asset0/0x72_DungeonTilesetII_v1.6/tile_list_v1.6");
+		m_tilemap = new IceEngine::Tilemap();
+
+		m_tilemap->SetTileset(m_tileset);
+		m_tilemap->AddLayerFromCSV("./data/GameMap_Floor.csv");
+		m_tilemap->AddLayerFromCSV("./data/GameMap_Wall Corners.csv");
+
+
+
 		// Load The sprite sheet tile set file tile_list_v1.6
 
 		// 		
 	
 		GetTileInfoFromFile(m_tilesInfo);
+
+
+		/*
+		
+			floor_5, floor_5, floor_5, floor_5, ...
+
+		*/
+
+
+		auto Floor5Tile = GetTileByName("floor_5");
+
 
 		// load sprite sheet texture
 		IceEngine::Texture2D tilesetTexture = IceEngine::TextureLoader::LoadTexture("./data/Asset0/0x72_DungeonTilesetII_v1.6/0x72_DungeonTilesetII_v1.6.png");
@@ -162,9 +197,20 @@ namespace TopDownShooter
 		IceEngine::Renderer::Init();
 
 		m_cameraComponent = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
+		m_cameraComponent->zoom = 2.0F;
+		m_cameraComponent->position = { 24.2, 57.2 };
 		
 		//m_prevMousePos = IceEngine::InputManager::Instance().GetMousePosition();
 		m_spriteIndex = 0;
+
+
+		auto tile = m_tilesInfo[113];
+		IceEngine::Logger::Instance().Log(IceEngine::LogLevel::ERROR, "% % % % %", tile.name, tile.x_offset, tile.y_offset, tile.width, tile.height);
+		IceEngine::Logger::Instance().Log(IceEngine::LogLevel::ERROR, "[%f %f] [%f %f] [%f %f] [%f %f]",
+			tile.textureCoords[0].x, tile.textureCoords[0].y,
+			tile.textureCoords[1].x, tile.textureCoords[1].y,
+			tile.textureCoords[2].x, tile.textureCoords[2].y,
+			tile.textureCoords[3].x, tile.textureCoords[3].y);
 	}
 
 	SpriteSheetScene::~SpriteSheetScene()
@@ -191,10 +237,34 @@ namespace TopDownShooter
 			m_cameraComponent->zoom = 1.0f;
 		}
 
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_DOWN))
+		{
+			m_cameraComponent->position.y += 100 * deltaTime;
+		}
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_UP))
+		{
+			m_cameraComponent->position.y -= 100 * deltaTime;
+		}
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_LEFT))
+		{
+			m_cameraComponent->position.x -= 100 * deltaTime;
+		}
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_RIGHT))
+		{
+			m_cameraComponent->position.x += 100 * deltaTime;
+		}
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_H))
+		{
+			IceEngine::Logger::Instance().Log(IceEngine::LogLevel::INFO, "Camera position = {%, %}", m_cameraComponent->position.x, m_cameraComponent->position.y);
+		}
+
 		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_N))
 		{
 			m_spriteIndex = m_spriteIndex + 1;
 			m_spriteIndex %= m_tilesInfo.size() - 1;
+
+			auto tile = m_tilesInfo[m_spriteIndex];
+			IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "% % % % %", tile.name, tile.x_offset, tile.y_offset, tile.width, tile.height);
 		}
 
 		
@@ -219,9 +289,24 @@ namespace TopDownShooter
 		return oss.str();
 	}
 
+	Tile_Info *SpriteSheetScene::GetTileByName(const std::string &name)
+	{
+		Tile_Info *ptr = nullptr;
+
+		for (int i = 0; i < m_tilesInfo.size(); i++)
+		{
+			if (m_tilesInfo[i].name == name)
+			{
+				ptr = &m_tilesInfo[i];
+				break;
+			}
+		}
+
+		return ptr;
+	}
+
 	void SpriteSheetScene::Render()
 	{
-
 		IceEngine::Color::SetClearColor({ 29, 17, 22 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -230,10 +315,13 @@ namespace TopDownShooter
 		IceEngine::Renderer::ResetStats();
 		IceEngine::Renderer::BeginBatch();
 
+		
 
-	
+
+		m_tilemap->Draw();
+		
 		glm::vec2 tileSize = {(float)m_tilesInfo[m_spriteIndex].width , (float)m_tilesInfo[m_spriteIndex].height };
-		glm::vec2 position = { 100, 100 };
+		glm::vec2 position = { 200, 200 };
 		float tileRotation = 0.0f;
 
 		// Translation matrix with the pivot adjustment
@@ -248,18 +336,15 @@ namespace TopDownShooter
 		// Combine the transformations
 		glm::mat4 modelMatrix = translation * rotationMatrix * scaling;
 
-		IceEngine::Logger::Instance().Log(mat4ToString(modelMatrix), IceEngine::LogLevel::SUCCESS);
+		//IceEngine::Logger::Instance().Log(mat4ToString(modelMatrix), IceEngine::LogLevel::SUCCESS);
 
 		tileSize = { (float)m_tilesInfo[m_spriteIndex].width / SCREEN_WIDTH, (float)m_tilesInfo[m_spriteIndex].height / SCREEN_HEIGHT };
-
-		
-
 		IceEngine::Renderer::DrawQuad(position, tileSize , modelMatrix, m_tilesetTexture, m_tilesInfo[m_spriteIndex].textureCoords);
 
 
 		auto S = IceEngine::Renderer::GetStats();
 
-		IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "DrawCount = %, QuadCount = %", S.DrawCount, S.QuadCount);
+		//IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "DrawCount = %, QuadCount = %", S.DrawCount, S.QuadCount);
 		IceEngine::Renderer::EndBatch();
 
 		// Setup Camera View Transform

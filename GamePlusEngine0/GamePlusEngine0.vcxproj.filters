@@ -100,6 +100,9 @@
     <Filter Include="Source Files\Engine\Graphics\Font">
       <UniqueIdentifier>{27b4506f-f008-4e94-bc61-79aadd7abf7e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Tiling">
+      <UniqueIdentifier>{b28e2743-e1d2-48b6-a47a-d66771c0e0e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -274,6 +277,9 @@
     </ClInclude>
     <ClInclude Include="ParticleSystem.h">
       <Filter>Source Files\Engine\VFX</Filter>
+    </ClInclude>
+    <ClInclude Include="Tilesystem.h">
+      <Filter>Source Files\Engine\Tiling</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

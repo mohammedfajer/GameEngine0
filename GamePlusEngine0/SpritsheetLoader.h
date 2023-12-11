@@ -8,7 +8,7 @@
 namespace IceEngine
 {
 	
-	std::vector<glm::vec2> GetTextureCoords(Texture2D imageInfo, int tileY, int tileX, int tileWidth, int tileHeight)
+	static std::vector<glm::vec2> GetTextureCoords(Texture2D imageInfo, int tileY, int tileX, int tileWidth, int tileHeight)
 	{
 		glm::vec2 topLeft  = { static_cast<float>(tileX) / imageInfo.width, static_cast<float>(tileY) / imageInfo.height };
 		glm::vec2 topRight = { static_cast<float>(tileX) / imageInfo.width + static_cast<float>(tileWidth) / imageInfo.width,  static_cast<float>(tileY) / imageInfo.height };

@@ -39,7 +39,8 @@ namespace IceEngine {
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter);
 
-		// @nocheckin maxFilter was set to GL_LINEAR and when I have changed it to GL_NEAREST it made my texture more clear and remove the blurryness. 
+		// @nocheckin maxFilter was set to GL_LINEAR and when I have changed it to GL_NEAREST it made my texture more clear and remove the blurriness. 
+		// https://gamedev.stackexchange.com/questions/19075/how-can-i-make-opengl-textures-scale-without-becoming-blurry
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 

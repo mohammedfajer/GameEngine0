@@ -68,23 +68,22 @@ namespace IceEngine
 
 	void InputManager::HandleKeyboardEvent(SDL_Event &event) 
 	{
-		if(event.key.repeat == 0) 
+		if (event.key.repeat == 0)
 		{
 			m_keyboardState[event.key.keysym.scancode] = 1;
-
-			// If the key was not repeated and m_isKeyRepeat is true, it means the key was released
-			if (m_isKeyRepeat)
-			{
-				m_keyboardState[event.key.keysym.scancode] = 0;
-			}
-
 			m_keysPressed.insert(event.key.keysym.scancode);
-
 			m_isKeyRepeat = false;
- 		} 
-		else 
+		}
+		else
 		{
 			m_isKeyRepeat = true;
+		}
+
+		// If it's a key release event, reset the key state
+		if (event.type == SDL_KEYUP)
+		{
+			m_keyboardState[event.key.keysym.scancode] = 0;
+			m_keysPressed.erase(event.key.keysym.scancode);
 		}
 	}
 
@@ -136,14 +135,16 @@ namespace IceEngine
 	}
 	bool InputManager::IsKeyPressed(SDL_Scancode key) const
 	{
+	
 		// Check if the key is in the set of keys pressed in the current frame
-		return m_keysPressed.count(key) > 0;
+		return m_keysPressed.count(key) > 0 && m_isKeyRepeat == false;
 	}
 
 	bool InputManager::IsKeyReleased(SDL_Scancode key) const
 	{
 		// Check if the key is released in the current frame
-		return (m_keyboardState[key] == 0);
+		// Check if the key was released in the current frame and was not immediately pressed again due to key repeat
+		return (m_keyboardState[key] == 0) && (m_keysPressed.count(key) == 0) && !m_isKeyRepeat;
 	}
 }
 
