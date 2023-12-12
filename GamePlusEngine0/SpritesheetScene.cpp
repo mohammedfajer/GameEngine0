@@ -17,7 +17,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-
+#include "DebugDraw.h"
 
 
 namespace TopDownShooter
@@ -135,6 +135,14 @@ namespace TopDownShooter
 		}
 	}
 
+	/*	API Usage
+	*	glm::mat4 viewMatrix = ...;
+		glm::mat4 projectionMatrix = ...;
+		DebugPoint::Initialize(viewMatrix, projectionMatrix);
+		DebugPoint::Draw(glm::vec2(0.0f, 0.0f, 10.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+	*
+	*/
+
 	SpriteSheetScene::SpriteSheetScene()
 	{
 		m_name = "SpriteSheetScene";
@@ -211,6 +219,11 @@ namespace TopDownShooter
 			tile.textureCoords[1].x, tile.textureCoords[1].y,
 			tile.textureCoords[2].x, tile.textureCoords[2].y,
 			tile.textureCoords[3].x, tile.textureCoords[3].y);
+
+
+		glm::mat4 viewMatrix = m_cameraComponent->GetViewMatrix();
+		glm::mat4 projectionMatrix = m_cameraComponent->projection;
+		IceEngine::DebugPoint::Initialize(viewMatrix, projectionMatrix);
 	}
 
 	SpriteSheetScene::~SpriteSheetScene()
@@ -310,13 +323,16 @@ namespace TopDownShooter
 		IceEngine::Color::SetClearColor({ 29, 17, 22 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
+
+		//IceEngine::DebugPoint::Draw(glm::vec2(0.0f, 0.0f), 10.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
 		m_shader->Bind();
 
 		IceEngine::Renderer::ResetStats();
 		IceEngine::Renderer::BeginBatch();
 
-		
 
+		
 
 		m_tilemap->Draw();
 		

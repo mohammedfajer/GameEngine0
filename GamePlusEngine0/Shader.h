@@ -35,7 +35,7 @@ namespace IceEngine
 		{
 			int success;
 			char info_log[512];
-			if (type == "program")
+			if (type != "program")
 			{
 				glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 				if (!success)

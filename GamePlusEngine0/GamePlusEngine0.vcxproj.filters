@@ -103,6 +103,9 @@
     <Filter Include="Source Files\Engine\Tiling">
       <UniqueIdentifier>{b28e2743-e1d2-48b6-a47a-d66771c0e0e0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\Debug Draw">
+      <UniqueIdentifier>{ee0de8be-b513-489e-bbd4-28ad3d92e458}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="Tilesystem.h">
       <Filter>Source Files\Engine\Tiling</Filter>
+    </ClInclude>
+    <ClInclude Include="DebugDraw.h">
+      <Filter>Source Files\Engine\Debug Draw</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

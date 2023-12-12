@@ -1,9 +1,7 @@
 #pragma once
 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 
 #include <string>
 #include <vector>
@@ -17,10 +15,9 @@
 #include "SpritsheetLoader.h"
 #include "Defines.h"
 
-namespace IceEngine
-{
-	struct Tile_Info
-	{
+namespace IceEngine {
+	
+	struct Tile_Info {
 		int ID;
 		int x_offset;
 		int y_offset;
@@ -29,12 +26,9 @@ namespace IceEngine
 		std::string name;
 	};
 
-	
-	class Tileset
-	{
+	class Tileset {
 	public:
-		explicit Tileset(const std::string filePath, const std::string textFilePath)
-		{
+		explicit Tileset(const std::string filePath, const std::string textFilePath) {
 			// Load Sprite Sheet
 			m_spritesheet = TextureLoader::LoadTexture(filePath);
 
@@ -93,9 +87,7 @@ namespace IceEngine
 			}
 		}
 
-
-		Tile_Info GetTile(int ID) const
-		{
+		Tile_Info GetTile(int ID) const {
 			return m_tiles[ID];
 		}
 
@@ -109,8 +101,7 @@ namespace IceEngine
 	};
 
 
-	struct Tile_Draw
-	{
+	struct Tile_Draw {
 		int ID;
 		glm::vec2 world_position; // x, y
 		glm::vec2 world_size;     // width, height
@@ -118,19 +109,17 @@ namespace IceEngine
 	};
 
 
-	struct Layer
-	{
+	struct Layer {
 		int m_priority; // 0 draws first 1 on top and so on...
 		std::vector<Tile_Draw> m_tiles;
 	};
 
-	class Tilemap
-	{
+	class Tilemap {
 	public:
 		Tilemap() = default;
 
-		void AddLayerFromCSV(const std::string filePath)
-		{
+		void AddLayerFromCSV(const std::string filePath) {
+			
 			if (!m_tileset) {
 				Logger::Instance().Log("Tileset is not yet set", LogLevel::ERROR);
 				return;
@@ -148,10 +137,9 @@ namespace IceEngine
 			m_tileSize = 16;
 			int x = 0;
 			int y = 0;
+			
 			// Parse CSV and add to layer Tile_Draws vector
-			for (int i = 0; text[i] != '\0'; i++)
-			{
-
+			for (int i = 0; text[i] != '\0'; i++) {
 				if (text[i] == ',') continue;
 				if (text[i] == '\n') {
 					x = 0;
@@ -160,8 +148,7 @@ namespace IceEngine
 				}
 
 				// Handle -1 case
-				if (text[i] == '-')
-				{
+				if (text[i] == '-') {
 					new_layer.m_tiles.push_back({ -1, {x,y}, {0,0}, {} });
 					x += m_tileSize;
 
@@ -169,12 +156,10 @@ namespace IceEngine
 					i += 1; 
 					continue;
 				}
-				else
-				{
+				else {
 					std::string advance = "";
 					int k = i;
-					while (text[k] != ',')
-					{
+					while (text[k] != ',') {
 						advance += text[k];
 						k++;
 					}
@@ -189,32 +174,23 @@ namespace IceEngine
 				}
 			}
 		
-
 			// Add to layers
 			m_layers.push_back(new_layer);
 			
 			m_width = x * m_tileSize;
 			m_height = y * m_tileSize;
-
 		}
 
-		void SetTileset(Tileset *tileset)
-		{
+		void SetTileset(Tileset *tileset) {
 			m_tileset = tileset;
 		}
 
-		void Draw()
-		{
+		void Draw() {
 			// Draw tile map
-			
-
-
-			
-
-			for (auto &layer : m_layers)
-			{
-				for (auto &tile : layer.m_tiles)
-				{
+		 
+			for (auto &layer : m_layers) {
+				for (auto &tile : layer.m_tiles) {
+					
 					if (tile.ID == -1) continue;
 
 					// Adjust the offset as needed
@@ -245,9 +221,6 @@ namespace IceEngine
 					Renderer::DrawQuad(glm::vec2(0, 0), glm::vec2(1.0f / SCREEN_WIDTH, 1.0f / SCREEN_HEIGHT), modelMatrix, texture_id, tile.texture_coords);
 				}
 			}
-
-
-
 		}
 		
 	private:
@@ -258,8 +231,4 @@ namespace IceEngine
 		Tileset *m_tileset;
 		int index = 0;
 	};
-
-
-
-
 }

@@ -20,6 +20,14 @@ namespace IceEngine
 		float TexIndex;
 	};
 
+	struct PointVertex
+	{
+		glm::vec3 Position;
+		glm::vec4 Color;
+	};
+
+
+
 	struct RendererData
 	{
 		GLuint QuadVA = 0;

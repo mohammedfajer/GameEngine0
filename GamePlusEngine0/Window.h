@@ -21,5 +21,7 @@ namespace IceEngine {
 		void CreateWindow(const char* title, int width, int height);
 		void InitGLContext();
 		void InitGLEW();
+		
+	
 	};
 }
