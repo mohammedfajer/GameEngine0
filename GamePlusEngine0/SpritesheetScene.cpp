@@ -24,7 +24,9 @@ namespace TopDownShooter
 {
 
 	
-
+	IceEngine::DebugPoint point;
+	IceEngine::DebugCircle circle;
+	
 
 	const std::string vertex_shader = R"(
 		#version 330 core
@@ -143,6 +145,8 @@ namespace TopDownShooter
 	*
 	*/
 
+	
+
 	SpriteSheetScene::SpriteSheetScene()
 	{
 		m_name = "SpriteSheetScene";
@@ -220,10 +224,21 @@ namespace TopDownShooter
 			tile.textureCoords[2].x, tile.textureCoords[2].y,
 			tile.textureCoords[3].x, tile.textureCoords[3].y);
 
+		auto projView = m_cameraComponent->projection * m_cameraComponent->GetViewMatrix();
+		
+		point.pointSize = 10;
+		point.color = { 8/255.0, 102/255.0, 255/255.0 };
+		point.setup_point(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 
-		glm::mat4 viewMatrix = m_cameraComponent->GetViewMatrix();
-		glm::mat4 projectionMatrix = m_cameraComponent->projection;
-		IceEngine::DebugPoint::Initialize(viewMatrix, projectionMatrix);
+
+		circle.radius = 1;
+		circle.vCount = 128;
+		
+
+		circle.setup();
+
+
+	
 	}
 
 	SpriteSheetScene::~SpriteSheetScene()
@@ -318,13 +333,15 @@ namespace TopDownShooter
 		return ptr;
 	}
 
+	
+
 	void SpriteSheetScene::Render()
 	{
 		IceEngine::Color::SetClearColor({ 29, 17, 22 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
-
-		//IceEngine::DebugPoint::Draw(glm::vec2(0.0f, 0.0f), 10.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+		
+		
 
 		m_shader->Bind();
 
@@ -369,6 +386,10 @@ namespace TopDownShooter
 		//m_shader->SetMat4("model", m_transformComponent->GetModelMatrix());
 
 		IceEngine::Renderer::Flush();
+
+		circle.draw(100, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		//point.draw(100, 100, m_cameraComponent->GetViewMatrix());
+
 	}
 }
 

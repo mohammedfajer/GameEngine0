@@ -3,176 +3,375 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <string>
 #include <vector>
 
-#include "Texture2D.h"
-#include "TextureLoader.h"
-#include "FileIO.h"
-
-#include <array>
-#include "Renderer.h"
 #include "SpritsheetLoader.h"
 #include "Defines.h"
 
-#include <glm/gtc/type_ptr.hpp>
-namespace IceEngine {
 
+namespace IceEngine
+{
 
-	// Define the shaders code (source code) for drawing a point
-
-	// Setup Geometry and Send to GPU
-
-	// Draw the Point API
-
-	 std::string point_vertex_shader_source = R"(
+	// Shader
+	// Vertex Data
+	// Index Data ?
+	// Draw
+	const char *point_vertex_shader_source = R"(
 		#version 330 core
 		layout (location = 0) in vec2 aPos;
+		
+		
 		uniform float pointSize;
 		uniform mat4 model;
 		uniform mat4 view;
 		uniform mat4 projection;
-		void main()
-		{
+
+		void main() {
 			gl_Position = projection * view * model * vec4(aPos, 0.0, 1.0);
 			gl_PointSize = pointSize;
-			
 		}
 	)";
 
-	  std::string point_fragment_shader_source = R"(
+	const char *point_fragment_shader_source = R"(
 		#version 330 core
 		out vec4 FragColor;
-		void main()
-		{
-			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+
+		uniform vec3 color;
+
+		uniform bool isRound;
+
+		void main() {
+
+			if(isRound)
+			{
+				// Calculate distance from the center of the point
+				float distance = length(gl_PointCoord - vec2(0.5));
+
+				// If the distance is greater than 0.5, discard the fragment
+				if (distance > 0.5) {
+					discard;
+				}
+			}
+			// Otherwise, set the fragment color
+			FragColor = vec4(color, 1.0);
 		}
 	)";
 
-
-	static void check_compile_errors(GLuint shader, const std::string &type) {
-		/*GLint success;
-		GLchar infoLog[512];
+	// Function to check shader compilation errors
+	void checkShaderCompileError(GLuint shader) {
+		GLint success;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 		if (!success) {
-			glGetShaderInfoLog(shader, 512, NULL, infoLog);
-			std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
-				<< infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
-		}
-		GLenum error = glGetError();
-		if (error != GL_NO_ERROR) {
-			std::cerr << "OpenGL Error: " << error << std::endl;
-		}*/
-		int success;
-		char info_log[512];
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			glGetShaderInfoLog(shader, 512, NULL, info_log);
-			Logger::Instance().Log("Error::Shader::Compilation_Failed" + std::string(info_log), LogLevel::ERROR);
+			GLint logLength;
+			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+			char *log = new char[logLength];
+			glGetShaderInfoLog(shader, logLength, NULL, log);
+			std::cerr << "Shader compilation error:\n" << log << std::endl;
+			delete[] log;
 		}
 	}
 
-	static void check_linking_errors(GLuint program) {
+	// Function to check program linking errors
+	void checkProgramLinkError(GLuint program) {
 		GLint success;
-		GLchar infoLog[512];
 		glGetProgramiv(program, GL_LINK_STATUS, &success);
 		if (!success) {
-			glGetProgramInfoLog(program, 512, NULL, infoLog);
-			std::cerr << "ERROR::PROGRAM_LINKING_ERROR\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+			GLint logLength;
+			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
+			char *log = new char[logLength];
+			glGetProgramInfoLog(program, logLength, NULL, log);
+			std::cerr << "Program linking error:\n" << log << std::endl;
+			delete[] log;
 		}
 	}
 
-	
+
+
 	struct DebugPoint
 	{
-		
-		static GLuint shader_program_id;
-		static GLuint vertex_buffer_object, vertex_array_object;
+		GLuint shader_program;
+		GLuint VBO, VAO;
+		float pointSize;
+		glm::vec3 color;
+		glm::mat4 view;
+		glm::mat4 projection;
+		bool isRound = false;
+
+		void setup_point(const glm::mat4 &view, const glm::mat4 &projection)
+		{
 
 
-		static void Initialize(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix) {
-			// Compile shaders and link
+			this->view = view;
+			this->projection = projection;
 
-			const char *VS = point_vertex_shader_source.c_str();
-			const char *FS = point_fragment_shader_source.c_str();
+			GLfloat sizeRange[2] = { 0.0f };
+			glGetFloatv(GL_POINT_SIZE_RANGE, sizeRange);
 
-			const GLchar **vs_string = &VS;
-			const GLchar **fs_string = &FS;
+			std::cout << "POINT SIZE = " << sizeRange[0] << " " << sizeRange[1] << std::endl;
+
+
+			glEnable(GL_PROGRAM_POINT_SIZE);
+
+
+
+			// THIS IS THE CODE OF DRAWING CIRCLUR POINTS IN THE SHADER :) 
+			glEnable(GL_POINT_SPRITE);
 
 			GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(vertex_shader, 1, vs_string, NULL);
+			glShaderSource(vertex_shader, 1, &point_vertex_shader_source, NULL);
 			glCompileShader(vertex_shader);
-			check_compile_errors(vertex_shader, "Vertex Shader");
+			checkShaderCompileError(vertex_shader);
 
 			GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fragment_shader, 1, fs_string, NULL);
-			check_compile_errors(fragment_shader, "Fragment Shader");
-			
-			shader_program_id = glCreateProgram();
-			glAttachShader(shader_program_id, vertex_shader);
-			glAttachShader(shader_program_id, fragment_shader);
-			glLinkProgram(shader_program_id);
-			check_linking_errors(shader_program_id);
+			glShaderSource(fragment_shader, 1, &point_fragment_shader_source, NULL);
+			glCompileShader(fragment_shader);
+			checkShaderCompileError(fragment_shader);
 
-			glDeleteShader(vertex_shader);
-			glDeleteShader(fragment_shader);
+			shader_program = glCreateProgram();
+			glAttachShader(shader_program, vertex_shader);
+			glAttachShader(shader_program, fragment_shader);
+			glLinkProgram(shader_program);
+			checkProgramLinkError(shader_program);
 
-			// Geometry Setup (VBO, VAO) for a single point
+			glUseProgram(shader_program);
+
 			float vertices[] = { 0.0f, 0.0f };
-			
-			glGenBuffers(1, &vertex_buffer_object);
-			glGenVertexArrays(1, &vertex_array_object);
 
-			glBindVertexArray(vertex_array_object);
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
 
-			glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer_object);
+			glBindVertexArray(VAO);
+
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
 			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
 			glEnableVertexAttribArray(0);
 
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 			glBindVertexArray(0);
 
-			glUseProgram(shader_program_id);;
-			// Obtain uniform locations
-			GLint viewLoc = glGetUniformLocation(shader_program_id, "view");
-			GLint projectionLoc = glGetUniformLocation(shader_program_id, "projection");
+			// Set the resolution uniform
 
-			// Set uniform values (assuming you have glm::mat4 view and projection)
-			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+
+			GLenum error = glGetError();
+			if (error != GL_NO_ERROR) {
+				// Handle or print the error
+				std::cerr << "OpenGL Error: " << error << std::endl;
+			}
+			GLint pointSizeLoc = glGetUniformLocation(shader_program, "pointSize");
+			if (pointSizeLoc != -1) {
+				glUniform1f(pointSizeLoc, pointSize);
+			}
+			else {
+				std::cerr << "projView matrix uniform not found in the shader!" << std::endl;
+			}
+			GLint colorLoc = glGetUniformLocation(shader_program, "color");
+			if (colorLoc != -1) {
+				glUniform3f(colorLoc, color.x, color.y, color.z);
+			}
+			else {
+				std::cerr << "projView matrix uniform not found in the shader!" << std::endl;
+			}
+
+			glUniform1i(glGetUniformLocation(shader_program, "isRound"), isRound);
 		}
 
-		static void Draw(const glm::vec2 &position, float pointSize, const glm::vec3 &color) {
-			glUseProgram(shader_program_id);
-			glUniform1f(glGetUniformLocation(shader_program_id, "pointSize"), pointSize);
-			glUniform3fv(glGetUniformLocation(shader_program_id, "color"), 1, &color[0]);
-			glm::mat4 model = glm::mat4(1.0f);
-			model = glm::translate(model, glm::vec3(position, 0.0f));
-			glUniformMatrix4fv(glGetUniformLocation(shader_program_id, "model"), 1, GL_FALSE, &model[0][0]);
-			glBindVertexArray(vertex_array_object);
+		void draw(int x, int y, const glm::mat4 &view)
+		{
+			glClear(GL_COLOR_BUFFER_BIT);
+			glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+			glUseProgram(shader_program);
+			glBindVertexArray(VAO);
+
+
+			// Set the model matrix uniform
+			GLint modelLoc = glGetUniformLocation(shader_program, "model");
+			if (modelLoc != -1) {
+				// Assuming you're using a simple 2D translation matrix
+				glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
+				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			}
+			else {
+				std::cerr << "Model matrix uniform not found in the shader!" << std::endl;
+			}
+			// Set the projView matrix uniform
+			GLint viewLoc = glGetUniformLocation(shader_program, "view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
 			glDrawArrays(GL_POINTS, 0, 1);
 			glBindVertexArray(0);
 			glUseProgram(0);
 		}
+	};
 
+
+	const char *circle_vertex_shader_source = R"(
+#version 330 core
+
+layout (location = 0) in vec3 aPos;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
+void main()
+{
+    gl_Position = projection * view * model * vec4(aPos, 1.0);
+	gl_PointSize = 10.0f;
+}
+)";
+
+	const char *circle_fragment_shader_source = R"(
+#version 330 core
+
+out vec4 FragColor;
+
+void main()
+{
+    FragColor = vec4(176/255.0f, 55/255.0f, 97/255.0f, 1.0f);
+}
+)";
+	
+	struct DebugCircle
+	{
+		GLuint shader_program;
+		GLuint VAO;
+
+		float radius;
+		int vCount;
+		std::vector<glm::vec3> vertices;
+		bool isOutline = true;
+
+		void setup()
+		{
+			GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+			glShaderSource(vertex_shader, 1, &circle_vertex_shader_source, NULL);
+			glCompileShader(vertex_shader);
+			checkShaderCompileError(vertex_shader);
+
+			GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fragment_shader, 1, &circle_fragment_shader_source, NULL);
+			glCompileShader(fragment_shader);
+			checkShaderCompileError(fragment_shader);
+
+			shader_program = glCreateProgram();
+			glAttachShader(shader_program, vertex_shader);
+			glAttachShader(shader_program, fragment_shader);
+			glLinkProgram(shader_program);
+			checkProgramLinkError(shader_program);
+
+
+			build(vCount);
+
+			glUseProgram(shader_program);
+
+			// buffer
+			GLuint VBO;
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+
+			glBindVertexArray(VAO);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
+		
+			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), &vertices[0], GL_STATIC_DRAW); 
+
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+
+			glEnableVertexAttribArray(0);
+
+
+			//// Enable point size and point sprite
+			//glEnable(GL_PROGRAM_POINT_SIZE);
+			//glEnable(GL_POINT_SPRITE);
+
+			//// Check the point size range
+			//GLfloat sizeRange[2] = { 0.0f };
+			//glGetFloatv(GL_POINT_SIZE_RANGE, sizeRange);
+			//std::cout << "POINT SIZE RANGE = " << sizeRange[0] << " " << sizeRange[1] << std::endl;
+
+		}
+
+		void build(int vCount)
+		{
+			float angle = 360.0f / vCount;
+
+			int triangleCount = vCount - 2;
+
+			std::vector<glm::vec3> temp;
+
+			for (int i = 0; i < vCount; i++)
+			{
+				float currentAngle = angle * i;
+				float x = radius * cos(glm::radians(currentAngle));
+				float y = radius * sin(glm::radians(currentAngle));
+				float z = 0.0f;
+				temp.push_back(glm::vec3(x, y, z));
+			}
+
+			if (isOutline)
+			{
+				vertices = temp;
+				return;
+			}
+
+			for (int i = 0; i < triangleCount; i++)
+			{
+				vertices.push_back(temp[0]);
+				vertices.push_back(temp[i + 1]);
+				vertices.push_back(temp[i + 2]);
+			}
+		}
+
+		
+
+
+		void draw(int x, int y, const glm::mat4 &view, const glm::mat4 &projection)
+		{
+			
+			glUseProgram(shader_program);
+
+			// Set model matrix with translation and scaling
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
+			model = glm::scale(model, glm::vec3(100.0f)); // Adjust the scaling factor as needed
+
+
+			// Pass matrices to the shader
+			GLint modelLoc = glGetUniformLocation(shader_program, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			GLint viewLoc = glGetUniformLocation(shader_program, "view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+			glBindVertexArray(VAO);
+			
+			if (isOutline)
+			{
+				glDrawArrays(GL_LINE_LOOP, 0, vertices.size());
+			}
+			else
+			{
+				glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+			}
+			
+		}
 
 	};
 
-	GLuint DebugPoint::shader_program_id;
-	GLuint DebugPoint::vertex_buffer_object;
-	GLuint DebugPoint::vertex_array_object;
+	
 
-	/*	API Usage
-	*	glm::mat4 viewMatrix = ...;
-		glm::mat4 projectionMatrix = ...;
-		DebugPoint::Initialize(viewMatrix, projectionMatrix);
-		DebugPoint::Draw(glm::vec2(0.0f, 0.0f, 10.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-	* 
-	*/
-
+	
 
 }
+
