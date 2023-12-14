@@ -26,6 +26,7 @@ namespace TopDownShooter
 	
 	IceEngine::DebugPoint point;
 	IceEngine::DebugCircle circle;
+	IceEngine::DebugLine line;
 	
 
 	const std::string vertex_shader = R"(
@@ -145,12 +146,16 @@ namespace TopDownShooter
 	*
 	*/
 
-	
+
 
 	SpriteSheetScene::SpriteSheetScene()
 	{
 		m_name = "SpriteSheetScene";
 
+
+		//auto A = IceEngine::convert_x_from_world_to_ndc(SCREEN_WIDTH / 2.0F);		// 0
+		//auto B = IceEngine::convert_y_from_world_to_ndc(SCREEN_HEIGHT / 2.0F);		// 0
+		//IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "CONVERTION MATE :) % %", A, B);
 
 		// Parse the .csv files
 		// Build a map with layers and tiles types
@@ -231,13 +236,17 @@ namespace TopDownShooter
 		point.setup_point(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 
 
+		// Later may have to think about antialiasing
 		circle.radius = 1;
 		circle.vCount = 128;
 		
 
 		circle.setup();
 
+		
+		line.setup(glm::vec2(600,100), glm::vec2(400, 800));
 
+		
 	
 	}
 
@@ -340,16 +349,11 @@ namespace TopDownShooter
 		IceEngine::Color::SetClearColor({ 29, 17, 22 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		
-		
-
+	
 		m_shader->Bind();
 
 		IceEngine::Renderer::ResetStats();
 		IceEngine::Renderer::BeginBatch();
-
-
-		
 
 		m_tilemap->Draw();
 		
@@ -387,9 +391,9 @@ namespace TopDownShooter
 
 		IceEngine::Renderer::Flush();
 
-		circle.draw(100, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
-		//point.draw(100, 100, m_cameraComponent->GetViewMatrix());
-
+		circle.draw(300, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		point.draw(100, 100, m_cameraComponent->GetViewMatrix());
+		line.draw({ 0.0, 1.0, 0.0 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 	}
 }
 

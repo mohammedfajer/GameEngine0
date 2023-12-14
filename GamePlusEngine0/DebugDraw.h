@@ -12,6 +12,7 @@
 #include "Defines.h"
 
 
+
 namespace IceEngine
 {
 
@@ -89,7 +90,7 @@ namespace IceEngine
 	}
 
 
-
+	// https://faun.pub/draw-circle-in-opengl-c-2da8d9c2c103
 	struct DebugPoint
 	{
 		GLuint shader_program;
@@ -183,7 +184,7 @@ namespace IceEngine
 
 		void draw(int x, int y, const glm::mat4 &view)
 		{
-			glClear(GL_COLOR_BUFFER_BIT);
+			
 			glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 			glUseProgram(shader_program);
@@ -214,31 +215,31 @@ namespace IceEngine
 
 
 	const char *circle_vertex_shader_source = R"(
-#version 330 core
+		#version 330 core
 
-layout (location = 0) in vec3 aPos;
+		layout (location = 0) in vec3 aPos;
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+		uniform mat4 model;
+		uniform mat4 view;
+		uniform mat4 projection;
 
-void main()
-{
-    gl_Position = projection * view * model * vec4(aPos, 1.0);
-	gl_PointSize = 10.0f;
-}
-)";
+		void main()
+		{
+			gl_Position = projection * view * model * vec4(aPos, 1.0);
+			gl_PointSize = 10.0f;
+		}
+		)";
 
 	const char *circle_fragment_shader_source = R"(
-#version 330 core
+		#version 330 core
 
-out vec4 FragColor;
+		out vec4 FragColor;
 
-void main()
-{
-    FragColor = vec4(176/255.0f, 55/255.0f, 97/255.0f, 1.0f);
-}
-)";
+		void main()
+		{
+			FragColor = vec4(1.0f, 0.0f, 0.0f, 1.0f);
+		}
+		)";
 	
 	struct DebugCircle
 	{
@@ -268,7 +269,6 @@ void main()
 			glLinkProgram(shader_program);
 			checkProgramLinkError(shader_program);
 
-
 			build(vCount);
 
 			glUseProgram(shader_program);
@@ -281,13 +281,11 @@ void main()
 			glBindVertexArray(VAO);
 			glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-		
 			glBufferData(GL_ARRAY_BUFFER, sizeof(glm::vec3) * vertices.size(), &vertices[0], GL_STATIC_DRAW); 
 
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
 
 			glEnableVertexAttribArray(0);
-
 
 			//// Enable point size and point sprite
 			//glEnable(GL_PROGRAM_POINT_SIZE);
@@ -297,7 +295,6 @@ void main()
 			//GLfloat sizeRange[2] = { 0.0f };
 			//glGetFloatv(GL_POINT_SIZE_RANGE, sizeRange);
 			//std::cout << "POINT SIZE RANGE = " << sizeRange[0] << " " << sizeRange[1] << std::endl;
-
 		}
 
 		void build(int vCount)
@@ -331,18 +328,13 @@ void main()
 			}
 		}
 
-		
-
-
 		void draw(int x, int y, const glm::mat4 &view, const glm::mat4 &projection)
 		{
-			
 			glUseProgram(shader_program);
 
 			// Set model matrix with translation and scaling
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
 			model = glm::scale(model, glm::vec3(100.0f)); // Adjust the scaling factor as needed
-
 
 			// Pass matrices to the shader
 			GLint modelLoc = glGetUniformLocation(shader_program, "model");
@@ -363,14 +355,141 @@ void main()
 			else
 			{
 				glDrawArrays(GL_TRIANGLES, 0, vertices.size());
-			}
-			
+			}			
 		}
-
 	};
+
+
+
+
+
+	const char *line_vertex_shader_source = R"(
+		#version 330 core
+
+		layout (location = 0) in vec2 aPos;
+
+		uniform mat4 model;
+		uniform mat4 view;
+		uniform mat4 projection;
+
+		void main()
+		{
+			gl_Position = projection * view * model * vec4(aPos.x, aPos.y, 0.0, 1.0);
+			gl_PointSize = 50.0f;
+		}
+		)";
+
+	const char *line_fragment_shader_source = R"(
+		#version 330 core
+
+		out vec4 FragColor;
+		uniform vec3 lineColor;
+
+		void main()
+		{
+			FragColor = vec4(lineColor, 1.0f);
+		}
+		)";
+
+
 
 	
 
+	struct DebugLine
+	{
+		GLuint shader_program;
+		GLuint VAO;
+
+
+		void setup(const glm::vec2 &start, const glm::vec2 &end)
+		{
+			// Compile and link shaders
+			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+			glShaderSource(vertexShader, 1, &line_vertex_shader_source, NULL);
+			glCompileShader(vertexShader);
+			checkShaderCompileError(vertexShader);
+
+			GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fragmentShader, 1, &line_fragment_shader_source, NULL);
+			glCompileShader(fragmentShader);
+			checkShaderCompileError(fragmentShader);
+
+			 shader_program = glCreateProgram();
+			glAttachShader(shader_program, vertexShader);
+			glAttachShader(shader_program, fragmentShader);
+			glLinkProgram(shader_program);
+			checkProgramLinkError(shader_program);
+
+			glDeleteShader(vertexShader);
+			glDeleteShader(fragmentShader);
+
+
+			glm::vec2 ss = glm::vec2(convert_x_from_world_to_ndc(start.x), convert_y_from_world_to_ndc(start.y));
+			glm::vec2 ee = glm::vec2(convert_x_from_world_to_ndc(end.x), convert_y_from_world_to_ndc(end.y));
+		
+			float vertices[] = { ss.x, ss.y, ee.x, ee.y };
+
+			// Create Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
+			GLuint VBO;
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+
+			// Bind the VAO
+			glBindVertexArray(VAO);
+
+			// Bind and set vertex buffer data
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+			// Set vertex attribute pointers
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+			glEnableVertexAttribArray(0);
+
+			// Unbind VAO and VBO
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+
+		
+
+			
+		}
+		void draw(const glm::vec3 &color, const glm::mat4 &view, const glm::mat4 &projection)
+		{
+			// Use the shader program
+			glUseProgram(shader_program);
+
+			// Set uniform color variable
+			GLint lineColorLoc = glGetUniformLocation(shader_program, "lineColor");
+			glUniform3fv(lineColorLoc, 1, glm::value_ptr(color));
+
+			// Set model matrix (identity for simplicity, you can modify it based on your needs)
+			glm::mat4 model = glm::mat4(1.0f);
+			 model = glm::translate(glm::mat4(1.0f), glm::vec3(100, 100, 0.0f));
+			 model = glm::scale(model, glm::vec3(200.0f)); // Adjust the scaling factor as needed
+
+			// Set up the model, view, and projection matrices
+			GLint modelLoc = glGetUniformLocation(shader_program, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			GLint viewLoc = glGetUniformLocation(shader_program, "view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+
+			glBindVertexArray(VAO);
+			glDrawArrays(GL_LINES, 0, 2);
+		}
+	};
+	
+	/*
+		DebugLine line;
+		line.setup({100,100}, {300,300});
+
+		line.draw({1.0,0.0,0.0}, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		
+	*/
 	
 
 }
