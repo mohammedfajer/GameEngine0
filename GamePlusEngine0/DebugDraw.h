@@ -11,10 +11,7 @@
 #include "SpritsheetLoader.h"
 #include "Defines.h"
 
-
-
-namespace IceEngine
-{
+namespace IceEngine {
 
 	// Shader
 	// Vertex Data
@@ -251,8 +248,10 @@ namespace IceEngine
 		std::vector<glm::vec3> vertices;
 		bool isOutline = true;
 
-		void setup()
+		void setup(bool outline = true)
 		{
+			isOutline = outline;
+
 			GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 			glShaderSource(vertex_shader, 1, &circle_vertex_shader_source, NULL);
 			glCompileShader(vertex_shader);
@@ -372,10 +371,13 @@ namespace IceEngine
 		uniform mat4 view;
 		uniform mat4 projection;
 
+		out vec2 fragCoord;
+
 		void main()
 		{
 			gl_Position = projection * view * model * vec4(aPos.x, aPos.y, 0.0, 1.0);
-			gl_PointSize = 50.0f;
+			//gl_PointSize = 50.0f;
+			fragCoord = aPos;
 		}
 		)";
 
@@ -384,10 +386,18 @@ namespace IceEngine
 
 		out vec4 FragColor;
 		uniform vec3 lineColor;
+		uniform float lineThickness;
+		
+		in vec2 fragCoord;
 
 		void main()
 		{
-			FragColor = vec4(lineColor, 1.0f);
+			float thickness = lineThickness;
+			float distance = length(fragCoord);
+			float alpha = smoothstep(0.5 * thickness, 0.5 * thickness + 0.01, distance);
+			
+
+			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 		}
 		)";
 
@@ -400,9 +410,15 @@ namespace IceEngine
 		GLuint shader_program;
 		GLuint VAO;
 
+		float lineThickness;
 
-		void setup(const glm::vec2 &start, const glm::vec2 &end)
+
+		void setup(const glm::vec2 &start, const glm::vec2 &end, float thickness)
 		{
+			lineThickness = thickness;
+			glEnable(GL_LINE_SMOOTH);
+
+
 			// Compile and link shaders
 			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 			glShaderSource(vertexShader, 1, &line_vertex_shader_source, NULL);
@@ -427,7 +443,7 @@ namespace IceEngine
 			glm::vec2 ss = glm::vec2(convert_x_from_world_to_ndc(start.x), convert_y_from_world_to_ndc(start.y));
 			glm::vec2 ee = glm::vec2(convert_x_from_world_to_ndc(end.x), convert_y_from_world_to_ndc(end.y));
 		
-			float vertices[] = { ss.x, ss.y, ee.x, ee.y };
+			float vertices[] = { start.x, start.y, end.x, end.y };
 
 			// Create Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
 			GLuint VBO;
@@ -458,14 +474,25 @@ namespace IceEngine
 			// Use the shader program
 			glUseProgram(shader_program);
 
+			// Set uniform line thickness variable
+			GLint lineThicknessLoc = glGetUniformLocation(shader_program, "lineThickness");
+			glUniform1f(lineThicknessLoc, lineThickness);
+
 			// Set uniform color variable
 			GLint lineColorLoc = glGetUniformLocation(shader_program, "lineColor");
 			glUniform3fv(lineColorLoc, 1, glm::value_ptr(color));
 
 			// Set model matrix (identity for simplicity, you can modify it based on your needs)
-			glm::mat4 model = glm::mat4(1.0f);
-			 model = glm::translate(glm::mat4(1.0f), glm::vec3(100, 100, 0.0f));
-			 model = glm::scale(model, glm::vec3(200.0f)); // Adjust the scaling factor as needed
+			//glm::mat4 model = glm::mat4(1.0f);
+			// model = glm::translate(glm::mat4(1.0f), glm::vec3(100, 100, 0.0f));
+			// model = glm::scale(model, glm::vec3(200.0f)); // Adjust the scaling factor as needed
+
+			 //glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(200, 200, 0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+
+				glm::mat4 model = glm::mat4(1.0f);
+				//model = glm::translate(model, glm::vec3(100, 100, 0.0f));
+				//model = glm::scale(model, glm::vec3(100)); // Adjust scaling as needed
+
 
 			// Set up the model, view, and projection matrices
 			GLint modelLoc = glGetUniformLocation(shader_program, "model");
@@ -476,10 +503,14 @@ namespace IceEngine
 
 			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
 			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
+			
+			glLineWidth(lineThickness);
 
 			glBindVertexArray(VAO);
 			glDrawArrays(GL_LINES, 0, 2);
+		
+			// Reset line width to default
+			glLineWidth(1.0f);
 		}
 	};
 	

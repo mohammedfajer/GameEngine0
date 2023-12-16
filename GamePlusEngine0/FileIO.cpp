@@ -1,13 +1,10 @@
 #include "FileIO.h"
 
-namespace IceEngine
-{
-	const char* LoadTextFile(const char* filePath)
-	{
+namespace IceEngine {
+	const char* LoadTextFile(const char* filePath) {
 		std::ifstream file(filePath);
 
-		if (!file.is_open())
-		{
+		if (!file.is_open()) {
 			Logger::Instance().Log("Error opening file: " + std::string(filePath), LogLevel::ERROR);
 			return nullptr;
 		}

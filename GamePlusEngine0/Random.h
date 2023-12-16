@@ -3,11 +3,11 @@
 #include <glm/glm.hpp>
 #include <random>
 
-namespace IceEngine 
-{
+namespace IceEngine {
+	
 	glm::vec2 GetRandomPosition(float minX, float maxX, float minY,
-		float maxY, float minDistance, const std::vector<glm::vec2>& existingPositions)
-	{
+		float maxY, float minDistance, const std::vector<glm::vec2>& existingPositions) {
+		
 		// Seed the random number generator with the current time
 		std::mt19937 rng(static_cast<unsigned int>(std::time(nullptr)));
 
@@ -24,10 +24,8 @@ namespace IceEngine
 
 			// Check the distance to existing positions
 			tooClose = false;
-			for (const auto& existingPos : existingPositions) 
-			{
-				if (glm::length(randomPosition - existingPos) < minDistance) 
-				{
+			for (const auto& existingPos : existingPositions) {
+				if (glm::length(randomPosition - existingPos) < minDistance){
 					tooClose = true;
 					break;
 				}

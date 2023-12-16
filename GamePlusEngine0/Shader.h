@@ -1,27 +1,19 @@
 #pragma once
-
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
 #include <stdint.h>
 #include <string>
-
 #include <GL/glew.h>
-
 #include "Logger.h"
-
-
 #include "FileIO.h"
 
-namespace IceEngine 
-{
-	struct Shader 
-	{
+namespace IceEngine  {
+	struct Shader  {
+		
 		uint32_t id = 0;
 
-		const char* LoadShaderFromFile(const char* filePath)
-		{
+		const char* LoadShaderFromFile(const char* filePath) {
 		
 			const char* shaderSourceCStr = LoadTextFile(filePath);
 
@@ -31,32 +23,26 @@ namespace IceEngine
 			return shaderSourceCStr;
 		}
 
-		void CheckError(uint32_t shader, std::string type)
-		{
+		void CheckError(uint32_t shader, std::string type) {
 			int success;
 			char info_log[512];
-			if (type != "program")
-			{
+			if (type != "program") {
 				glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-				if (!success)
-				{
+				if (!success) {
 					glGetShaderInfoLog(shader, 512, NULL, info_log);
 					Logger::Instance().Log("Error::Shader::Compilation_Failed" + std::string(info_log), LogLevel::ERROR);
 				}
 			}
-			else
-			{
+			else {
 				glGetProgramiv(shader, GL_LINK_STATUS, &success);
-				if (!success)
-				{
+				if (!success) {
 					glGetProgramInfoLog(shader, 512, NULL, info_log);
 					Logger::Instance().Log("Error::Shader::Linking_Failed" + std::string(info_log), LogLevel::ERROR);
 				}
 			}
 		}
 
-		void LoadShaderFromString(const char* vertex_shader, const char* fragment_shader)
-		{
+		void LoadShaderFromString(const char* vertex_shader, const char* fragment_shader)	{
 			const GLchar** vs_string = &vertex_shader;
 			const GLchar** fs_string = &fragment_shader;
 			uint32_t vertex_shader_id, fragment_shader_id;
@@ -88,8 +74,7 @@ namespace IceEngine
 
 		Shader() = default;
 
-		Shader(std::string vertexShaderFilePath, std::string fragmentShaderFilePath) 
-		{
+		Shader(std::string vertexShaderFilePath, std::string fragmentShaderFilePath) {
 			
 			const char* vs = LoadShaderFromFile(vertexShaderFilePath.c_str());
 			const GLchar** vs_string = &vs;
@@ -127,23 +112,19 @@ namespace IceEngine
 
 		void UnBind() { glUseProgram(0); }
 
-		void SetBool(const std::string& name, bool value) 
-		{
+		void SetBool(const std::string& name, bool value) {
 			glUniform1i(glGetUniformLocation(id, name.c_str()), (int)value);
 		}
 
-		void SetInt(const std::string& name, int value)
-		{
+		void SetInt(const std::string& name, int value) {
 			glUniform1i(glGetUniformLocation(id, name.c_str()), value);
 		}
 
-		void SetFloat(const std::string& name, float value) 
-		{
+		void SetFloat(const std::string& name, float value) {
 			glUniform1f(glGetUniformLocation(id, name.c_str()), value);
 		}
 
-		void SetMat4(const std::string& name, glm::mat4 mat) 
-		{
+		void SetMat4(const std::string& name, glm::mat4 mat) {
 			int matLoc = glGetUniformLocation(id, name.c_str());
 			glUniformMatrix4fv(matLoc, 1, GL_FALSE, glm::value_ptr(mat));
 		}

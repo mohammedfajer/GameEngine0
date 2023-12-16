@@ -26,6 +26,7 @@ namespace TopDownShooter
 	
 	IceEngine::DebugPoint point;
 	IceEngine::DebugCircle circle;
+	IceEngine::DebugCircle circle2;
 	IceEngine::DebugLine line;
 	
 
@@ -63,22 +64,15 @@ namespace TopDownShooter
 
 		uniform sampler2D u_Textures[32];
 
-		void main()
-		{
+		void main() {
 			int index = int(TexIdx);
-
-			
-			FragColor = texture(u_Textures[index], TexCoord) * OurColor;
-			
+			FragColor = texture(u_Textures[index], TexCoord) * OurColor;			
 		}
 	)";
 
-	float ConvertToUV(float coord, int size)
-	{
+	float ConvertToUV(float coord, int size) {
 		return coord / static_cast<float>(size);  // Adjust for 0-based indexing
 	}
-
-	
 
 	void GetTileInfoFromFile(std::vector<Tile_Info> &tilesInfo) {
 		auto Text = IceEngine::LoadTextFile("./data/Asset0/0x72_DungeonTilesetII_v1.6/tile_list_v1.6");
@@ -130,10 +124,7 @@ namespace TopDownShooter
 					}
 					inc++;
 				}
-
-
 				line = "";
-
 			}
 		}
 	}
@@ -151,8 +142,7 @@ namespace TopDownShooter
 	SpriteSheetScene::SpriteSheetScene()
 	{
 		m_name = "SpriteSheetScene";
-
-
+		
 		//auto A = IceEngine::convert_x_from_world_to_ndc(SCREEN_WIDTH / 2.0F);		// 0
 		//auto B = IceEngine::convert_y_from_world_to_ndc(SCREEN_HEIGHT / 2.0F);		// 0
 		//IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "CONVERTION MATE :) % %", A, B);
@@ -163,8 +153,7 @@ namespace TopDownShooter
 		// Render
 
 
-		m_tileset = new IceEngine::Tileset("./data/Asset0/0x72_DungeonTilesetII_v1.6/0x72_DungeonTilesetII_v1.6.png",
-			"./data/Asset0/0x72_DungeonTilesetII_v1.6/tile_list_v1.6");
+		m_tileset = new IceEngine::Tileset("./data/Asset0/0x72_DungeonTilesetII_v1.6/0x72_DungeonTilesetII_v1.6.png", "./data/Asset0/0x72_DungeonTilesetII_v1.6/tile_list_v1.6");
 		m_tilemap = new IceEngine::Tilemap();
 
 		m_tilemap->SetTileset(m_tileset);
@@ -215,7 +204,7 @@ namespace TopDownShooter
 
 		m_cameraComponent = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 		m_cameraComponent->zoom = 2.0F;
-		m_cameraComponent->position = { 24.2, 57.2 };
+		//m_cameraComponent->position = { 24.2, 57.2 };
 		
 		//m_prevMousePos = IceEngine::InputManager::Instance().GetMousePosition();
 		m_spriteIndex = 0;
@@ -229,8 +218,7 @@ namespace TopDownShooter
 			tile.textureCoords[2].x, tile.textureCoords[2].y,
 			tile.textureCoords[3].x, tile.textureCoords[3].y);
 
-		auto projView = m_cameraComponent->projection * m_cameraComponent->GetViewMatrix();
-		
+
 		point.pointSize = 10;
 		point.color = { 8/255.0, 102/255.0, 255/255.0 };
 		point.setup_point(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
@@ -239,36 +227,37 @@ namespace TopDownShooter
 		// Later may have to think about antialiasing
 		circle.radius = 1;
 		circle.vCount = 128;
-		
-
 		circle.setup();
 
-		
-		line.setup(glm::vec2(600,100), glm::vec2(400, 800));
+		circle2.radius = 1;
+		circle2.vCount = 128;
+		circle2.setup(false);
 
+		line.setup(glm::vec2(0, 0), glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT), 5);
 		
-	
+		// Example check
+		glm::vec2 startNDC = m_cameraComponent->worldToScreen(glm::vec2(100, 100));
+		glm::vec2 endNDC = m_cameraComponent->worldToScreen(glm::vec2(400, 800));
+
+		std::cout << "Start NDC: (" << startNDC.x << ", " << startNDC.y << ")\n";
+		std::cout << "End NDC: (" << endNDC.x << ", " << endNDC.y << ")\n";
 	}
 
-	SpriteSheetScene::~SpriteSheetScene()
-	{
-		
-	}
+	SpriteSheetScene::~SpriteSheetScene() {}
 
-	void SpriteSheetScene::Update(float deltaTime)
-	{
+	void SpriteSheetScene::Update(float deltaTime) {
+
 		// Update the base scene
 		Scene::Update(deltaTime);
 	
-		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_L))
-		{
+		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_L)) {
 			m_cameraComponent->zoom += 0.05f;
-			
 		}
-		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_K))
-		{
+		
+		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_K)) {
 			m_cameraComponent->zoom -= 0.05f;
 		}
+		
 		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_P))
 		{
 			m_cameraComponent->zoom = 1.0f;
@@ -326,14 +315,11 @@ namespace TopDownShooter
 		return oss.str();
 	}
 
-	Tile_Info *SpriteSheetScene::GetTileByName(const std::string &name)
-	{
+	Tile_Info *SpriteSheetScene::GetTileByName(const std::string &name) {
 		Tile_Info *ptr = nullptr;
 
-		for (int i = 0; i < m_tilesInfo.size(); i++)
-		{
-			if (m_tilesInfo[i].name == name)
-			{
+		for (int i = 0; i < m_tilesInfo.size(); i++) {
+			if (m_tilesInfo[i].name == name) {
 				ptr = &m_tilesInfo[i];
 				break;
 			}
@@ -342,13 +328,10 @@ namespace TopDownShooter
 		return ptr;
 	}
 
-	
-
 	void SpriteSheetScene::Render()
 	{
 		IceEngine::Color::SetClearColor({ 29, 17, 22 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
-
 	
 		m_shader->Bind();
 
@@ -378,7 +361,6 @@ namespace TopDownShooter
 		tileSize = { (float)m_tilesInfo[m_spriteIndex].width / SCREEN_WIDTH, (float)m_tilesInfo[m_spriteIndex].height / SCREEN_HEIGHT };
 		IceEngine::Renderer::DrawQuad(position, tileSize , modelMatrix, m_tilesetTexture, m_tilesInfo[m_spriteIndex].textureCoords);
 
-
 		auto S = IceEngine::Renderer::GetStats();
 
 		//IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "DrawCount = %, QuadCount = %", S.DrawCount, S.QuadCount);
@@ -392,6 +374,7 @@ namespace TopDownShooter
 		IceEngine::Renderer::Flush();
 
 		circle.draw(300, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		circle2.draw(400, 300, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		point.draw(100, 100, m_cameraComponent->GetViewMatrix());
 		line.draw({ 0.0, 1.0, 0.0 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 	}

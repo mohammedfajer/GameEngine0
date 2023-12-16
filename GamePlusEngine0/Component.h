@@ -1,15 +1,11 @@
 #pragma once
 
-
-namespace IceEngine 
-{
+namespace IceEngine {
 	class GameObject;
 
-	struct Component
-	{
+	struct Component {
 		GameObject* owner;
 		virtual void Update(float deltaTime) = 0;
 		virtual ~Component() {}
 	};
 }
-
