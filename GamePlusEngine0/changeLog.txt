@@ -46,7 +46,12 @@ Engine
 
 
     [] Refactor code to use spritebatching
-    
+    [] AI Path Finding
+	[] Quad Trees
+	[] Collision
+	[] 2D Lights
+	[] Layers
+	[] RenderDocs debugging
 
 
 

@@ -28,6 +28,13 @@ namespace TopDownShooter
 	IceEngine::DebugCircle circle;
 	IceEngine::DebugCircle circle2;
 	IceEngine::DebugLine line;
+	IceEngine::DebugRect rect;
+	IceEngine::DebugRect rect2;
+	IceEngine::DebugLineQuad lineQuad;
+	IceEngine::DebugRoundRect roundedQuad;
+	IceEngine::SDFRoundRect sdfrect;
+
+	IceEngine::SDFRoundedRectangle SDFrect;
 	
 
 	const std::string vertex_shader = R"(
@@ -204,7 +211,7 @@ namespace TopDownShooter
 
 		m_cameraComponent = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 		m_cameraComponent->zoom = 2.0F;
-		//m_cameraComponent->position = { 24.2, 57.2 };
+		m_cameraComponent->position = { 24.2, 57.2 };
 		
 		//m_prevMousePos = IceEngine::InputManager::Instance().GetMousePosition();
 		m_spriteIndex = 0;
@@ -235,6 +242,20 @@ namespace TopDownShooter
 
 		line.setup(glm::vec2(0, 0), glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT), 5);
 		
+		rect.setup();
+		rect.isOutline = true;
+
+		rect2.setup();
+		rect2.isOutline = false;
+
+		lineQuad.setup();
+	
+		roundedQuad.setup();
+
+		sdfrect.setup();
+
+		SDFrect.setup();
+
 		// Example check
 		glm::vec2 startNDC = m_cameraComponent->worldToScreen(glm::vec2(100, 100));
 		glm::vec2 endNDC = m_cameraComponent->worldToScreen(glm::vec2(400, 800));
@@ -335,48 +356,57 @@ namespace TopDownShooter
 	
 		m_shader->Bind();
 
-		IceEngine::Renderer::ResetStats();
-		IceEngine::Renderer::BeginBatch();
+		//IceEngine::Renderer::ResetStats();
+		//IceEngine::Renderer::BeginBatch();
 
-		m_tilemap->Draw();
-		
-		glm::vec2 tileSize = {(float)m_tilesInfo[m_spriteIndex].width , (float)m_tilesInfo[m_spriteIndex].height };
-		glm::vec2 position = { 200, 200 };
-		float tileRotation = 0.0f;
+		//m_tilemap->Draw();
+		//
+		//glm::vec2 tileSize = {(float)m_tilesInfo[m_spriteIndex].width , (float)m_tilesInfo[m_spriteIndex].height };
+		//glm::vec2 position = { 200, 200 };
+		//float tileRotation = 0.0f;
 
-		// Translation matrix with the pivot adjustment
-		glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(position.x - 0.5f * tileSize.x, position.y - 0.5f * tileSize.y, 0.0f));
+		//// Translation matrix with the pivot adjustment
+		//glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(position.x - 0.5f * tileSize.x, position.y - 0.5f * tileSize.y, 0.0f));
 
-		// Rotation matrix (assuming rotation is in radians)
-		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(tileRotation), glm::vec3(0.0f, 0.0f, 1.0f));
+		//// Rotation matrix (assuming rotation is in radians)
+		//glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(tileRotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		// Scale matrix
-		glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(tileSize.x, -tileSize.y, 1.0f));
+		//// Scale matrix
+		//glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(tileSize.x, -tileSize.y, 1.0f));
 
-		// Combine the transformations
-		glm::mat4 modelMatrix = translation * rotationMatrix * scaling;
+		//// Combine the transformations
+		//glm::mat4 modelMatrix = translation * rotationMatrix * scaling;
 
-		//IceEngine::Logger::Instance().Log(mat4ToString(modelMatrix), IceEngine::LogLevel::SUCCESS);
+		////IceEngine::Logger::Instance().Log(mat4ToString(modelMatrix), IceEngine::LogLevel::SUCCESS);
 
-		tileSize = { (float)m_tilesInfo[m_spriteIndex].width / SCREEN_WIDTH, (float)m_tilesInfo[m_spriteIndex].height / SCREEN_HEIGHT };
-		IceEngine::Renderer::DrawQuad(position, tileSize , modelMatrix, m_tilesetTexture, m_tilesInfo[m_spriteIndex].textureCoords);
+		//tileSize = { (float)m_tilesInfo[m_spriteIndex].width / SCREEN_WIDTH, (float)m_tilesInfo[m_spriteIndex].height / SCREEN_HEIGHT };
+		//IceEngine::Renderer::DrawQuad(position, tileSize , modelMatrix, m_tilesetTexture, m_tilesInfo[m_spriteIndex].textureCoords);
 
-		auto S = IceEngine::Renderer::GetStats();
+		//auto S = IceEngine::Renderer::GetStats();
 
-		//IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "DrawCount = %, QuadCount = %", S.DrawCount, S.QuadCount);
-		IceEngine::Renderer::EndBatch();
+		////IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "DrawCount = %, QuadCount = %", S.DrawCount, S.QuadCount);
+		//IceEngine::Renderer::EndBatch();
 
-		// Setup Camera View Transform
-		m_shader->SetMat4("projection", m_cameraComponent->projection);
-		m_shader->SetMat4("view", m_cameraComponent->GetViewMatrix());
-		//m_shader->SetMat4("model", m_transformComponent->GetModelMatrix());
+		//// Setup Camera View Transform
+		//m_shader->SetMat4("projection", m_cameraComponent->projection);
+		//m_shader->SetMat4("view", m_cameraComponent->GetViewMatrix());
+		////m_shader->SetMat4("model", m_transformComponent->GetModelMatrix());
 
-		IceEngine::Renderer::Flush();
+		//IceEngine::Renderer::Flush();
 
 		circle.draw(300, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		circle2.draw(400, 300, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		point.draw(100, 100, m_cameraComponent->GetViewMatrix());
 		line.draw({ 0.0, 1.0, 0.0 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		rect.draw(300, 200, 50, 50, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		rect2.draw(200, 300, 50, 80, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+
+		lineQuad.draw(100, 100, 300, 300, 5.0f, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+
+		roundedQuad.draw(0, 0, 200, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+
+		sdfrect.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		SDFrect.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 	}
 }
 
