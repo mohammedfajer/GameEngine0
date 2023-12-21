@@ -11,6 +11,7 @@
 #include "SpritsheetLoader.h"
 #include "Defines.h"
 #include <cmath>
+#include <SDL_stdinc.h>
 
 
 namespace IceEngine {
@@ -100,26 +101,8 @@ namespace IceEngine {
 		glm::mat4 projection;
 		bool isRound = false;
 
-		void setup_point(const glm::mat4 &view, const glm::mat4 &projection)
+		void setup()
 		{
-
-
-			this->view = view;
-			this->projection = projection;
-
-			GLfloat sizeRange[2] = { 0.0f };
-			glGetFloatv(GL_POINT_SIZE_RANGE, sizeRange);
-
-			std::cout << "POINT SIZE = " << sizeRange[0] << " " << sizeRange[1] << std::endl;
-
-
-			glEnable(GL_PROGRAM_POINT_SIZE);
-
-
-
-			// THIS IS THE CODE OF DRAWING CIRCLUR POINTS IN THE SHADER :) 
-			glEnable(GL_POINT_SPRITE);
-
 			GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
 			glShaderSource(vertex_shader, 1, &point_vertex_shader_source, NULL);
 			glCompileShader(vertex_shader);
@@ -135,6 +118,16 @@ namespace IceEngine {
 			glAttachShader(shader_program, fragment_shader);
 			glLinkProgram(shader_program);
 			checkProgramLinkError(shader_program);
+
+			GLfloat sizeRange[2] = { 0.0f };
+			glGetFloatv(GL_POINT_SIZE_RANGE, sizeRange);
+			std::cout << "POINT SIZE = " << sizeRange[0] << " " << sizeRange[1] << std::endl;
+
+
+			glEnable(GL_PROGRAM_POINT_SIZE);
+			// THIS IS THE CODE OF DRAWING CIRCLUR POINTS IN THE SHADER :) 
+			glEnable(GL_POINT_SPRITE);
+
 
 			glUseProgram(shader_program);
 
@@ -163,43 +156,28 @@ namespace IceEngine {
 				// Handle or print the error
 				std::cerr << "OpenGL Error: " << error << std::endl;
 			}
-			GLint pointSizeLoc = glGetUniformLocation(shader_program, "pointSize");
-			if (pointSizeLoc != -1) {
-				glUniform1f(pointSizeLoc, pointSize);
-			}
-			else {
-				std::cerr << "projView matrix uniform not found in the shader!" << std::endl;
-			}
-			GLint colorLoc = glGetUniformLocation(shader_program, "color");
-			if (colorLoc != -1) {
-				glUniform3f(colorLoc, color.x, color.y, color.z);
-			}
-			else {
-				std::cerr << "projView matrix uniform not found in the shader!" << std::endl;
-			}
 
+			GLint pointSizeLoc = glGetUniformLocation(shader_program, "pointSize");
+			glUniform1f(pointSizeLoc, pointSize);
+			
+			GLint colorLoc = glGetUniformLocation(shader_program, "color");
+			glUniform3f(colorLoc, color.x, color.y, color.z);
+		
 			glUniform1i(glGetUniformLocation(shader_program, "isRound"), isRound);
 		}
 
-		void draw(int x, int y, const glm::mat4 &view)
+	
+		
+		void draw(int x, int y)
 		{
-			
-			//glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-
 			glUseProgram(shader_program);
 			glBindVertexArray(VAO);
 
-
 			// Set the model matrix uniform
 			GLint modelLoc = glGetUniformLocation(shader_program, "model");
-			if (modelLoc != -1) {
-				// Assuming you're using a simple 2D translation matrix
-				glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
-				glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-			}
-			else {
-				std::cerr << "Model matrix uniform not found in the shader!" << std::endl;
-			}
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			
 			// Set the projView matrix uniform
 			GLint viewLoc = glGetUniformLocation(shader_program, "view");
 			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -378,7 +356,9 @@ namespace IceEngine {
 		void main()
 		{
 			gl_Position = projection * view * model * vec4(aPos.x, aPos.y, 0.0, 1.0);
-			//gl_PointSize = 50.0f;
+		
+
+		
 			fragCoord = aPos;
 		}
 		)";
@@ -395,11 +375,12 @@ namespace IceEngine {
 		void main()
 		{
 			float thickness = lineThickness;
+			
 			float distance = length(fragCoord);
 			float alpha = smoothstep(0.5 * thickness, 0.5 * thickness + 0.01, distance);
 			
 
-			FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+			FragColor = vec4(1.0, 0.0, 0.0, alpha);
 		}
 		)";
 
@@ -412,7 +393,7 @@ namespace IceEngine {
 		GLuint shader_program;
 		GLuint VAO;
 
-		float lineThickness;
+		float lineThickness = 5.0f;
 
 
 		void setup(const glm::vec2 &start, const glm::vec2 &end, float thickness)
@@ -506,10 +487,16 @@ namespace IceEngine {
 			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
 			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 			
-			glLineWidth(lineThickness);
-
+			
+			glLineWidth(lineThickness);;
 			glBindVertexArray(VAO);
+
+		
+
+
 			glDrawArrays(GL_LINES, 0, 2);
+
+		
 		
 			// Reset line width to default
 			glLineWidth(1.0f);
@@ -681,7 +668,7 @@ namespace IceEngine {
 			float distance = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 
 			// Convert angles to degrees
-			quad.rotation = angleRad * 180.0 / M_PI;
+			quad.rotation = angleRad * -180.0 / M_PI;
 
 			// Draw the rectangle
 			quad.draw(x1, y1, thickness, distance, view, projection);
@@ -691,342 +678,9 @@ namespace IceEngine {
 
 
 
-	struct DebugRoundRect
-	{
-		GLuint shader_program;
-		GLuint VAO;
-		bool isOutline = true;
-		float thickness = 2.0f;
-		float rotation = 0.0f;
-		int numSegments = 80;
 
-		void setup()
-		{
-			// Compile and link shaders
-			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(vertexShader, 1, &rect_vertex_shader_source, NULL);
-			glCompileShader(vertexShader);
-			checkShaderCompileError(vertexShader);
 
-			GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fragmentShader, 1, &rect_fragment_shader_source, NULL);
-			glCompileShader(fragmentShader);
-			checkShaderCompileError(fragmentShader);
 
-			shader_program = glCreateProgram();
-			glAttachShader(shader_program, vertexShader);
-			glAttachShader(shader_program, fragmentShader);
-			glLinkProgram(shader_program);
-			checkProgramLinkError(shader_program);
-
-			glDeleteShader(vertexShader);
-			glDeleteShader(fragmentShader);
-
-			const float cornerRadius = 0.1f; // Adjust the corner radius as needed
-
-			// Define vertices and indices for a rounded rectangle
-			std::vector<float> vertices;
-			std::vector<unsigned int> indices;
-
-			 // Adjust the number of segments for smoother corners
-
-			for (int i = 0; i <= numSegments; ++i)
-			{
-				float angle = static_cast<float>(i) / numSegments * 2.0f * M_PI;
-
-				// Top-left corner
-				vertices.push_back(-0.5f + cornerRadius * cos(angle));
-				vertices.push_back(0.5f - cornerRadius * sin(angle));
-
-				// Top-right corner
-				vertices.push_back(0.5f - cornerRadius * cos(angle));
-				vertices.push_back(0.5f - cornerRadius * sin(angle));
-
-				// Bottom-right corner
-				vertices.push_back(0.5f - cornerRadius * cos(angle));
-				vertices.push_back(-0.5f + cornerRadius * sin(angle));
-
-				// Bottom-left corner
-				vertices.push_back(-0.5f + cornerRadius * cos(angle));
-				vertices.push_back(-0.5f + cornerRadius * sin(angle));
-			}
-
-			for (int i = 0; i < numSegments * 4; ++i)
-			{
-				indices.push_back(i);
-			}
-
-			// Create Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
-			glGenVertexArrays(1, &VAO);
-			glBindVertexArray(VAO);
-
-			GLuint VBO;
-			glGenBuffers(1, &VBO);
-
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
-
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
-			glEnableVertexAttribArray(0);
-
-			GLuint EBO;
-			glGenBuffers(1, &EBO);
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
-
-			glBindVertexArray(0);
-		}
-
-
-
-		void draw(int x, int y, int width, int height, const glm::mat4 &view, const glm::mat4 &projection)
-		{
-			// Translation
-			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
-
-			model = glm::rotate(model, glm::radians(rotation), glm::vec3(0.0f, 0.0f, 1.0f));
-
-			// Scale
-			model = glm::scale(model, glm::vec3(width, height, 1.0f));
-
-			glUseProgram(shader_program);
-
-			GLint modelLoc = glGetUniformLocation(shader_program, "model");
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-			GLint viewLoc = glGetUniformLocation(shader_program, "view");
-			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
-			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-			glBindVertexArray(VAO);
-
-			if (isOutline)
-			{
-				glEnable(GL_MULTISAMPLE);
-
-
-				glEnable(GL_POLYGON_OFFSET_LINE);
-				glPolygonOffset(-1.0f, -1.0f);
-				// Draw the outline with rounded corners
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-				glLineWidth(static_cast<float>(thickness));
-				glDrawElements(GL_LINE_STRIP, 4 * numSegments, GL_UNSIGNED_INT, 0);
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-				glDisable(GL_POLYGON_OFFSET_LINE);
-				glDisable(GL_MULTISAMPLE);
-
-
-			}
-			else
-			{
-				glDrawElements(GL_TRIANGLE_FAN, 4 * numSegments, GL_UNSIGNED_INT, 0);
-			}
-
-			glBindVertexArray(0);
-		}
-
-
-	
-	};
-
-
-	const char *sdf_round_rect_vertex_shader = R"(
-    #version 330 core
-
-    layout (location = 0) in vec2 aPos;
-
-    uniform mat4 model;
-    uniform mat4 view;
-    uniform mat4 projection;
-
-    void main()
-    {
-        gl_Position = projection * view * model * vec4(aPos.x, aPos.y, 0.0, 1.0);
-    }
-)";
-
-const char *sdf_round_rect_fragment_shader = R"(
-		
-	uniform float u_time;
-	uniform vec2 u_resolution;
-	uniform bool u_isOutline;
-
-	uniform vec2 rectCenter;
-    uniform vec2 rectSize; 
-    uniform float cornerRadius;
-
-	float sdfRoundedRect(vec2 p, vec2 rectCenter, vec2 rectSize, float cornerRadius)
-	{
-		vec2 d = abs(p - rectCenter) - 0.5 * rectSize;
-		return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - cornerRadius;
-	}
-
-	void main()
-	{
-		vec2 uv = gl_FragCoord.xy / u_resolution;
-		uv = uv - 0.5;
-		uv = uv * u_resolution / 1.0;
-		
-
-		vec3 red = vec3(1.0, 0.0, 0.0);
-		vec3 yellow = vec3(0.9176, 1.0, 0.0);
-		vec3 green = vec3(0.5529, 0.8, 0.5451);
-		vec3 color = vec3(uv.x, uv.y, 0.0);
-
-		float distanceToRect = sdfRoundedRect(uv - rectCenter, rectCenter, rectSize, cornerRadius);
-		
-
-		if(u_isOutline)
-		{
-		  float edgeThreshold = 0.6; // Adjust this threshold as needed
-		  if (abs(distanceToRect) > edgeThreshold)
-			discard;
-
-			// Continue with your color computation
-			color = mix(red, red, smoothstep(0.0, 5, abs(distanceToRect)));
-		}
-		else
-		{
-			// Discard fragments outside the rounded rectangle
-			if (distanceToRect > 0.0)
-				discard;
-			// Continue with your color computation
-			color = mix(red, yellow, smoothstep(0.0, 5, abs(distanceToRect)));
-		}
-
-
-		gl_FragColor = vec4(color, 1.0);
-	}
-		
-
-	)";
-
-
-	struct SDFRoundRect
-	{
-		GLuint shader_program;
-		GLuint VAO, VBO;
-
-		void setup()
-		{
-			// Compile and link shaders
-			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(vertexShader, 1, &sdf_round_rect_vertex_shader, NULL);
-			glCompileShader(vertexShader);
-			checkShaderCompileError(vertexShader);
-
-			GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fragmentShader, 1, &sdf_round_rect_fragment_shader, NULL);
-			glCompileShader(fragmentShader);
-			checkShaderCompileError(fragmentShader);
-
-			shader_program = glCreateProgram();
-			glAttachShader(shader_program, vertexShader);
-			glAttachShader(shader_program, fragmentShader);
-			glLinkProgram(shader_program);
-			checkProgramLinkError(shader_program);
-
-			glDeleteShader(vertexShader);
-			glDeleteShader(fragmentShader);
-
-			// Set up the rectangle's geometry
-			float vertices[] = {
-				// position
-				-0.5f, -0.5f,
-				0.5f, -0.5f,
-				0.5f, 0.5f,
-				-0.5f, 0.5f
-			};
-
-			glGenVertexArrays(1, &VAO);
-			glGenBuffers(1, &VBO);
-
-			glBindVertexArray(VAO);
-
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-			// Position attribute
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
-			glEnableVertexAttribArray(0);
-
-			glBindVertexArray(0);
-
-			// Set resolution uniform
-			glUseProgram(shader_program);
-			GLint resolutionLoc = glGetUniformLocation(shader_program, "u_resolution");
-			glUniform2f(resolutionLoc, SCREEN_WIDTH, SCREEN_HEIGHT);
-
-            
-
-		}
-
-		void draw(const glm::mat4 &view, const glm::mat4 &projection)
-		{
-			glUseProgram(shader_program);
-
-
-	
-
-			GLint timeLoc = glGetUniformLocation(shader_program, "u_time");
-			glUniform1f(timeLoc, SDL_GetTicks() * 0.005F);
-
-			// Translation
-			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 0.0f));
-
-			// Scale
-			// Scale by the dimensions of the rectangle
-            model = glm::scale(model, glm::vec3(SCREEN_WIDTH, SCREEN_HEIGHT, 1.0f));
-
-
-			
-
-            // Draw rounded rectangle sdf
-		    glm::vec2 rectCenter = glm::vec2(100, 100);
-		    glm::vec2 rectSize = glm::vec2(200.0, 180.0);
-		    float cornerRadius = 0.2 * 100;
-
-            GLuint rectCenterLoc = glGetUniformLocation(shader_program, "rectCenter");
-            GLuint rectSizeLoc = glGetUniformLocation(shader_program, "rectSize");
-            GLuint cornerRadiusLoc = glGetUniformLocation(shader_program, "cornerRadius");
-            glUniform2fv(rectCenterLoc, 1, glm::value_ptr(rectCenter));
-            glUniform2fv(rectSizeLoc, 1, glm::value_ptr(rectSize));
-            glUniform1f(cornerRadiusLoc, cornerRadius);
-
-            GLuint outlineLoc = glGetUniformLocation(shader_program, "u_isOutline");
-            glUniform1f(outlineLoc, true);
-
-
-            GLint modelLoc = glGetUniformLocation(shader_program, "model");
-			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-			GLint viewLoc = glGetUniformLocation(shader_program, "view");
-			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
-			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-			glBindVertexArray(VAO);
-
-			// Draw rectangle
-			glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-			glBindVertexArray(0);
-		}
-	};
-
-	/*
-			Usage Code
-			// Create an instance of SDFRoundRect
-			SDFRoundRect roundedRect;
-			roundedRect.setup();
-
-			roundedRect.draw(view, projection);
-	
-	*/
 
 	static const char *glsl_vertex_shader = R"(
     #version 330 core
@@ -1071,6 +725,7 @@ const char *sdf_round_rect_fragment_shader = R"(
 )";
 
 	static const char *glsl_fragment_shader = R"(
+
     #version 330
 
     in vec2 f_center;
@@ -1105,10 +760,19 @@ const char *sdf_round_rect_fragment_shader = R"(
         float half_thickness = thickness * 0.5;
         float d_mir = abs(d + half_thickness) - half_thickness;
 
-        // Using the distance
-        float m = smoothstep(soft, -soft, d_mir);
-        out_color =  vec4(1.0, 1.0, 1.0, m);
+        // Mix with fill color inside the rounded rectangle
+        vec3 fillColor = vec3(0.0, 1.0, 0.0);  // Adjust the fill color as needed
+        vec3 mixedColor = mix(fillColor, vec3(1.0, 1.0, 1.0), smoothstep(soft, -soft, d_mir));
+
+        // Check if the fragment is outside the edge radius
+        if (d > 0.0) {
+            out_color = vec4(0.0, 0.0, 0.0, 0.0);  // Transparent outside the edge radius
+        } else {
+            out_color = vec4(mixedColor, 1.0);
+        }
     }
+
+
 )";
 
 
@@ -1152,10 +816,10 @@ const char *sdf_round_rect_fragment_shader = R"(
 				+1.0f, -1.0f,
 
 				// [12]: four quad specifiers
-				+200.0f, +200.0f, +300.0f, +300.0f, 10.0f, 1000.0f,
-				+100.0f, +500.0f, 400.0f, +600.0f , 20.0f,  10.0f,
-				+600.0f, +100.0f, +700.0f, +300.0f, 0.0f,	40.0f,
-				+600.0f, +500.0f, +650.0f, +550.0f, 5.0f, 	42.0f
+				+200.0f, +200.0f, +300.0f, +300.0f, 10.0f, 2.0f,
+				+100.0f, +500.0f, 400.0f, +600.0f , 20.0f,  5.0f,
+				+600.0f, +100.0f, +700.0f, +300.0f, 0.0f,	4.0f,
+				+600.0f, +500.0f, +650.0f, +650.0f, 20.0f, 	2.0f
 			};
 
 			glGenVertexArrays(1, &VAO);
@@ -1221,25 +885,264 @@ const char *sdf_round_rect_fragment_shader = R"(
 	};
 
 
-	struct ClosedPolygon
-	{};
+	const char *triangle_vertex_shader_source = R"(
+		#version 330 core
+		layout (location = 0) in vec2 aPos;
+		
+		
+		uniform float pointSize;
+		uniform mat4 model;
+		uniform mat4 view;
+		uniform mat4 projection;
+
+		void main() {
+			gl_Position = projection * view * model * vec4(aPos, 0.0, 1.0);
+			gl_PointSize = pointSize;
+		}
+	)";
+
+	const char *triangle_fragment_shader_source = R"(
+		#version 330 core
+		out vec4 FragColor;
+
+		void main() {
+			FragColor = vec4(0.3, 0.5, 0.2, 1.0);
+		}
+	)";
+
+	struct DebugTriangle {
+		GLuint shader_program;
+		GLuint VAO, VBO;
+
+		float rotation = 0.0f;
+		glm::vec3 color;
+
+		float vertices[6];
+
+		void setup() {
+			// Compile and link shaders
+			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+			glShaderSource(vertexShader, 1, &triangle_vertex_shader_source, NULL);
+			glCompileShader(vertexShader);
+			checkShaderCompileError(vertexShader);
+
+			GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fragmentShader, 1, &triangle_fragment_shader_source, NULL);
+			glCompileShader(fragmentShader);
+			checkShaderCompileError(fragmentShader);
+
+			shader_program = glCreateProgram();
+			glAttachShader(shader_program, vertexShader);
+			glAttachShader(shader_program, fragmentShader);
+			glLinkProgram(shader_program);
+			checkProgramLinkError(shader_program);
+
+			glDeleteShader(vertexShader);
+			glDeleteShader(fragmentShader);
+
+			vertices[0] = -0.5f;
+			vertices[1] = -0.5f;
+			vertices[2] = 0.5f;
+			vertices[3] = -0.5f;
+			vertices[4] = 0.0f;
+			vertices[5] = 0.5f;
+
+			// Create Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+
+			// Bind the VAO
+			glBindVertexArray(VAO);
+
+			// Bind and set vertex buffer data
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+			// Set vertex attribute pointers
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+			glEnableVertexAttribArray(0);
+
+			// Unbind VAO
+			glBindVertexArray(0);
+		}
+
+		void draw(int x, int y, const glm::mat4 &view, const glm::mat4 &projection) {
+			glUseProgram(shader_program);
+
+			glm::mat4 model = glm::mat4(1.0f);
+
+			// Scale the triangle
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(40.0f, 40.0f, 1.0f));
+
+			// Rotate the triangle
+			glm::mat4 r = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0, 0.0, 1.0));
+
+			// Translate the triangle to its center
+			glm::mat4 translationToCenter = glm::translate(glm::mat4(1.0f), glm::vec3(x, y, 0.0f));
+
+			// Combine the transformations into the final model matrix
+			model = translationToCenter * r * scale;
+
+			GLint modelLoc = glGetUniformLocation(shader_program, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			GLint viewLoc = glGetUniformLocation(shader_program, "view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+			glBindVertexArray(VAO);
+
+			glDrawArrays(GL_TRIANGLES, 0, 3);
+
+			glBindVertexArray(0);
+		}
+	};
+
+	
+	struct DebugArrow {
+		
+	};
+
+	/*struct ClosedPolygon
+	{};*/
+
+	// Shader source code (replace with your actual shader code)
+	const char *closed_polygon_vertexShaderSource = R"(
+    #version 330 core
+    layout (location = 0) in vec2 aPos;
+    uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
+    void main() {
+        gl_Position = projection * view * model * vec4(aPos, 0.0, 1.0);
+    }
+)";
+
+	const char *closed_polygon_fragmentShaderSource = R"(
+    #version 330 core
+    out vec4 FragColor;
+    uniform vec3 color;
+    void main() {
+        FragColor = vec4(color, 1.0);
+    }
+)";
+
+
+	struct ClosedPolygon {
+		GLuint shader_program;
+		GLuint VAO, VBO;
+		glm::vec3 color;
+		std::vector<glm::vec2> vertices;
+		bool isOutline;
+		float rotation = 0;
+
+		void setup(const std::vector<glm::vec2> &polygonVertices, const glm::vec3 &polygonColor) {
+			
+			// Compile and link shaders
+			GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+			glShaderSource(vertexShader, 1, &closed_polygon_vertexShaderSource, NULL);
+			glCompileShader(vertexShader);
+			checkShaderCompileError(vertexShader);
+
+			GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+			glShaderSource(fragmentShader, 1, &closed_polygon_fragmentShaderSource, NULL);
+			glCompileShader(fragmentShader);
+			checkShaderCompileError(fragmentShader);
+
+			shader_program = glCreateProgram();
+			glAttachShader(shader_program, vertexShader);
+			glAttachShader(shader_program, fragmentShader);
+			glLinkProgram(shader_program);
+			checkProgramLinkError(shader_program);
+
+			glDeleteShader(vertexShader);
+			glDeleteShader(fragmentShader);
+
+			
+			vertices = polygonVertices;
+			color = polygonColor;
+
+			// Create Vertex Array Object (VAO) and Vertex Buffer Object (VBO)
+			glGenVertexArrays(1, &VAO);
+			glGenBuffers(1, &VBO);
+
+			// Bind the VAO
+			glBindVertexArray(VAO);
+
+			// Bind and set vertex buffer data
+			glBindBuffer(GL_ARRAY_BUFFER, VBO);
+			glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec2), &vertices[0], GL_STATIC_DRAW);
+
+			// Set vertex attribute pointers
+			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+			glEnableVertexAttribArray(0);
+
+			// Unbind VAO
+			glBindVertexArray(0);
+		}
+
+		void draw(const glm::mat4 &view, const glm::mat4 &projection) {
+			glUseProgram(shader_program);
+
+			
+			glm::mat4 model = glm::mat4(1.0f);
+
+			// Scale the triangle
+			glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(50.0, 50.0f, 1.0f));
+
+			// Rotate the triangle
+			glm::mat4 r = glm::rotate(glm::mat4(1.0f), glm::radians(rotation), glm::vec3(0.0, 0.0, 1.0));
+
+			// Translate the triangle to its center
+			glm::mat4 translationToCenter = glm::translate(glm::mat4(1.0f), glm::vec3(50,50, 0.0f));
+
+			// Combine the transformations into the final model matrix
+			model = translationToCenter * r * scale;
+
+
+			GLint modelLoc = glGetUniformLocation(shader_program, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+			GLint viewLoc = glGetUniformLocation(shader_program, "view");
+			glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+
+			GLint projectionLoc = glGetUniformLocation(shader_program, "projection");
+			glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+			GLint colorLoc = glGetUniformLocation(shader_program, "color");
+			glUniform3fv(colorLoc, 1, glm::value_ptr(color));
+
+			// Draw the polygon
+			glBindVertexArray(VAO);
+
+			isOutline = true;
+
+			if (isOutline)
+			{
+				glLineWidth(10);
+				glDrawArrays(GL_LINE_LOOP , 0, vertices.size());
+			}
+			else
+			{
+				glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.size());
+			}
+
+			
+			glBindVertexArray(0);
+			rotation += 0.5f;
+		}
+	};
 	
 	struct OpenPolygon
 	{};
 
-	struct Star
+	
+	struct Capsule // special rounded rectangle :)
 	{};
 
-	struct Capsule
-	{};
-
-	struct DebugTriangle
-	{};
-
-	struct DebugArrow
-	{};
-
-	struct DebugEllipse
+	struct DebugEllipse // special circle :)
 	{};
 
 
@@ -1254,7 +1157,7 @@ const char *sdf_round_rect_fragment_shader = R"(
 	// Fonts,  Font styles
 	// Textures, Animated Textures
 	// Console
-	// Game UI 💯
+	// Game UI 
 	
 
 

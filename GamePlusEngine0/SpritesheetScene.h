@@ -8,6 +8,8 @@
 #include "Shader.h"
 #include "Tilesystem.h"
 
+
+
 namespace TopDownShooter
 {
 	struct Tile_Info {
@@ -48,5 +50,8 @@ namespace TopDownShooter
 
 		IceEngine::Tileset *m_tileset;
 		IceEngine::Tilemap *m_tilemap;
+
+
+		
 	};
 }

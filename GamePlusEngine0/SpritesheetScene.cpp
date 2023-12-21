@@ -15,6 +15,7 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/compatibility.hpp>  // Include this for glm::lerp
 
 
 #include "DebugDraw.h"
@@ -31,10 +32,13 @@ namespace TopDownShooter
 	IceEngine::DebugRect rect;
 	IceEngine::DebugRect rect2;
 	IceEngine::DebugLineQuad lineQuad;
-	IceEngine::DebugRoundRect roundedQuad;
-	IceEngine::SDFRoundRect sdfrect;
+	
 
 	IceEngine::SDFRoundedRectangle SDFrect;
+	IceEngine::DebugTriangle triangle;
+	IceEngine::ClosedPolygon closedPolygon;
+
+
 	
 
 	const std::string vertex_shader = R"(
@@ -226,12 +230,15 @@ namespace TopDownShooter
 			tile.textureCoords[3].x, tile.textureCoords[3].y);
 
 
-		point.pointSize = 10;
+		point.pointSize = 5.0f;
 		point.color = { 8/255.0, 102/255.0, 255/255.0 };
-		point.setup_point(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		point.view = m_cameraComponent->GetViewMatrix();
+		point.projection = m_cameraComponent->projection;
+		point.setup();
+		
 
 
-		// Later may have to think about antialiasing
+		// Later may have to think about anti aliasing
 		circle.radius = 1;
 		circle.vCount = 128;
 		circle.setup();
@@ -240,7 +247,7 @@ namespace TopDownShooter
 		circle2.vCount = 128;
 		circle2.setup(false);
 
-		line.setup(glm::vec2(0, 0), glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT), 5);
+		line.setup(glm::vec2(100, 100), glm::vec2(200, 200), 5 * 2.0f);
 		
 		rect.setup();
 		rect.isOutline = true;
@@ -250,11 +257,31 @@ namespace TopDownShooter
 
 		lineQuad.setup();
 	
-		roundedQuad.setup();
+		triangle.setup();
 
-		sdfrect.setup();
-
+	
 		SDFrect.setup();
+
+	
+		const float PI = glm::pi<float>();
+		const int numVertices = 10; // 5 arms with 2 vertices each
+
+		std::vector<glm::vec2> starVertices;
+
+		for (int i = 0; i < numVertices; ++i) {
+			float angle = (2 * PI * i) / numVertices - PI / 2.0f;
+			float radius = (i % 2 == 0) ? 0.5f : 0.2f; // Alternating long and short arms
+
+			float x = radius * cos(angle);
+			float y = radius * sin(angle);
+
+			starVertices.push_back(glm::vec2(x, y));
+		}
+
+
+		glm::vec3 polygonColor = { 1.0f, 0.0f, 0.0f };  // Red color
+
+		closedPolygon.setup(starVertices, polygonColor);
 
 		// Example check
 		glm::vec2 startNDC = m_cameraComponent->worldToScreen(glm::vec2(100, 100));
@@ -266,12 +293,63 @@ namespace TopDownShooter
 
 	SpriteSheetScene::~SpriteSheetScene() {}
 
+	template<typename T>
+	T lerp(const T &a, const T &b, float t) {
+		return a + t * (b - a);
+	}
+
 	void SpriteSheetScene::Update(float deltaTime) {
 
 		// Update the base scene
 		Scene::Update(deltaTime);
-	
-		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_L)) {
+
+		//// Assuming m_cameraComponent->position is a glm::vec2 representing the camera position
+		//glm::vec2 mousePos = IceEngine::InputManager::Instance().GetMousePosition();
+
+		//// Convert mouse position to world coordinates
+		//glm::vec2 cameraTarget(mousePos.x / SCREEN_WIDTH - 0.5f, 0.5f - mousePos.y / SCREEN_HEIGHT);
+
+		//// Interpolation factor for smooth camera movement
+		//const float lerpFactor = 0.01f;  // Adjust this factor to control the smoothness of the transition
+
+		//// Update camera position using linear interpolation
+		//m_cameraComponent->position = glm::lerp(m_cameraComponent->position, cameraTarget, lerpFactor);
+
+		// Assuming m_cameraComponent->position is a glm::vec2 representing the camera position
+		
+		static bool toggleFollowPointPeak = false;
+		glm::vec2 mousePos;
+
+		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_Z))
+		{
+			toggleFollowPointPeak = !toggleFollowPointPeak;
+			mousePos = IceEngine::InputManager::Instance().GetMousePosition();
+		}
+
+		if (toggleFollowPointPeak)
+		{
+			mousePos = IceEngine::InputManager::Instance().GetMousePosition();
+			
+			IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "Mouse Position % %", mousePos.x, mousePos.y);
+
+			// Convert mouse position to world coordinates
+			glm::vec2 normalizedMousePos(mousePos / 4.0f);
+
+			// Define a fixed offset for the camera
+			glm::vec2 offset(10.0f, 10.0f);  // Adjust the offset as needed
+
+			// Move the camera towards the mouse position with the fixed offset
+			glm::vec2 targetPosition = normalizedMousePos - offset;
+
+			// Interpolation factor for smooth camera movement
+			const float lerpFactor = 0.01f;  // Adjust this factor to control the smoothness of the transition
+
+			// Update camera position using linear interpolation
+			m_cameraComponent->position = glm::lerp(m_cameraComponent->position, targetPosition, lerpFactor);
+		}
+
+		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_L)) 
+		{
 			m_cameraComponent->zoom += 0.05f;
 		}
 		
@@ -313,8 +391,6 @@ namespace TopDownShooter
 			auto tile = m_tilesInfo[m_spriteIndex];
 			IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "% % % % %", tile.name, tile.x_offset, tile.y_offset, tile.width, tile.height);
 		}
-
-		
 	}
 
 	std::string mat4ToString(const glm::mat4 &matrix) {
@@ -394,19 +470,33 @@ namespace TopDownShooter
 
 		//IceEngine::Renderer::Flush();
 
+		
+
 		circle.draw(300, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		circle2.draw(400, 300, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
-		point.draw(100, 100, m_cameraComponent->GetViewMatrix());
-		line.draw({ 0.0, 1.0, 0.0 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+
+
 		rect.draw(300, 200, 50, 50, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		rect2.draw(200, 300, 50, 80, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 
-		lineQuad.draw(100, 100, 300, 300, 5.0f, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
-
-		roundedQuad.draw(0, 0, 200, 100, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
-
-		sdfrect.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		SDFrect.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+
+		lineQuad.draw(100, 120, 200, 220, 5.0f, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		line.draw({ 0.0, 1.0, 0.0 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+
+		point.view = m_cameraComponent->GetViewMatrix();
+		point.draw(100, 100);
+
+		triangle.rotation += 0.5;
+		triangle.draw(400, 400, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+
+		point.draw(400, 400);
+
+
+		// Draw the polygon
+		closedPolygon.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		point.draw(50, 50);
+		
 	}
 }
 
