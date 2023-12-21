@@ -287,6 +287,9 @@
     <ClInclude Include="DebugDraw.h">
       <Filter>Source Files\Engine\Debug Draw</Filter>
     </ClInclude>
+    <ClInclude Include="FontSystem.h">
+      <Filter>Source Files\Engine\Graphics\Font</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="changeLog.txt" />

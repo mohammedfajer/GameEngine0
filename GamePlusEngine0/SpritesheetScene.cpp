@@ -19,6 +19,7 @@
 
 
 #include "DebugDraw.h"
+#include "FontSystem.h"
 
 
 namespace TopDownShooter
@@ -37,6 +38,9 @@ namespace TopDownShooter
 	IceEngine::SDFRoundedRectangle SDFrect;
 	IceEngine::DebugTriangle triangle;
 	IceEngine::ClosedPolygon closedPolygon;
+
+
+	IceEngine::Text theText;
 
 
 	
@@ -262,6 +266,14 @@ namespace TopDownShooter
 	
 		SDFrect.setup();
 
+
+		theText.font_path = "./data/fonts/ThaleahFat.ttf";
+		theText.fontSize = 48;
+		theText.setup();
+
+	
+
+
 	
 		const float PI = glm::pi<float>();
 		const int numVertices = 10; // 5 arms with 2 vertices each
@@ -336,7 +348,7 @@ namespace TopDownShooter
 			glm::vec2 normalizedMousePos(mousePos / 4.0f);
 
 			// Define a fixed offset for the camera
-			glm::vec2 offset(10.0f, 10.0f);  // Adjust the offset as needed
+			glm::vec2 offset(10.0f, -300.0f);  // Adjust the offset as needed
 
 			// Move the camera towards the mouse position with the fixed offset
 			glm::vec2 targetPosition = normalizedMousePos - offset;
@@ -496,7 +508,29 @@ namespace TopDownShooter
 		// Draw the polygon
 		closedPolygon.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		point.draw(50, 50);
+
+
+		theText.projection = m_cameraComponent->projection;
+		theText.draw("Hi", 70, 50, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+		theText.draw("NEW TITLE", 70, 100, 1.0f, glm::vec3(0.45, 0.85f, 0.64f));
 		
+
+		static float r1 = 0;
+		static float g1 = 0;
+		static float b1 = 0;
+
+		
+		
+		r1 += 0.45 + 0.9f;
+		g1 -= 0.6f;
+		b1 += 0.7f;
+		theText.draw("Game Mode", 70, 200, 1.0f, glm::vec3( r1, 0.85f + g1, 0.64f + b1));
+
+
+		theText.draw("Play", 200, 300, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+		theText.draw("Fullscreen OFF", 50, 350, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+		theText.draw("Layout QWERTY", 50, 450, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+		theText.draw("Quit", 100, 480, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
 	}
 }
 

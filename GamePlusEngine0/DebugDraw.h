@@ -61,33 +61,7 @@ namespace IceEngine {
 		}
 	)";
 
-	// Function to check shader compilation errors
-	void checkShaderCompileError(GLuint shader) {
-		GLint success;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-		if (!success) {
-			GLint logLength;
-			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
-			char *log = new char[logLength];
-			glGetShaderInfoLog(shader, logLength, NULL, log);
-			std::cerr << "Shader compilation error:\n" << log << std::endl;
-			delete[] log;
-		}
-	}
-
-	// Function to check program linking errors
-	void checkProgramLinkError(GLuint program) {
-		GLint success;
-		glGetProgramiv(program, GL_LINK_STATUS, &success);
-		if (!success) {
-			GLint logLength;
-			glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
-			char *log = new char[logLength];
-			glGetProgramInfoLog(program, logLength, NULL, log);
-			std::cerr << "Program linking error:\n" << log << std::endl;
-			delete[] log;
-		}
-	}
+	
 
 
 	// https://faun.pub/draw-circle-in-opengl-c-2da8d9c2c103
@@ -1100,7 +1074,6 @@ namespace IceEngine {
 
 			// Combine the transformations into the final model matrix
 			model = translationToCenter * r * scale;
-
 
 			GLint modelLoc = glGetUniformLocation(shader_program, "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
