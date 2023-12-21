@@ -251,7 +251,7 @@ namespace TopDownShooter
 		circle2.vCount = 128;
 		circle2.setup(false);
 
-		line.setup(glm::vec2(100, 100), glm::vec2(200, 200), 5 * 2.0f);
+		line.setup(glm::vec2(100, 100), glm::vec2(500, 500), 5 * 2.0f);
 		
 		rect.setup();
 		rect.isOutline = true;
@@ -271,10 +271,6 @@ namespace TopDownShooter
 		theText.fontSize = 48;
 		theText.setup();
 
-	
-
-
-	
 		const float PI = glm::pi<float>();
 		const int numVertices = 10; // 5 arms with 2 vertices each
 
@@ -289,7 +285,6 @@ namespace TopDownShooter
 
 			starVertices.push_back(glm::vec2(x, y));
 		}
-
 
 		glm::vec3 polygonColor = { 1.0f, 0.0f, 0.0f };  // Red color
 
@@ -315,20 +310,6 @@ namespace TopDownShooter
 		// Update the base scene
 		Scene::Update(deltaTime);
 
-		//// Assuming m_cameraComponent->position is a glm::vec2 representing the camera position
-		//glm::vec2 mousePos = IceEngine::InputManager::Instance().GetMousePosition();
-
-		//// Convert mouse position to world coordinates
-		//glm::vec2 cameraTarget(mousePos.x / SCREEN_WIDTH - 0.5f, 0.5f - mousePos.y / SCREEN_HEIGHT);
-
-		//// Interpolation factor for smooth camera movement
-		//const float lerpFactor = 0.01f;  // Adjust this factor to control the smoothness of the transition
-
-		//// Update camera position using linear interpolation
-		//m_cameraComponent->position = glm::lerp(m_cameraComponent->position, cameraTarget, lerpFactor);
-
-		// Assuming m_cameraComponent->position is a glm::vec2 representing the camera position
-		
 		static bool toggleFollowPointPeak = false;
 		glm::vec2 mousePos;
 
@@ -444,43 +425,43 @@ namespace TopDownShooter
 	
 		m_shader->Bind();
 
-		//IceEngine::Renderer::ResetStats();
-		//IceEngine::Renderer::BeginBatch();
+		IceEngine::Renderer::ResetStats();
+		IceEngine::Renderer::BeginBatch();
 
-		//m_tilemap->Draw();
-		//
-		//glm::vec2 tileSize = {(float)m_tilesInfo[m_spriteIndex].width , (float)m_tilesInfo[m_spriteIndex].height };
-		//glm::vec2 position = { 200, 200 };
-		//float tileRotation = 0.0f;
+		m_tilemap->Draw();
+		
+		glm::vec2 tileSize = {(float)m_tilesInfo[m_spriteIndex].width , (float)m_tilesInfo[m_spriteIndex].height };
+		glm::vec2 position = { 200, 200 };
+		float tileRotation = 0.0f;
 
-		//// Translation matrix with the pivot adjustment
-		//glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(position.x - 0.5f * tileSize.x, position.y - 0.5f * tileSize.y, 0.0f));
+		// Translation matrix with the pivot adjustment
+		glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(position.x - 0.5f * tileSize.x, position.y - 0.5f * tileSize.y, 0.0f));
 
-		//// Rotation matrix (assuming rotation is in radians)
-		//glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(tileRotation), glm::vec3(0.0f, 0.0f, 1.0f));
+		// Rotation matrix (assuming rotation is in radians)
+		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), glm::radians(tileRotation), glm::vec3(0.0f, 0.0f, 1.0f));
 
-		//// Scale matrix
-		//glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(tileSize.x, -tileSize.y, 1.0f));
+		// Scale matrix
+		glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(tileSize.x, -tileSize.y, 1.0f));
 
-		//// Combine the transformations
-		//glm::mat4 modelMatrix = translation * rotationMatrix * scaling;
+		// Combine the transformations
+		glm::mat4 modelMatrix = translation * rotationMatrix * scaling;
 
-		////IceEngine::Logger::Instance().Log(mat4ToString(modelMatrix), IceEngine::LogLevel::SUCCESS);
+		//IceEngine::Logger::Instance().Log(mat4ToString(modelMatrix), IceEngine::LogLevel::SUCCESS);
 
-		//tileSize = { (float)m_tilesInfo[m_spriteIndex].width / SCREEN_WIDTH, (float)m_tilesInfo[m_spriteIndex].height / SCREEN_HEIGHT };
-		//IceEngine::Renderer::DrawQuad(position, tileSize , modelMatrix, m_tilesetTexture, m_tilesInfo[m_spriteIndex].textureCoords);
+		tileSize = { (float)m_tilesInfo[m_spriteIndex].width / SCREEN_WIDTH, (float)m_tilesInfo[m_spriteIndex].height / SCREEN_HEIGHT };
+		IceEngine::Renderer::DrawQuad(position, tileSize , modelMatrix, m_tilesetTexture, m_tilesInfo[m_spriteIndex].textureCoords);
 
-		//auto S = IceEngine::Renderer::GetStats();
+		auto S = IceEngine::Renderer::GetStats();
 
-		////IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "DrawCount = %, QuadCount = %", S.DrawCount, S.QuadCount);
-		//IceEngine::Renderer::EndBatch();
+		//IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "DrawCount = %, QuadCount = %", S.DrawCount, S.QuadCount);
+		IceEngine::Renderer::EndBatch();
 
-		//// Setup Camera View Transform
-		//m_shader->SetMat4("projection", m_cameraComponent->projection);
-		//m_shader->SetMat4("view", m_cameraComponent->GetViewMatrix());
-		////m_shader->SetMat4("model", m_transformComponent->GetModelMatrix());
+		// Setup Camera View Transform
+		m_shader->SetMat4("projection", m_cameraComponent->projection);
+		m_shader->SetMat4("view", m_cameraComponent->GetViewMatrix());
+		//m_shader->SetMat4("model", m_transformComponent->GetModelMatrix());
 
-		//IceEngine::Renderer::Flush();
+		IceEngine::Renderer::Flush();
 
 		
 
@@ -493,8 +474,9 @@ namespace TopDownShooter
 
 		SDFrect.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 
-		lineQuad.draw(100, 120, 200, 220, 5.0f, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		
 		line.draw({ 0.0, 1.0, 0.0 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		lineQuad.draw(100, 100, 500, 500, 5.0f, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 
 		point.view = m_cameraComponent->GetViewMatrix();
 		point.draw(100, 100);
@@ -519,14 +501,11 @@ namespace TopDownShooter
 		static float g1 = 0;
 		static float b1 = 0;
 
-		
-		
+
 		r1 += 0.45 + 0.9f;
 		g1 -= 0.6f;
 		b1 += 0.7f;
 		theText.draw("Game Mode", 70, 200, 1.0f, glm::vec3( r1, 0.85f + g1, 0.64f + b1));
-
-
 		theText.draw("Play", 200, 300, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
 		theText.draw("Fullscreen OFF", 50, 350, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
 		theText.draw("Layout QWERTY", 50, 450, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));

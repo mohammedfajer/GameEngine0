@@ -186,6 +186,9 @@
     <ClCompile Include="ParticleSystem.cpp">
       <Filter>Source Files\Engine\VFX</Filter>
     </ClCompile>
+    <ClCompile Include="Menu.cpp">
+      <Filter>Source Files\Game\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Timer.h">
@@ -289,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="FontSystem.h">
       <Filter>Source Files\Engine\Graphics\Font</Filter>
+    </ClInclude>
+    <ClInclude Include="Menu.h">
+      <Filter>Source Files\Game\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

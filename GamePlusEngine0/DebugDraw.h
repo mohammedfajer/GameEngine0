@@ -644,10 +644,13 @@ namespace IceEngine {
 			// Convert angles to degrees
 			quad.rotation = angleRad * -180.0 / M_PI;
 
-			// Draw the rectangle
-			quad.draw(x1, y1, thickness, distance, view, projection);
-		}
+			// Calculate the left corner position of the quad
+			float quadX = x1 + (x2-x1) * 0.5;
+			float quadY = y1 + (y2-y1) * 0.5;
 
+			// Draw the rectangle with left corner at (x1, y1)
+			quad.draw(quadX, quadY, thickness, distance, view, projection);
+		}
 	};
 
 
