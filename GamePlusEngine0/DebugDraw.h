@@ -666,7 +666,7 @@ namespace IceEngine {
     layout(location = 2) in float v_radius;
     layout(location = 3) in float v_thick;
 
-    uniform vec2 u_view_xform;
+  
 
 	uniform mat4 model;
     uniform mat4 view;
@@ -678,19 +678,18 @@ namespace IceEngine {
     out float f_radius;
     out float f_thick;
 
-    void main()
+   void main()
     {
+
+
         vec2 center     = (v_quad.xy + v_quad.zw) * 0.5;
         vec2 half_dim   = (v_quad.zw - v_quad.xy) * 0.5;
         vec2 pos        = center + half_dim * v_pos_pattern;
       
 
-  // Apply transformations
+  		// Apply transformations
 		vec4 worldPos   = view * model * vec4(pos, 0.0, 1.0);
 		vec2 norm_pos   = (projection * worldPos).xy;
-
-		//vec2 norm_pos   = pos * u_view_xform + vec2(-1.0, +1.0);
-
         gl_Position     = vec4(norm_pos, 0.0, 1.0);
 
         f_pos           = pos;
@@ -699,6 +698,7 @@ namespace IceEngine {
         f_radius        = v_radius;
         f_thick         = v_thick;
     }
+
 )";
 
 	static const char *glsl_fragment_shader = R"(
@@ -752,11 +752,189 @@ namespace IceEngine {
 
 )";
 
+static const char *sdfrounded_glsl_vertex_shader = R"(
+    #version 330 core
+    layout(location = 0) in vec2 v_pos_pattern;
+  
+  	uniform vec2 u_position;
+	uniform vec2 u_size;
+	uniform float u_radius;
+	uniform float u_thickness;
+
+	uniform mat4 model;
+    uniform mat4 view;
+    uniform mat4 projection;
+
+    out vec2 f_center;
+    out vec2 f_half_dim;
+    out vec2 f_pos;
+    out float f_radius;
+    out float f_thick;
+
+   void main()
+    {
+
+
+        vec2 center     = (u_position + (u_position + u_size)) * 0.5;
+        vec2 half_dim   = ((u_position + u_size) - u_position) * 0.5;
+        vec2 pos        = center + half_dim * v_pos_pattern;
+      
+
+  		// Apply transformations
+		vec4 worldPos   = view * model * vec4(pos, 0.0, 1.0);
+		vec2 norm_pos   = (projection * worldPos).xy;
+        gl_Position     = vec4(norm_pos, 0.0, 1.0);
+
+        f_pos           = pos;
+        f_center        = center;
+        f_half_dim      = half_dim;
+        f_radius        = u_radius;
+        f_thick         = u_thickness;
+    }
+
+)";
+
+class RoundedRect
+{
+public:
+
+	void Setup()
+	{
+		setupShader();
+		setupGeometry();
+
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR) {
+		    std::cerr << "OpenGL error: " << error << std::endl;
+		}
+	}
+    RoundedRect()
+    {
+        
+    }
+
+    ~RoundedRect()
+    {
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
+        glDeleteProgram(shader_program);
+    }
+
+    void setSize(const glm::vec2& newSize)
+    {
+        size = newSize;
+    }
+
+    void setRadius(float newRadius)
+    {
+        radius = newRadius;
+    }
+
+    void setThickness(float newThickness)
+    {
+        thickness = newThickness;
+    }
+
+    void draw(const glm::vec2& pos, const glm::mat4& view, const glm::mat4& projection)
+    {
+        glUseProgram(shader_program);
+
+
+
+
+        // Set uniform values for position, size, radius, and thickness
+        glUniform2f(glGetUniformLocation(shader_program, "u_position"), pos.x, pos.y);
+        glUniform2f(glGetUniformLocation(shader_program, "u_size"), size.x, size.y);
+        glUniform1f(glGetUniformLocation(shader_program, "u_radius"), radius);
+        glUniform1f(glGetUniformLocation(shader_program, "u_thickness"), thickness);
+
+        // Set transformation matrices
+        glm::mat4 model = glm::mat4(1.0f);
+
+        GLint modelLoc = glGetUniformLocation(shader_program, "model");
+			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        glUniformMatrix4fv(glGetUniformLocation(shader_program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(shader_program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+
+        glBindVertexArray(VAO);
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 1);
+        glBindVertexArray(0);
+    }
+
+private:
+    GLuint shader_program;
+    GLuint VAO, VBO;
+
+    glm::vec2 size;
+    float radius = 1.0f;
+    float thickness = 1.0f;
+
+    void setupShader()
+    {
+        // Compile and link shaders
+        GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, 1, &sdfrounded_glsl_vertex_shader, NULL);
+        glCompileShader(vertexShader);
+        checkShaderCompileError(vertexShader);
+
+        GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, 1, &glsl_fragment_shader, NULL);
+        glCompileShader(fragmentShader);
+        checkShaderCompileError(fragmentShader);
+
+        shader_program = glCreateProgram();
+        glAttachShader(shader_program, vertexShader);
+        glAttachShader(shader_program, fragmentShader);
+        glLinkProgram(shader_program);
+        checkProgramLinkError(shader_program);
+
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
+    }
+
+    void setupGeometry()
+    {
+        uint64_t quad_stride = 6;
+
+        float vertices[] = {
+            // [0]: pattern of quad
+            -1.0f, +1.0f,
+            +1.0f, +1.0f,
+            -1.0f, -1.0f,
+            +1.0f, +1.0f,
+            -1.0f, -1.0f,
+            +1.0f, -1.0f,
+        };
+
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+
+        glBindVertexArray(VAO);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+
+        // Position attribute
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), 0);
+
+     
+        glBindVertexArray(0);
+    }
+};
+
+
+
 
 	struct SDFRoundedRectangle
 	{
 		GLuint shader_program;
 		GLuint VAO, VBO;
+
+		
+		glm::vec2 size;
+		float radius = 1.0f;
+		float thickness = 1.0f;
 
 		void setup()
 		{
@@ -793,10 +971,9 @@ namespace IceEngine {
 				+1.0f, -1.0f,
 
 				// [12]: four quad specifiers
-				+200.0f, +200.0f, +300.0f, +300.0f, 10.0f, 2.0f,
-				+100.0f, +500.0f, 400.0f, +600.0f , 20.0f,  5.0f,
-				+600.0f, +100.0f, +700.0f, +300.0f, 0.0f,	4.0f,
-				+600.0f, +500.0f, +650.0f, +650.0f, 20.0f, 	2.0f
+	
+				0.0f, 0.0f, size.x, size.y, radius, thickness
+				//-1.0f, 1.0f, 1.0f, 1.0f, radius, thickness
 			};
 
 			glGenVertexArrays(1, &VAO);
@@ -831,7 +1008,7 @@ namespace IceEngine {
 			glUniform2f(u_view_xform, 2.f / SCREEN_WIDTH, -2.f / SCREEN_HEIGHT);
 		}
 
-		void draw(const glm::mat4 &view, const glm::mat4 &projection)
+		void draw(const glm::vec2& pos, const glm::mat4 &view, const glm::mat4 &projection)
 		{
 			glUseProgram(shader_program);
 
@@ -841,6 +1018,10 @@ namespace IceEngine {
 			//glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(100.0f, 100.0f, 0.0f));
 
 			glm::mat4 model = glm::mat4(1.0f);
+
+			model = glm::translate(model, glm::vec3(pos.x, pos.y, 0.0f));
+			model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
+
 
 			GLint modelLoc = glGetUniformLocation(shader_program, "model");
 			glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
@@ -855,7 +1036,7 @@ namespace IceEngine {
 
 			glBindVertexArray(VAO);
 
-			glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 4);
+			glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 1);
 
 			glBindVertexArray(0);
 		}

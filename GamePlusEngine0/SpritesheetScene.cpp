@@ -35,12 +35,14 @@ namespace TopDownShooter
 	IceEngine::DebugLineQuad lineQuad;
 	
 
-	IceEngine::SDFRoundedRectangle SDFrect;
+	//IceEngine::SDFRoundedRectangle SDFrect;
 	IceEngine::DebugTriangle triangle;
 	IceEngine::ClosedPolygon closedPolygon;
 
 
 	IceEngine::Text theText;
+
+	IceEngine::RoundedRect TheRect;
 
 
 	
@@ -263,8 +265,21 @@ namespace TopDownShooter
 	
 		triangle.setup();
 
+
+
 	
-		SDFrect.setup();
+		//SDFrect.size = {10, 20}; // (10, 10)
+		//SDFrect.radius = 20.0f;
+		//SDFrect.thickness = 2.0f;
+		//
+		//SDFrect.setup();
+
+		TheRect.Setup();
+		TheRect.setSize(glm::vec2(50.0f, 150.0f));
+		TheRect.setRadius(20.0f);
+		TheRect.setThickness(2.0f);
+
+
 
 
 		theText.font_path = "./data/fonts/ThaleahFat.ttf";
@@ -472,8 +487,10 @@ namespace TopDownShooter
 		rect.draw(300, 200, 50, 50, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		rect2.draw(200, 300, 50, 80, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 
-		SDFrect.draw(m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
+		//SDFrect.draw({100,200}, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 
+
+		TheRect.draw({ 60, 60 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		
 		line.draw({ 0.0, 1.0, 0.0 }, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 		lineQuad.draw(100, 100, 500, 500, 5.0f, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
@@ -493,23 +510,28 @@ namespace TopDownShooter
 
 
 		theText.projection = m_cameraComponent->projection;
-		theText.draw("Hi", 70, 50, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
-		theText.draw("NEW TITLE", 70, 100, 1.0f, glm::vec3(0.45, 0.85f, 0.64f));
-		
-
-		static float r1 = 0;
-		static float g1 = 0;
-		static float b1 = 0;
+		/*	theText.draw("Hi", 70, 50, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+			theText.draw("NEW TITLE", 70, 100, 1.0f, glm::vec3(0.45, 0.85f, 0.64f));
 
 
-		r1 += 0.45 + 0.9f;
-		g1 -= 0.6f;
-		b1 += 0.7f;
-		theText.draw("Game Mode", 70, 200, 1.0f, glm::vec3( r1, 0.85f + g1, 0.64f + b1));
-		theText.draw("Play", 200, 300, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
-		theText.draw("Fullscreen OFF", 50, 350, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
-		theText.draw("Layout QWERTY", 50, 450, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
-		theText.draw("Quit", 100, 480, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+			static float r1 = 0;
+			static float g1 = 0;
+			static float b1 = 0;
+
+
+			r1 += 0.45 + 0.9f;
+			g1 -= 0.6f;
+			b1 += 0.7f;
+			theText.draw("Game Mode", 70, 200, 1.0f, glm::vec3( r1, 0.85f + g1, 0.64f + b1));
+			theText.draw("Play", 200, 300, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+			theText.draw("Fullscreen OFF", 50, 350, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+			theText.draw("Layout QWERTY", 50, 450, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));
+			theText.draw("Quit", 100, 480, 1.0f, glm::vec3(1.0, 0.8f, 0.2f));*/
+
+
+		theText.draw("SCORE", SCREEN_WIDTH / 4, 40, 1.0F, glm::vec3(1.0));
+		theText.draw("ROUND", SCREEN_WIDTH / 2 - 50, 40, 1.0F, glm::vec3(1.0));
+		theText.draw("TIME LEFT", SCREEN_WIDTH * 2.0f/3.0f, 40, 1.0F, glm::vec3(1.0));
 	}
 }
 

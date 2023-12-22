@@ -39,10 +39,7 @@ namespace IceEngine {
 		Engine() = default;
 		~Engine();
 		Window *m_window;
-
 		RunMode m_runMode;
-
-		
 	};
 }
 

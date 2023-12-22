@@ -181,8 +181,6 @@ namespace IceEngine
 			glActiveTexture(GL_TEXTURE0);
 			glBindVertexArray(VAO);
 
-
-
 			// iterate through all characters
 			std::string::const_iterator c;
 			for (c = text.begin(); c != text.end(); c++)

@@ -42,16 +42,8 @@ namespace TopDownShooter
 
 		std::vector<Tile_Info> m_tilesInfo;
 		int m_spriteIndex = 0;
-
-
-
-		
-
-
 		IceEngine::Tileset *m_tileset;
 		IceEngine::Tilemap *m_tilemap;
-
-
 		
 	};
 }

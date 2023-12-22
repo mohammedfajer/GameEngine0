@@ -17,11 +17,9 @@ namespace IceEngine
 
 		GameObject* GetGameObjectByName(const std::string& name)
 		{
-
 			auto CompareNameFuc = [&name](const GameObject* obj) { return obj->GetName() == name; };
 
-			auto it = std::find_if(m_gameObjects.begin(), m_gameObjects.end(),
-			                       CompareNameFuc);
+			auto it = std::find_if(m_gameObjects.begin(), m_gameObjects.end(), CompareNameFuc);
 
 			if (it != m_gameObjects.end())
 			{
