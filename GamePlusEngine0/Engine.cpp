@@ -9,6 +9,7 @@
 #include "SpritesheetScene.h"
 
 #include "Color.h"
+#include "Menu.h"
 
 namespace IceEngine 
 {
@@ -32,11 +33,14 @@ namespace IceEngine
 		Scene* spriteSheetScene = new TopDownShooter::SpriteSheetScene();
 		SceneManager::Instance().AddScene("SpriteSheetScene", spriteSheetScene);
 
+		Scene *menuScene = new TopDownShooter::MenuScene();
+		SceneManager::Instance().AddScene("MenuScene", menuScene);
+
 		// Set the active Scene
-		SceneManager::Instance().SetActiveScene("SpriteSheetScene");
+		SceneManager::Instance().SetActiveScene("MenuScene");
 
 		// Enable blending
-		glEnable(GL_BLEND);
+		glEnable(GL_BLEND);		
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		m_running = true;
@@ -45,6 +49,8 @@ namespace IceEngine
 	void Engine::Update()
 	{
 		
+
+
 
 		// Toggle Play mode or editor mode
 
