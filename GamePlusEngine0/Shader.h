@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 #include "Logger.h"
 #include "FileIO.h"
+#include <GL/glew.h>
 
 namespace IceEngine  {
 	struct Shader  {
@@ -122,6 +123,16 @@ namespace IceEngine  {
 
 		void SetFloat(const std::string& name, float value) {
 			glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+		}
+
+		void SetVec2(const std::string& name, glm::vec2 vec) {
+			GLint loc = glGetUniformLocation(id, name.c_str());
+			glUniform2fv(loc, 1, glm::value_ptr(vec));
+		}
+
+		void SetVec3(const std::string& name, glm::vec3 vec) {
+			GLint loc = glGetUniformLocation(id, name.c_str());
+			glUniform3fv(loc, 1, glm::value_ptr(vec));
 		}
 
 		void SetMat4(const std::string& name, glm::mat4 mat) {
