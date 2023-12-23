@@ -3,6 +3,7 @@
 
 #include <SDL.h>
 #include <GL/glew.h>
+#include <string>
 
 namespace IceEngine {
 	class Window
@@ -22,6 +23,7 @@ namespace IceEngine {
 		void InitGLContext();
 		void InitGLEW();
 		
-	
+		std::string m_glsl_version;
+		
 	};
 }

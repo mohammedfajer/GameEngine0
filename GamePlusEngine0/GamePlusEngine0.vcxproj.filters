@@ -94,9 +94,6 @@
     <Filter Include="Source Files\Engine\Platform">
       <UniqueIdentifier>{18fcb281-211f-44a7-8bfa-2bc70beda21f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Engine\GUI\ImGui">
-      <UniqueIdentifier>{54231c45-6388-43c7-895c-809bc40960ae}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files\Engine\Graphics\Font">
       <UniqueIdentifier>{27b4506f-f008-4e94-bc61-79aadd7abf7e}</UniqueIdentifier>
     </Filter>
@@ -105,6 +102,12 @@
     </Filter>
     <Filter Include="Source Files\Engine\Debug Draw">
       <UniqueIdentifier>{ee0de8be-b513-489e-bbd4-28ad3d92e458}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ThirdParty">
+      <UniqueIdentifier>{91702550-a58f-41f9-8430-06af5e002850}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ThirdParty\ImGui">
+      <UniqueIdentifier>{54231c45-6388-43c7-895c-809bc40960ae}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -188,6 +191,27 @@
     </ClCompile>
     <ClCompile Include="Menu.cpp">
       <Filter>Source Files\Game\Scenes</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui.cpp">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_demo.cpp">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_draw.cpp">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_tables.cpp">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_widgets.cpp">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_sdl2.cpp">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_opengl3.cpp">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -295,6 +319,33 @@
     </ClInclude>
     <ClInclude Include="Menu.h">
       <Filter>Source Files\Game\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_internal.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imstb_rectpack.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imstb_textedit.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imstb_truetype.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_sdl2.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imconfig.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_opengl3.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_opengl3_loader.h">
+      <Filter>Source Files\ThirdParty\ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,11 @@
 #include "Logger.h"
 #include "Engine.h"
 
+// Dear IMGUI
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_opengl3.h"
+
 namespace IceEngine 
 {
 	InputManager& InputManager::Instance() 
@@ -33,6 +38,9 @@ namespace IceEngine
 		SDL_Event event;
 		while(SDL_PollEvent(&event)) 
 		{
+
+			ImGui_ImplSDL2_ProcessEvent(&event);
+
 			HandleEvent(event);
 		}
 	}

@@ -10,6 +10,12 @@
 
 #include "Color.h"
 #include "Menu.h"
+#include "FontSystem.h"
+
+// Dear IMGUI
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+#include "imgui_impl_opengl3.h"
 
 namespace IceEngine 
 {
@@ -29,8 +35,8 @@ namespace IceEngine
 
 		// Starting Scene the game ...
 
-
 		Scene* spriteSheetScene = new TopDownShooter::SpriteSheetScene();
+		
 		SceneManager::Instance().AddScene("SpriteSheetScene", spriteSheetScene);
 
 		Scene *menuScene = new TopDownShooter::MenuScene();
@@ -48,10 +54,6 @@ namespace IceEngine
 
 	void Engine::Update()
 	{
-		
-
-
-
 		// Toggle Play mode or editor mode
 
 		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_E))
@@ -77,6 +79,12 @@ namespace IceEngine
 
 		InputManager::Instance().Update();
 
+		// Start the Dear ImGui frame
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplSDL2_NewFrame();
+		ImGui::NewFrame();
+
+
 		m_window->Update();
 		
 		SceneManager::Instance().UpdateCurrentScene(dt);
@@ -85,14 +93,7 @@ namespace IceEngine
 
 		AfterUpdate();
 
-		Render();
-
-		/*if (m_runMode == RunMode::GameMode) {
-
-
-		}*/
-
-		
+		Render();	
 	}
 
 	void Engine::AfterUpdate()
@@ -101,12 +102,31 @@ namespace IceEngine
 
 	void Engine::Render()
 	{
+		
+		ImGuiIO &io = ImGui::GetIO(); (void)io;
+		glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
+
+
 		Color::SetClearColor({ 66, 135, 245 , 255 });
+		
 		glClear(GL_COLOR_BUFFER_BIT);
+		
 
 		// Rendering should go here
 
 		SceneManager::Instance().RenderCurrentScene();
+
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		
+		
+		
+
+		
+
+
 
 		SDL_GL_SwapWindow(m_window->GetWindow());
 	}
@@ -114,8 +134,16 @@ namespace IceEngine
 
 	Engine::~Engine()
 	{
+		// Cleanup
+		
+		ImGui_ImplSDL2_Shutdown();
+		ImGui::DestroyContext();
+
 		if(m_window)
 			delete m_window;
+
+
+
 	}
 }
 

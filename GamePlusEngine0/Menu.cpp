@@ -40,6 +40,8 @@ namespace TopDownShooter {
 		uniform vec2 iResolution;
 		uniform vec3 ibgColor;
 
+		uniform bool iOpenTransition;
+
 		void main() {
 			float transitionDuration = iDuration;
 			float progress = smoothstep(0.0, 1.0, mod(iTime, transitionDuration) / transitionDuration);
@@ -47,9 +49,26 @@ namespace TopDownShooter {
 			float rectanglePositionBottom = smoothstep(0.0, 1.0, progress);
 			float screenHeight = iResolution.y;
 			float rectangleHeight = screenHeight * 0.5;
-			float rectangleYTop = mix(0.0, screenHeight * 0.5, rectanglePositionTop);
-			float rectangleYBottom = mix(screenHeight * 0.5, screenHeight, rectanglePositionBottom);
+			
+
+			float rectangleYTop;
+			float rectangleYBottom;
+
+			if(iOpenTransition) 
+			{
+				rectangleYTop = mix(0.0, screenHeight * 0.5, rectanglePositionTop);
+				rectangleYBottom = mix(screenHeight * 0.5, screenHeight, rectanglePositionBottom);
+			}
+			else
+			{
+				rectangleYTop = mix(screenHeight * 0.5,0.0, rectanglePositionTop);
+				rectangleYBottom = mix(screenHeight, screenHeight * 0.5, rectanglePositionBottom);
+			}
+
 			vec3 finalColor = mix(vec3(0.0), ibgColor, step(rectangleYTop, gl_FragCoord.y) * step(gl_FragCoord.y, rectangleYBottom));
+
+	
+
 			FragColor = vec4(finalColor, 1.0);			
 		}
 	)";
@@ -58,7 +77,7 @@ namespace TopDownShooter {
 		Uint32 startTime;
 		Uint32 duration;
 		Timer() = default;
-		Timer(Uint32 duration) : duration(duration * 1000) {reset();}
+		Timer(Uint32 duration) : duration( static_cast<Uint32>(duration * 1000.0f) ) {reset();}
 		void reset() { startTime = SDL_GetTicks(); }
 		bool isExpired() const {
 			Uint32 currentTime = SDL_GetTicks();
@@ -67,34 +86,22 @@ namespace TopDownShooter {
 	};
     
 	struct SceneTransitionEffect {
-		GLuint shader_program;
+		IceEngine::Shader shader;
+
 		GLuint VAO, VBO;
         
 		float duration = 1.0f;
 		Timer timer;
 		bool timerStarted = false;
 		uint32_t startTime;
+		bool isOpenTransition = true;
         
 		void setup() {
 			startTime = SDL_GetTicks();
-			timer.duration = duration * 1000.0f; // to seconds
+			timer.duration = static_cast<Uint32>(duration * 1000.0f); // to seconds
             
-			GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-			glShaderSource(vertex_shader, 1, &scene_transition_vertex_shader_source_code, NULL);
-			glCompileShader(vertex_shader);
-			IceEngine::checkShaderCompileError(vertex_shader);
-            
-			GLuint fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-			glShaderSource(fragment_shader, 1, &scene_transition_fragment_shader_source_code, NULL);
-			glCompileShader(fragment_shader);
-			IceEngine::checkShaderCompileError(fragment_shader);
-            
-			shader_program = glCreateProgram();
-			glAttachShader(shader_program, vertex_shader);
-			glAttachShader(shader_program, fragment_shader);
-			glLinkProgram(shader_program);
-			IceEngine::checkProgramLinkError(shader_program);
-            
+			shader.LoadShaderFromString(scene_transition_vertex_shader_source_code, scene_transition_fragment_shader_source_code);
+
 			float vertices[] = {
 				-1.0f, -1.0f,
 				1.0f, -1.0f,
@@ -117,43 +124,49 @@ namespace TopDownShooter {
 			glBindBuffer(GL_ARRAY_BUFFER, 0);
 			glBindVertexArray(0);
             
-			glUseProgram(shader_program);
-			GLint bgColorLoc = glGetUniformLocation(shader_program, "ibgColor");
-			glUniform3fv(bgColorLoc, 1, glm::value_ptr(glm::vec3(72 / 255.0f, 59 / 255.0f, 58 / 255.0f)));
+			shader.Bind();
+
+			// 230, 217, 181
+			// 72 59 58
+			shader.SetVec3("ibgColor", glm::vec3(230 / 255.0f, 217 / 255.0f, 181 / 255.0f));
+			
 		}
         
-		void reset_transition() { timerStarted = false; }
+		void stop() { timerStarted = false; }
+
+		void start() { timerStarted = true; timer.reset(); }
+		
         
 		void draw() {
-			if (!timerStarted) {
-				timer.reset();
-				timerStarted = true;
-			}
-			if (timerStarted && timer.isExpired()) return;
+			if (!timerStarted) return;
+
+			if (timer.isExpired()) return;
             
-			glUseProgram(shader_program);
+			shader.Bind();
+			
 			glBindVertexArray(VAO);
-            
-			// Set the model matrix uniform
-			GLint timeLoc = glGetUniformLocation(shader_program, "iTime");
-			GLint durationLoc = glGetUniformLocation(shader_program, "iDuration");
-			GLint resolutionLoc = glGetUniformLocation(shader_program, "iResolution");
-            
+
+      
 			uint32_t currTime = SDL_GetTicks();
             
 			double elapsedTime = (currTime - startTime) / 1000.0; // Convert to seconds.
-			glUniform1f(timeLoc, elapsedTime * 0.9);  // Set time to the duration to complete the transition
-			glUniform1f(durationLoc, duration);
-			glUniform2f(resolutionLoc, SCREEN_WIDTH, SCREEN_HEIGHT);
+			
+			shader.SetInt("iOpenTransition", isOpenTransition);
+			shader.SetFloat("iTime", static_cast<float>(elapsedTime * 0.9));
+			shader.SetFloat("iDuration", duration);
+			shader.SetVec2("iResolution", glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
             
 			glBindVertexArray(VAO);
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			glBindVertexArray(0);
-			glUseProgram(0);
+
+			shader.UnBind();
 		}
 	};
     
-	SceneTransitionEffect transition;
+	SceneTransitionEffect OpenTransition;
+	SceneTransitionEffect CloseTransition;
+
 	IceEngine::Text menuText;
 	IceEngine::OrthographicCameraComponent *camera;
 	int indexSelected = 0;
@@ -209,15 +222,25 @@ namespace TopDownShooter {
 		}
 	)";
     
-	bool startGame = false;
+
+	glm::vec2 offset = { SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT - 300 };
+
+	
     
 	MenuScene::MenuScene() {
 		camera = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 		camera->zoom = 2.0F;
 		camera->position = { 24.2, 57.2 };
         
-		transition.duration = 3.0f;
-		transition.setup();
+		OpenTransition.duration = 3.0f;
+		OpenTransition.setup();
+
+		CloseTransition.duration = 3.0f;
+		CloseTransition.isOpenTransition = false;
+		
+
+		OpenTransition.start();
+
         
 		menuText.font_path = "./data/fonts/ThaleahFat.ttf";
 		menuText.fontSize = 48;
@@ -243,30 +266,35 @@ namespace TopDownShooter {
 		// Text			Start Position			End Position			Color		Selected or not
 		menuTextList.push_back({ { "Play" },
                                    { -500, SCREEN_HEIGHT - 300 },
-                                   { SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 300 },
+                                   glm::vec2{ 100, 10 },
                                    glm::vec3(1.0, 0.8f, 0.2f), true });
         
 		menuTextList.push_back({ { "Fullscreen OFF" },
                                    { -100, SCREEN_HEIGHT - 250 },
-                                   {SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT - 250 },
+                                   glm::vec2{10, 50 },
                                    glm::vec3(1.0, 0.8f, 0.2f), false });
         
 		menuTextList.push_back({ { "Quit" },
                                    { -500, SCREEN_HEIGHT - 200 },
-                                   {SCREEN_WIDTH / 2 - 50, SCREEN_HEIGHT - 200 },
+                                   glm::vec2{105, 90},
                                    glm::vec3(1.0, 0.8f, 0.2f), false });
 	}
     
 	MenuScene::~MenuScene() {}
     
+	bool startGame = false;
+
 	void MenuScene::Update(float deltaTime) {
 		// Update the base scene
 		Scene::Update(deltaTime);
-        
-		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_2)) {
+		static bool firstTime = false;
+		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_RETURN)) {
 			if (indexSelected == 0) {
-				startGame = true;
-				transition.reset_transition();
+				if (OpenTransition.timer.isExpired() && !CloseTransition.timerStarted) {
+					startGame = true;
+					CloseTransition.setup();
+					CloseTransition.start();
+				}
 			}
 		}
         
@@ -288,16 +316,37 @@ namespace TopDownShooter {
 				menuTextList[i].selected = false;
 			}
 		}
+
+		if (OpenTransition.timer.isExpired()) {
+			OpenTransition.stop();
+		}
+
+		if (CloseTransition.timer.isExpired() && startGame && !firstTime) {
+			CloseTransition.stop();
+
+			firstTime = true;
+
+			CloseTransition.isOpenTransition = true;
+			CloseTransition.start();
+
+		}
+
+		if (CloseTransition.timer.isExpired() && startGame && firstTime)
+		{
+			CloseTransition.stop();
+
+			
+			IceEngine::SceneManager::Instance().SetActiveScene("SpriteSheetScene");
+		}
+
+
+
 	}
     
 	void MenuScene::Render() {
 		IceEngine::Color::SetClearColor({ 72, 59, 58, 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
-        
-		if (startGame) {
-			IceEngine::SceneManager::Instance().SetActiveScene("SpriteSheetScene");
-		}
-        
+
 		static float fakeElapsedTime = 0.0f; // Initialize fake time
 		float interpolateDuration = 8.0f;    // one second
         
@@ -314,8 +363,12 @@ namespace TopDownShooter {
 				textData.color = glm::vec3(1.0, 0.8f, 0.2f);
             
 			// Linear interpolation for x and y positions
-			float interpolateX = glm::mix(textData.startPoint.x, textData.endPoint.x, interpolateFactor);
-			float interpolateY = glm::mix(textData.startPoint.y, textData.endPoint.y, interpolateFactor);
+			float interpolateX = glm::mix(-1000.0f, offset.x, interpolateFactor);
+			float interpolateY = glm::mix(500.0f, offset.y, interpolateFactor);
+
+			interpolateX += textData.endPoint.x;
+			interpolateY += textData.endPoint.y;
+
 			menuText.draw(textData.text, interpolateX, interpolateY, 1.0f, textData.color);
 		}
 		fakeElapsedTime += 0.016f;
@@ -328,6 +381,7 @@ namespace TopDownShooter {
                                       glm::vec2(1024*.3, 512 *0.3f), menuTexture.id);
 		IceEngine::Renderer::EndBatch();
 		IceEngine::Renderer::Flush();
-		transition.draw();
+		OpenTransition.draw();
+		CloseTransition.draw();
 	}
 }

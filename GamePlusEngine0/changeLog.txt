@@ -55,3 +55,15 @@ Engine
 	[] 
 
 
+TODO
+- Finish Off Debug Draw Todos
+- Do the proper scene transition system 
+- Do proper timing and compute FPS
+- Plan what files to keep what files to delete
+- Entity Component System
+- Camera Level Changes 
+- Adding Crosshair
+- Collision Detection
+- Particles
+- Player Mechanic (Movement, Animation)
+- AI Path Finding

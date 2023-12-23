@@ -15,6 +15,12 @@
 
 namespace IceEngine {
 
+
+
+	// TODO(mo): Reduce the shader code
+	// Ensure Each Class is Customized and Tested
+	
+
 	const char *point_vertex_shader_source = R"(
 		#version 330 core
 		layout (location = 0) in vec2 aPos;
@@ -197,9 +203,9 @@ namespace IceEngine {
 			glBindVertexArray(VAO);
 			
 			if (isOutline) {
-				glDrawArrays(GL_LINE_LOOP, 0, vertices.size());
+				glDrawArrays(GL_LINE_LOOP, 0, static_cast<GLsizei>(vertices.size()));
 			} else {
-				glDrawArrays(GL_TRIANGLES, 0, vertices.size());
+				glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(vertices.size()));
 			}
 
 			shader.UnBind();
@@ -412,18 +418,22 @@ namespace IceEngine {
 		void draw(int x1, int y1, int x2, int y2,
 		          float thickness, const glm::mat4 &view, const glm::mat4 &projection) {
 			// Calculate angle and distance
-			float angleRad = atan2(y2 - y1, x2 - x1);
-			float distance = sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+
+			float dx = static_cast<float>(x2 - x1);
+			float dy = static_cast<float>(y2 - y1);
+
+			float angleRad = static_cast<float> (atan2f(dy,dx));
+			float distance = static_cast<float> (sqrtf(static_cast<float>(pow(dx, 2)) + static_cast<float>(pow(dy, 2))));
 
 			// Convert angles to degrees
-			quad.rotation = angleRad * -180.0 / M_PI;
+			quad.rotation = static_cast<float>( angleRad * -180.0f / M_PI );
 
 			// Calculate the left corner position of the quad
-			float quadX = x1 + (x2-x1) * 0.5;
-			float quadY = y1 + (y2-y1) * 0.5;
+			float quadX = x1 + (dx) * 0.5f;
+			float quadY = y1 + (dy) * 0.5f;
 
 			// Draw the rectangle with left corner at (x1, y1)
-			quad.draw(quadX, quadY, thickness, distance, view, projection);
+			quad.draw((int)quadX, (int)quadY, (int)thickness, (int)distance, view, projection);
 		}
 	};
 
@@ -550,91 +560,91 @@ namespace IceEngine {
 		}
 	)";
 
-class RoundedRect {
-	public:
-		void Setup() {
-			setupShader();
-			setupGeometry();
-	
-			GLenum error = glGetError();
-			if (error != GL_NO_ERROR) {
-				std::cerr << "OpenGL error: " << error << std::endl;
-			}
-		}
-		RoundedRect() = default;
-	
-		~RoundedRect() {
-			glDeleteVertexArrays(1, &VAO);
-			glDeleteBuffers(1, &VBO);
-		}
-	
-		void setSize(const glm::vec2& newSize) { size = newSize; }
-	
-		void setRadius(float newRadius) { radius = newRadius; }
-	
-		void setThickness(float newThickness) { thickness = newThickness; }
-	
-		void draw(const glm::vec2& pos, const glm::mat4& view, const glm::mat4& projection) {
-			shader.Bind();
-	
-			shader.SetVec2("u_position", pos);
-			shader.SetVec2("u_size", size);
-			shader.SetFloat("u_radius", radius);
-			shader.SetFloat("u_thickness", thickness);
-	
-			// Set transformation matrices
-			glm::mat4 model = glm::mat4(1.0f);
-
-			shader.SetMat4("model", model);
-			shader.SetMat4("view", view);
-			shader.SetMat4("projection", projection);
-	
-			glBindVertexArray(VAO);
-			glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 1);
-			glBindVertexArray(0);
-	
-			shader.UnBind();
-		}
-
-	private:
+	class RoundedRect {
+		public:
+			void Setup() {
+				setupShader();
+				setupGeometry();
 		
-		GLuint VAO, VBO;
+				GLenum error = glGetError();
+				if (error != GL_NO_ERROR) {
+					std::cerr << "OpenGL error: " << error << std::endl;
+				}
+			}
+			RoundedRect() = default;
+		
+			~RoundedRect() {
+				glDeleteVertexArrays(1, &VAO);
+				glDeleteBuffers(1, &VBO);
+			}
+		
+			void setSize(const glm::vec2& newSize) { size = newSize; }
+		
+			void setRadius(float newRadius) { radius = newRadius; }
+		
+			void setThickness(float newThickness) { thickness = newThickness; }
+		
+			void draw(const glm::vec2& pos, const glm::mat4& view, const glm::mat4& projection) {
+				shader.Bind();
+		
+				shader.SetVec2("u_position", pos);
+				shader.SetVec2("u_size", size);
+				shader.SetFloat("u_radius", radius);
+				shader.SetFloat("u_thickness", thickness);
+		
+				// Set transformation matrices
+				glm::mat4 model = glm::mat4(1.0f);
 	
-		glm::vec2 size;
-		float radius = 1.0f;
-		float thickness = 1.0f;
-		Shader shader;
+				shader.SetMat4("model", model);
+				shader.SetMat4("view", view);
+				shader.SetMat4("projection", projection);
+		
+				glBindVertexArray(VAO);
+				glDrawArraysInstanced(GL_TRIANGLES, 0, 6, 1);
+				glBindVertexArray(0);
+		
+				shader.UnBind();
+			}
 	
-		void setupShader() {
-			shader.LoadShaderFromString(sdfrounded_glsl_vertex_shader, glsl_fragment_shader);
-		}
-	
-		void setupGeometry() {
-			uint64_t quad_stride = 6;
-	
-			float vertices[] = {
-				// [0]: pattern of quad
-				-1.0f, +1.0f,
-				+1.0f, +1.0f,
-				-1.0f, -1.0f,
-				+1.0f, +1.0f,
-				-1.0f, -1.0f,
-				+1.0f, -1.0f,
-			};
-	
-			glGenVertexArrays(1, &VAO);
-			glGenBuffers(1, &VBO);
-	
-			glBindVertexArray(VAO);
-	
-			glBindBuffer(GL_ARRAY_BUFFER, VBO);
-			glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
-	
-			// Position attribute
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), 0);
-			glBindVertexArray(0);
-		}
+		private:
+			
+			GLuint VAO, VBO;
+		
+			glm::vec2 size;
+			float radius = 1.0f;
+			float thickness = 1.0f;
+			Shader shader;
+		
+			void setupShader() {
+				shader.LoadShaderFromString(sdfrounded_glsl_vertex_shader, glsl_fragment_shader);
+			}
+		
+			void setupGeometry() {
+				uint64_t quad_stride = 6;
+		
+				float vertices[] = {
+					// [0]: pattern of quad
+					-1.0f, +1.0f,
+					+1.0f, +1.0f,
+					-1.0f, -1.0f,
+					+1.0f, +1.0f,
+					-1.0f, -1.0f,
+					+1.0f, -1.0f,
+				};
+		
+				glGenVertexArrays(1, &VAO);
+				glGenBuffers(1, &VBO);
+		
+				glBindVertexArray(VAO);
+		
+				glBindBuffer(GL_ARRAY_BUFFER, VBO);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STREAM_DRAW);
+		
+				// Position attribute
+				glEnableVertexAttribArray(0);
+				glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * sizeof(float), 0);
+				glBindVertexArray(0);
+			}
 	};
 
 
@@ -680,15 +690,15 @@ class RoundedRect {
 
 			glEnableVertexAttribArray(1);
 			glVertexAttribDivisor(1, 1);
-			glVertexAttribPointer(1, 4, GL_FLOAT, false, quad_stride * sizeof(float), (void *)(12 * sizeof(float)));
+			glVertexAttribPointer(1, 4, GL_FLOAT, false, static_cast<GLsizei>(quad_stride * sizeof(float)), (void *)(12 * sizeof(float)));
 
 			glEnableVertexAttribArray(2);
 			glVertexAttribDivisor(2, 1);
-			glVertexAttribPointer(2, 1, GL_FLOAT, false, quad_stride * sizeof(float), (void *)((12 + 4) * sizeof(float)));
+			glVertexAttribPointer(2, 1, GL_FLOAT, false, static_cast<GLsizei>(quad_stride * sizeof(float)), (void *)((12 + 4) * sizeof(float)));
 
 			glEnableVertexAttribArray(3);
 			glVertexAttribDivisor(3, 1);
-			glVertexAttribPointer(3, 1, GL_FLOAT, false, quad_stride * sizeof(float), (void *)((12 + 5) * sizeof(float)));
+			glVertexAttribPointer(3, 1, GL_FLOAT, false, static_cast<GLsizei>(quad_stride * sizeof(float)), (void *)((12 + 5) * sizeof(float)));
 
 			glBindVertexArray(0);
 
@@ -902,10 +912,10 @@ class RoundedRect {
 			isOutline = true;
 			if (isOutline) {
 				glLineWidth(10);
-				glDrawArrays(GL_LINE_LOOP , 0, vertices.size());
+				glDrawArrays(GL_LINE_LOOP , 0, static_cast<GLsizei>(vertices.size()));
 				glLineWidth(1.0f);
 			} else {
-				glDrawArrays(GL_TRIANGLE_FAN, 0, vertices.size());
+				glDrawArrays(GL_TRIANGLE_FAN, 0, static_cast<GLsizei>(vertices.size()));
 			}
 
 			glBindVertexArray(0);

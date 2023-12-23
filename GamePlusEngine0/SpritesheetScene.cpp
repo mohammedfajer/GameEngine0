@@ -22,6 +22,11 @@
 #include "FontSystem.h"
 
 
+// Dear IMGUI
+#include "imgui.h"
+#include "imgui_impl_sdl2.h"
+
+
 namespace TopDownShooter
 {
 
@@ -44,6 +49,12 @@ namespace TopDownShooter
 
 	IceEngine::RoundedRect TheRect;
 	IceEngine::DebugArrow arrow;
+
+
+	// Our state
+	bool show_demo_window = true;
+	bool show_another_window = false;
+	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
 	
 
@@ -146,16 +157,6 @@ namespace TopDownShooter
 		}
 	}
 
-	/*	API Usage
-	*	glm::mat4 viewMatrix = ...;
-		glm::mat4 projectionMatrix = ...;
-		DebugPoint::Initialize(viewMatrix, projectionMatrix);
-		DebugPoint::Draw(glm::vec2(0.0f, 0.0f, 10.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-	*
-	*/
-
-
-
 	SpriteSheetScene::SpriteSheetScene()
 	{
 		m_name = "SpriteSheetScene";
@@ -177,24 +178,15 @@ namespace TopDownShooter
 		m_tilemap->AddLayerFromCSV("./data/GameMap_Floor.csv");
 		m_tilemap->AddLayerFromCSV("./data/GameMap_Wall Corners.csv");
 
-
-
 		// Load The sprite sheet tile set file tile_list_v1.6
-
 		// 		
-	
 		GetTileInfoFromFile(m_tilesInfo);
-
-
 		/*
 		
 			floor_5, floor_5, floor_5, floor_5, ...
 
 		*/
-
-
 		auto Floor5Tile = GetTileByName("floor_5");
-
 
 		// load sprite sheet texture
 		IceEngine::Texture2D tilesetTexture = IceEngine::TextureLoader::LoadTexture("./data/Asset0/0x72_DungeonTilesetII_v1.6/0x72_DungeonTilesetII_v1.6.png");
@@ -401,6 +393,46 @@ namespace TopDownShooter
 			auto tile = m_tilesInfo[m_spriteIndex];
 			IceEngine::Logger::Instance().Log(IceEngine::LogLevel::SUCCESS, "% % % % %", tile.name, tile.x_offset, tile.y_offset, tile.width, tile.height);
 		}
+
+
+		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+		if (show_demo_window)
+			ImGui::ShowDemoWindow(&show_demo_window);
+
+		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to create a named window.
+		{
+			static float f = 0.0f;
+			static int counter = 0;
+
+			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+			ImGui::Checkbox("Another Window", &show_another_window);
+
+			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+				counter++;
+			ImGui::SameLine();
+			ImGui::Text("counter = %d", counter);
+
+			//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / io.Framerate, io.Framerate);
+			ImGui::End();
+		}
+
+		// 3. Show another simple window.
+		if (show_another_window)
+		{
+			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+			ImGui::Text("Hello from another window!");
+			if (ImGui::Button("Close Me"))
+				show_another_window = false;
+			ImGui::End();
+		}
+
+
 	}
 
 	std::string mat4ToString(const glm::mat4 &matrix) {
@@ -439,6 +471,7 @@ namespace TopDownShooter
 	{
 		IceEngine::Color::SetClearColor({ 29, 17, 22 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
+
 		m_shader->Bind();
 		IceEngine::Renderer::ResetStats();
 		IceEngine::Renderer::BeginBatch();
@@ -485,8 +518,6 @@ namespace TopDownShooter
 		theText.draw("SCORE", SCREEN_WIDTH / 4, 40, 1.0F, glm::vec3(1.0));
 		theText.draw("ROUND", SCREEN_WIDTH / 2 - 50, 40, 1.0F, glm::vec3(1.0));
 		theText.draw("TIME LEFT", SCREEN_WIDTH * 2.0f/3.0f, 40, 1.0F, glm::vec3(1.0));
-
-
 		arrow.draw(430, 100, 60, 60, m_cameraComponent->GetViewMatrix(), m_cameraComponent->projection);
 	}
 }

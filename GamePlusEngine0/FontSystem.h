@@ -13,11 +13,16 @@
 // To Load TTF Files
 
 
-
-
-#define FT_FREETYPE_H
-#include "freetype/freetype.h"
 #include "ft2build.h"
+
+#include "freetype/freetype.h"
+
+
+#ifndef FT_FREETYPE_H
+#define FT_FREETYPE_H
+#endif 
+
+
 
 
 #include <math.h>
@@ -128,7 +133,7 @@ namespace IceEngine
 					texture,
 					glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
 					glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
-					face->glyph->advance.x
+					static_cast<uint32_t> (face->glyph->advance.x)
 				};
 				characters.insert(std::pair<char, Character>(c, character));
 			}
