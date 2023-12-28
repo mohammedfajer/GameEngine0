@@ -1,22 +1,16 @@
-
 #include "SpriteBatch.h"
 #include "Defines.h"
 #include "Color.h"
-
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
 #include "TextureLoader.h"
 #include <array>
-
 #include "InputManager.h"
 
-namespace IceEngine
-{
+namespace IceEngine {
 	
-	static std::array<MyVertex, 4> CreateQuad(float x, float y, float textureID)
-	{
+	static std::array<MyVertex, 4> CreateQuad(float x, float y, float textureID) {
 		float size = 1.0f;
 
 		MyVertex v0;
@@ -47,10 +41,8 @@ namespace IceEngine
 	}
 
 
-	static MyVertex * CreateQuad(MyVertex *target, float x, float y, float textureID)
-	{
-		if (target)
-		{
+	static MyVertex * CreateQuad(MyVertex *target, float x, float y, float textureID) {
+		if (target) {
 			float size = 1.0f;
 
 			target->Position = { x, y, 0.0f };
@@ -81,11 +73,6 @@ namespace IceEngine
 			target++;
 			if (!target) return target;
 		}
-
-
-
-		
-
 		return target;
 	}
 
@@ -105,8 +92,7 @@ namespace IceEngine
 		uniform mat4 view;
 		uniform mat4 model;
     
-		void main()
-		{
+		void main() {
 			gl_Position = projection * view * model * vec4(aPos.x, aPos.y, aPos.z, 1.0);
 			OurColor = aColor;
 			TexCoord = aTexCoord;
@@ -124,16 +110,14 @@ namespace IceEngine
 
 		uniform sampler2D u_Textures[2];
 
-		void main()
-		{
+		void main() {
 			int index = int(TexIdx);
 			FragColor = texture(u_Textures[index], TexCoord);
 			
 		}
 	)";
 
-	void SpriteBatch::Begin()
-	{
+	void SpriteBatch::Begin() {
 		// Load Texture 1
 		Texture2D coinTexture   = IceEngine::TextureLoader::LoadTexture("./data/coin.png");
 		m_coinTextureId = coinTexture.id;
@@ -226,23 +210,17 @@ namespace IceEngine
 			}
 		*/
 
-
 		// TODO(mo) set the indices to take care of any arbitrarily amount of quads.
-
 		m_indexBuffer.SetData(indices.data(), indices.size());
-
 		// Setup Camera
 		m_cameraComponent = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 		m_transformComponent = new IceEngine::TransformComponent(glm::vec2(0,0), glm::vec2(100, 100), 0.0f);
-
 		m_cameraComponent->SetFollowPosition(m_transformComponent->position, glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
-	
 		buffer = vertices.data();
 	}
 	
 
-	void SpriteBatch::Render()
-	{
+	void SpriteBatch::Render() {
 		Color::SetClearColor({ 1, 71, 94 , 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -264,11 +242,10 @@ namespace IceEngine
 
 		// Access violation reading location 0xFFFFFFFFFFFFFFFF.
 		
-		for (int y = 0; y < 5; y++)
-		{
-			for (int x = 0; x < 5; x++)
-			{
-				buffer = CreateQuad(buffer, static_cast<float>(x), static_cast<float>(y), static_cast<float>((x + y) % 2));
+		for (int y = 0; y < 5; y++) {
+			for (int x = 0; x < 5; x++) {
+				buffer = CreateQuad(buffer, static_cast<float>(x),
+				                    static_cast<float>(y), static_cast<float>((x + y) % 2));
 			}
 		}
 
@@ -286,14 +263,12 @@ namespace IceEngine
 
 		glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(MyVertex), vertices.data());
 
-
 		// Render Vertex Array 
 
 		m_shader->Bind();
 		glBindTextureUnit(0, m_coinTextureId);
 		glBindTextureUnit(1, m_playerTextureId);
 
-		
 		// Setup Camera View Transform
 		m_shader->SetMat4("projection", m_cameraComponent->projection);
 		m_shader->SetMat4("view", m_cameraComponent->GetViewMatrix());
@@ -306,31 +281,22 @@ namespace IceEngine
 		m_vertexArray.Unbind();
 	
 		inc += 0.008f;
-	
 		buffer = vertices.data();
 
 		m_cameraComponent->SetFollowPosition(glm::vec2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), glm::vec2(SCREEN_WIDTH, SCREEN_HEIGHT));
 	}
 
-	void SpriteBatch::Update(float deltaTime)
-	{
-		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_L))
-		{
+	void SpriteBatch::Update(float deltaTime) {
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_L)) {
 			m_cameraComponent->zoom += 0.05f;
-
 		}
-		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_K))
-		{
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_K)) {
 			m_cameraComponent->zoom -= 0.05f;
 		}
-		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_P))
-		{
+		if (IceEngine::InputManager::Instance().IsKeyDown(SDL_SCANCODE_P)) {
 			m_cameraComponent->zoom = 1.0f;
 		}
 	}
 
-	void SpriteBatch::End()
-	{
-		 
-	}
+	void SpriteBatch::End() {}
 }

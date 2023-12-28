@@ -17,6 +17,8 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 
+#include "array.h"
+
 namespace IceEngine 
 {
 	Engine &Engine::Instance() 
@@ -28,6 +30,8 @@ namespace IceEngine
 	void Engine::Start()
 	{
 		Logger::Instance().Log("Starting Engine");
+
+		TestArray();
 
 		m_runMode = RunMode::GameMode;
 
@@ -64,7 +68,6 @@ namespace IceEngine
 				Logger::Instance().Log("Editor Mode", LogLevel::SUCCESS);
 			}
 		}
-
 	}
 
 	void Engine::Shutdown()
@@ -84,7 +87,6 @@ namespace IceEngine
 		ImGui_ImplSDL2_NewFrame();
 		ImGui::NewFrame();
 
-
 		m_window->Update();
 		
 		SceneManager::Instance().UpdateCurrentScene(dt);
@@ -101,49 +103,30 @@ namespace IceEngine
 	}
 
 	void Engine::Render()
-	{
-		
+	{		
 		ImGuiIO &io = ImGui::GetIO(); (void)io;
 		glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
 
-
 		Color::SetClearColor({ 66, 135, 245 , 255 });
-		
 		glClear(GL_COLOR_BUFFER_BIT);
 		
-
 		// Rendering should go here
-
 		SceneManager::Instance().RenderCurrentScene();
-
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 		
-		
-		
-
-		
-
-
-
 		SDL_GL_SwapWindow(m_window->GetWindow());
 	}
-
-
+	
 	Engine::~Engine()
 	{
 		// Cleanup
-		
 		ImGui_ImplSDL2_Shutdown();
 		ImGui::DestroyContext();
 
 		if(m_window)
 			delete m_window;
-
-
-
 	}
 }
 

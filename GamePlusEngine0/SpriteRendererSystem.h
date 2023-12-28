@@ -10,11 +10,8 @@
 
 #include <vector>
 
-
 namespace IceEngine 
 {
-	
-
 	class SpriteRendererSystem
 	{
 

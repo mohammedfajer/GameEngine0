@@ -67,3 +67,20 @@ TODO
 - Particles
 - Player Mechanic (Movement, Animation)
 - AI Path Finding
+
+
+
+VTables in C++
+Precompiled Headers
+Unity Build
+Incremental Builds
+
+Entity Component System
+
+Transilation Unit
+Static File Scope
+Build Systems
+
+reinterpret_cast<>
+static_cast<>
+

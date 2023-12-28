@@ -33,8 +33,6 @@ namespace IceEngine
 		return (Result);
 	}
 
-	
-	
 	/*
 		API usage
 
@@ -47,9 +45,8 @@ namespace IceEngine
 		auto textureCoords = GetTextureCoords(imageTexture, tileX, tileY, tileW, tileH);
 
 		Renderer::DrawQuad(...., textureCoords);
-
-
-
-		
 	*/
+
+
+
 }

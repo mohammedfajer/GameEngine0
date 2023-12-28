@@ -109,6 +109,9 @@
     <Filter Include="Source Files\ThirdParty\ImGui">
       <UniqueIdentifier>{54231c45-6388-43c7-895c-809bc40960ae}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Engine\DSA">
+      <UniqueIdentifier>{0e86f3cd-a46d-41b7-a9e0-3bd773102dae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -177,9 +180,6 @@
     <ClCompile Include="SpritesheetLoader.cpp">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
     </ClCompile>
-    <ClCompile Include="AnimationScene.cpp">
-      <Filter>Source Files\Game\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="ParticlesScene.cpp">
       <Filter>Source Files\Game\Scenes</Filter>
     </ClCompile>
@@ -212,6 +212,9 @@
     </ClCompile>
     <ClCompile Include="imgui_impl_opengl3.cpp">
       <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="array.cpp">
+      <Filter>Source Files\Engine\DSA</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -299,9 +302,6 @@
     <ClInclude Include="SpritsheetLoader.h">
       <Filter>Source Files\Engine\Graphics\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="AnimationScene.h">
-      <Filter>Source Files\Game\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="ParticlesScene.h">
       <Filter>Source Files\Game\Scenes</Filter>
     </ClInclude>
@@ -346,6 +346,12 @@
     </ClInclude>
     <ClInclude Include="imgui_impl_opengl3_loader.h">
       <Filter>Source Files\ThirdParty\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="array.h">
+      <Filter>Source Files\Engine\DSA</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

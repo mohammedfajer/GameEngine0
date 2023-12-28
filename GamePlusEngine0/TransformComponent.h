@@ -5,10 +5,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 
-namespace IceEngine
-{
-	struct TransformComponent : public Component
-	{
+namespace IceEngine {
+
+	struct TransformComponent : public Component {
+		
 		glm::vec2 position;
 		glm::vec2 scale;
 		float rotation;
@@ -18,8 +18,7 @@ namespace IceEngine
 		TransformComponent(glm::vec2 position, glm::vec2 scale, float rotation = 0.0f) :
 			position(position), scale(scale), rotation(rotation) {}
 
-		glm::mat4 GetModelMatrix() const
-		{
+		glm::mat4 GetModelMatrix() const {
 			// Translation matrix with the pivot adjustment
 			glm::mat4 translation = glm::translate(glm::mat4(1.0f), glm::vec3(position.x - 0.5f * scale.x, position.y - 0.5f * scale.y, 0.0f));
 
@@ -33,9 +32,7 @@ namespace IceEngine
 			return translation * rotationMatrix * scaling;
 		}
 		
-		void Update(float deltaTime) override
-		{
-		}
+		void Update(float deltaTime) override { }
 	};
 }
 

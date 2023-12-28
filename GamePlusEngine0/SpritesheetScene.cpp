@@ -233,8 +233,6 @@ namespace TopDownShooter
 		point.view = m_cameraComponent->GetViewMatrix();
 		point.projection = m_cameraComponent->projection;
 		point.setup();
-		
-
 
 		// Later may have to think about anti aliasing
 		circle.radius = 1;
@@ -257,9 +255,6 @@ namespace TopDownShooter
 	
 		triangle.setup();
 
-
-
-	
 		SDFrect.size = {100, 200}; // (10, 10)
 		SDFrect.radius = 30.0f;
 		SDFrect.thickness = 5.0f;
@@ -270,9 +265,6 @@ namespace TopDownShooter
 		TheRect.setSize(glm::vec2(50.0f, 150.0f));
 		TheRect.setRadius(20.0f);
 		TheRect.setThickness(2.0f);
-
-
-
 
 		theText.font_path = "./data/fonts/ThaleahFat.ttf";
 		theText.fontSize = 48;
@@ -423,12 +415,10 @@ namespace TopDownShooter
 		}
 
 		// 3. Show another simple window.
-		if (show_another_window)
-		{
+		if (show_another_window) {
 			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
 			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
+			if (ImGui::Button("Close Me")) show_another_window = false;
 			ImGui::End();
 		}
 

@@ -143,7 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AnimationScene.cpp" />
+    <ClCompile Include="array.cpp" />
     <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui.cpp" />
     <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_demo.cpp" />
     <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_draw.cpp" />
@@ -179,8 +179,13 @@
     <ClCompile Include="Window.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AnimationScene.h" />
-    <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui.h" />
+    <ClInclude Include="array.h" />
+    <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_internal.h" />
     <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imstb_rectpack.h" />
     <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imstb_textedit.h" />
@@ -193,6 +198,7 @@
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FontSystem.h" />
     <ClInclude Include="imconfig.h" />
+    <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_opengl3.h" />
     <ClInclude Include="imgui_impl_opengl3_loader.h" />
     <ClInclude Include="imgui_impl_sdl2.h" />

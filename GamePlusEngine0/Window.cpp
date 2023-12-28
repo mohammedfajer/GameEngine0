@@ -115,9 +115,6 @@ namespace IceEngine {
 	#ifdef SDL_HINT_IME_SHOW_UI
 		SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
 	#endif
-
-
-		
 	}
 
 	void Window::CreateWindow(const char* title, int width, int height)

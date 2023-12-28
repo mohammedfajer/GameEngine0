@@ -1,18 +1,15 @@
 #include "Timer.h"
 #include <SDL.h>
-
 #define FPS 60.0f
 
-namespace IceEngine 
-{
-	Timer& Timer::Instance() 
-	{
+namespace IceEngine  {
+
+	Timer& Timer::Instance() {
 		static Timer instance;	
 		return instance;
 	}
 	
-	float Timer::Tick()
-	{
+	/*float Timer::Tick() {
 		auto currentTime = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastFrameTime);
 
@@ -28,5 +25,27 @@ namespace IceEngine
 		}
 
 		return deltaTime;
+		}*/
+
+
+  double Timer::Tick() {
+	   
+		uint64_t current_time = SDL_GetPerformanceCounter();
+		double duration = static_cast<double>(current_time - last_frame_time);
+
+		double elapsed_time_seconds = duration / static_cast<double>(SDL_GetPerformanceFrequency());
+		last_frame_time = current_time;
+		
+		long long sleep_time = static_cast<long long>(FPS - elapsed_time_seconds) / 1000.0f;
+		
+		if(sleep_time > 0) {
+			SDL_Delay(static_cast<int32_t>(sleep_time));
+		}
+		
+		return elapsed_time_seconds;									 									
 	}
+	
+
+	
+	
 }

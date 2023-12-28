@@ -16,7 +16,6 @@
 #include "SceneManager.h"
 
 namespace TopDownShooter {
-    
 	// Scene Transition
 	// Menu Image
 	// Menu Options
@@ -32,47 +31,147 @@ namespace TopDownShooter {
     
 	const char *scene_transition_fragment_shader_source_code = R"(
 		#version 330 core
-		
-		out vec4 FragColor;
-			
-		uniform float iTime;
-		uniform float iDuration;
-		uniform vec2 iResolution;
-		uniform vec3 ibgColor;
+    out vec4 FragColor;
+    uniform float iTime;
+    uniform float iDuration;
+    uniform vec2 iResolution;
+    uniform vec3 ibgColor;
+    uniform bool iOpenTransition;
 
-		uniform bool iOpenTransition;
+    void main() {
+     float transitionDuration = iDuration;
+     float progress = smoothstep(0.0, 1.0, mod(iTime, transitionDuration) / transitionDuration);
+     float rectanglePositionTop = 1.0 - smoothstep(0.0, 1.0, progress);
+     float rectanglePositionBottom = smoothstep(0.0, 1.0, progress);
+     float screenHeight = iResolution.y;
+     float rectangleYTop;
+     float rectangleYBottom;
+
+     if (iOpenTransition) {
+         rectangleYTop = mix(0.0, screenHeight * 0.5, rectanglePositionTop);
+         rectangleYBottom = mix(screenHeight * 0.5, screenHeight, rectanglePositionBottom);
+     } else {
+         rectangleYTop = mix(screenHeight * 0.5, 0.0, rectanglePositionTop);
+         rectangleYBottom = mix(screenHeight, screenHeight * 0.5, rectanglePositionBottom);
+     }
+     // Only draw the top and bottom rectangles, discard the rest
+     if (gl_FragCoord.y < rectangleYTop || gl_FragCoord.y > rectangleYBottom) {
+         discard;
+     }
+     // Set color to black for the rectangles
+     vec3 finalColor = vec3(0.0, 0.0, 0.0);
+     FragColor = vec4(finalColor, 1.0);
+    }
+	)";
+
+
+
+	const char *scene_transition_vertex_shader_source_code_two = R"(
+		#version 330 core
+
+		layout(location = 0) in vec3 inVertexPosition;
+		layout(location = 1) in vec2 inTexCoord;
+
+		out vec2 fragTexCoord;
 
 		void main() {
-			float transitionDuration = iDuration;
-			float progress = smoothstep(0.0, 1.0, mod(iTime, transitionDuration) / transitionDuration);
-			float rectanglePositionTop = 1.0 - smoothstep(0.0, 1.0, progress);
-			float rectanglePositionBottom = smoothstep(0.0, 1.0, progress);
-			float screenHeight = iResolution.y;
-			float rectangleHeight = screenHeight * 0.5;
-			
+			gl_Position = vec4(inVertexPosition, 1.0);
+			fragTexCoord = inTexCoord;
+		}
+	)";
 
-			float rectangleYTop;
-			float rectangleYBottom;
+	const char *scene_transition_fragment_shader_source_code_two = R"(
+		#version 330 core
+		in vec2 fragTexCoord;
 
-			if(iOpenTransition) 
-			{
-				rectangleYTop = mix(0.0, screenHeight * 0.5, rectanglePositionTop);
-				rectangleYBottom = mix(screenHeight * 0.5, screenHeight, rectanglePositionBottom);
-			}
-			else
-			{
-				rectangleYTop = mix(screenHeight * 0.5,0.0, rectanglePositionTop);
-				rectangleYBottom = mix(screenHeight, screenHeight * 0.5, rectanglePositionBottom);
-			}
+		uniform float cutoff;
+		uniform sampler2D mask;
 
-			vec3 finalColor = mix(vec3(0.0), ibgColor, step(rectangleYTop, gl_FragCoord.y) * step(gl_FragCoord.y, rectangleYBottom));
+		out vec4 FragColor;
 
-	
-
-			FragColor = vec4(finalColor, 1.0);			
+		void main() {
+			float value = texture(mask, fragTexCoord).r;
+			float alpha = step(cutoff, value);
+			FragColor = vec4(vec3(0.0), alpha);  // Set color to black, adjust as needed
 		}
 	)";
     
+	struct Transition_Effect {
+		GLuint VAO, VBO, EBO;
+		IceEngine::Shader shader;
+	};
+
+	void init_transition_effect(Transition_Effect *effect, const char *vs, const char *fs) {
+		effect->shader.LoadShaderFromString(vs, fs);
+
+		// Set up vertex data (assuming a rectangle covering the entire screen)
+		GLfloat vertices[] = {
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
+			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-right
+			1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top-right
+			-1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top-left
+		};
+
+		GLuint indices[] = {
+			0, 1, 2,  // first triangle
+			0, 2, 3   // second triangle
+		};
+
+		// Vertex Array Object
+		glGenVertexArrays(1, &effect->VAO);
+		glBindVertexArray(effect->VAO);
+
+		// Vertex Buffer Object
+		glGenBuffers(1, &effect->VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, effect->VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+		// Element Buffer Object
+		glGenBuffers(1, &effect->EBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, effect->EBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+		// Position attribute
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
+		glEnableVertexAttribArray(0);
+
+		// Texture coordinate attribute
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
+		glEnableVertexAttribArray(1);
+
+		// Unbind VAO
+		glBindVertexArray(0);
+
+	}
+
+	void set_mask_texture(Transition_Effect *effect, GLuint texture_id) {
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+
+		GLint boundTextureID;
+		glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTextureID);
+		std::cout << "Bound Texture ID: " << boundTextureID << std::endl;
+
+		effect->shader.Bind();
+		effect->shader.SetInt("mask", 0);
+		effect->shader.UnBind();
+	}
+
+	void set_cutoff(Transition_Effect *effect, float cutoff) {
+		effect->shader.Bind();
+		effect->shader.SetFloat("cutoff", cutoff);
+		effect->shader.UnBind();
+	}
+
+	void render_transition_effect(Transition_Effect *effect) {
+		effect->shader.Bind();
+
+		glBindVertexArray(effect->VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
+		effect->shader.UnBind();
+	}
+
 	struct Timer {
 		Uint32 startTime;
 		Uint32 duration;
@@ -97,6 +196,11 @@ namespace TopDownShooter {
 		bool isOpenTransition = true;
         
 		void setup() {
+
+			//glEnable(GL_DEPTH_TEST);
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 			startTime = SDL_GetTicks();
 			timer.duration = static_cast<Uint32>(duration * 1000.0f); // to seconds
             
@@ -164,8 +268,12 @@ namespace TopDownShooter {
 		}
 	};
     
-	SceneTransitionEffect OpenTransition;
-	SceneTransitionEffect CloseTransition;
+	/*SceneTransitionEffect OpenTransition;
+	SceneTransitionEffect CloseTransition;*/
+
+
+	Transition_Effect effect;
+
 
 	IceEngine::Text menuText;
 	IceEngine::OrthographicCameraComponent *camera;
@@ -224,24 +332,41 @@ namespace TopDownShooter {
     
 
 	glm::vec2 offset = { SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT - 300 };
+	IceEngine::Texture2D mask_texture;
 
-	
-    
+
 	MenuScene::MenuScene() {
 		camera = new IceEngine::OrthographicCameraComponent(0.0f, SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f);
 		camera->zoom = 2.0F;
 		camera->position = { 24.2, 57.2 };
-        
-		OpenTransition.duration = 3.0f;
-		OpenTransition.setup();
 
-		CloseTransition.duration = 3.0f;
-		CloseTransition.isOpenTransition = false;
+
+		/*
+		 OpenTransition.duration = 3.0f;
+		 OpenTransition.setup();
+
+		 CloseTransition.duration = 3.0f;
+		 CloseTransition.isOpenTransition = false;
+
+		 OpenTransition.start();*/
+
+
+		 mask_texture = IceEngine::TextureLoader::LoadTexture("./data/curtain.png");
+
+		init_transition_effect(&effect, scene_transition_vertex_shader_source_code_two,
+			scene_transition_fragment_shader_source_code_two);
+
 		
+		set_mask_texture(&effect, mask_texture.id);
 
-		OpenTransition.start();
 
-        
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR) {
+			// Handle the error (print error code or description)
+			std::cerr << "OpenGL Error: " << error << std::endl;
+		}
+
+		
 		menuText.font_path = "./data/fonts/ThaleahFat.ttf";
 		menuText.fontSize = 48;
 		menuText.projection = camera->projection;
@@ -290,11 +415,11 @@ namespace TopDownShooter {
 		static bool firstTime = false;
 		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_RETURN)) {
 			if (indexSelected == 0) {
-				if (OpenTransition.timer.isExpired() && !CloseTransition.timerStarted) {
+				/*if (OpenTransition.timer.isExpired() && !CloseTransition.timerStarted) {
 					startGame = true;
 					CloseTransition.setup();
 					CloseTransition.start();
-				}
+				}*/
 			}
 		}
         
@@ -317,7 +442,7 @@ namespace TopDownShooter {
 			}
 		}
 
-		if (OpenTransition.timer.isExpired()) {
+		/*if (OpenTransition.timer.isExpired()) {
 			OpenTransition.stop();
 		}
 
@@ -331,15 +456,10 @@ namespace TopDownShooter {
 
 		}
 
-		if (CloseTransition.timer.isExpired() && startGame && firstTime)
-		{
+		if (CloseTransition.timer.isExpired() && startGame && firstTime) {
 			CloseTransition.stop();
-
-			
 			IceEngine::SceneManager::Instance().SetActiveScene("SpriteSheetScene");
-		}
-
-
+		}*/
 
 	}
     
@@ -381,7 +501,19 @@ namespace TopDownShooter {
                                       glm::vec2(1024*.3, 512 *0.3f), menuTexture.id);
 		IceEngine::Renderer::EndBatch();
 		IceEngine::Renderer::Flush();
-		OpenTransition.draw();
-		CloseTransition.draw();
+
+
+		static float progress = 0.0;
+
+
+		set_cutoff(&effect, progress);
+		set_mask_texture(&effect, mask_texture.id);
+		render_transition_effect(&effect);
+
+		progress += 0.002f;
+
+
+		/*OpenTransition.draw();
+		CloseTransition.draw();*/
 	}
 }
