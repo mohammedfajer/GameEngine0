@@ -7,11 +7,13 @@ namespace IceEngine {
 	class Timer {
 	public:
 		static Timer& Instance();
-		double Tick();
+		float Tick();
 	private:
-		Timer() = default;
+		Timer() {
+			last_frame_time = SDL_GetTicks();
+		}
 		
-		uint64_t last_frame_time;
+		Uint32 last_frame_time;
 	};
 
 	struct FPS_Counter {

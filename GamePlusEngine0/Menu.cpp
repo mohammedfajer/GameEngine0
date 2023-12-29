@@ -74,6 +74,24 @@ namespace TopDownShooter {
 		}
 	)";
 
+	struct Timer {
+		Uint32 startTime;
+		Uint32 duration;
+		Timer() = default;
+		Timer(Uint32 duration) : duration(static_cast<Uint32>(duration * 1000.0f)) { reset(); }
+
+		void set_time(Uint32 seconds) {
+			duration = seconds * 1000.0f;
+			reset();
+		}
+
+		void reset() { startTime = SDL_GetTicks(); }
+		bool isExpired() const {
+			Uint32 currentTime = SDL_GetTicks();
+			return (currentTime - startTime) >= duration;
+		}
+	};
+
 	struct Clock {
 		uint32_t last_tick_time = 0;
 		uint32_t delta = 0;
@@ -213,6 +231,7 @@ namespace TopDownShooter {
 	float duration = 5.0f;
 
 	Transition_Manager transition_manager(duration);
+	Timer transition_timer;
 
 	IceEngine::Text menuText;
 	IceEngine::OrthographicCameraComponent *camera;
@@ -262,23 +281,7 @@ namespace TopDownShooter {
 		}
 	)";
     
-	struct Timer {
-		Uint32 startTime;
-		Uint32 duration;
-		Timer() = default;
-		Timer(Uint32 duration) : duration(static_cast<Uint32>(duration * 1000.0f)) { reset(); }
-
-		void set_time(Uint32 seconds) {
-			duration = seconds * 1000.0f; 
-			reset();
-		}
-
-		void reset() { startTime = SDL_GetTicks(); }
-		bool isExpired() const {
-			Uint32 currentTime = SDL_GetTicks();
-			return (currentTime - startTime) >= duration;
-		}
-	};
+	
 
 	/*
 		Timer t(3.0f); // 3 seconds
@@ -361,6 +364,8 @@ namespace TopDownShooter {
                                    { -500, SCREEN_HEIGHT - 200 },
                                    glm::vec2{105, 90},
                                    glm::vec3(1.0, 0.8f, 0.2f), false });
+
+		transition_timer.set_time(duration);
 	}
     
 	MenuScene::~MenuScene() {}
@@ -376,7 +381,9 @@ namespace TopDownShooter {
 		static bool firstTime = false;
 		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_RETURN)) {
 			if (indexSelected == 0) {
-			
+				if (transition_timer.isExpired()) {
+					IceEngine::SceneManager::Instance().SetActiveScene("SpriteSheetScene");
+				}
 			}
 		}
         
@@ -401,6 +408,7 @@ namespace TopDownShooter {
 
 		transition_manager.update(&effect, myClock.delta);
 
+		
 	}
 
 
@@ -451,34 +459,10 @@ namespace TopDownShooter {
 		IceEngine::Renderer::EndBatch();
 		IceEngine::Renderer::Flush();
 		
-		
 	
-
-		
-		//float dt = myClock.delta;
-		//float duration = 5; // 2 seconds
-		//float increment_size = (1.0f / (duration * 1000.0f)) * dt;
-		//static float progress = 0.0f;
-
-		//progress += lerp(0.0f, 1.0f, increment_size);
-		//
-
-		
-		
-		
 		switch_transition_animation(&effect, true);
 		set_cutoff(&effect);
 		render_transition_effect(&effect);
-
-		//progress += increment_size;
-		
-
-
 		fps_counter.update();
-
-
-		
-
-	
 	}
 }

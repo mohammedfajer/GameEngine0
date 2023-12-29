@@ -314,6 +314,8 @@ namespace TopDownShooter
 		static bool toggleFollowPointPeak = false;
 		glm::vec2 mousePos;
 
+		
+
 		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_Z))
 		{
 			toggleFollowPointPeak = !toggleFollowPointPeak;

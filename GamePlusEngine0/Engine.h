@@ -35,7 +35,6 @@ namespace IceEngine {
 	public:
 		SDL_Window* GetWindow() const { return m_window->GetWindow(); } 
 		bool m_running = false;
-		float m_deltaTime;
 	private:
 		Engine() = default;
 		~Engine();

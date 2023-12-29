@@ -2,7 +2,7 @@
 #include <SDL.h>
 
 
-#define FPS 60.0f
+#define FPS 60
 
 namespace IceEngine  {
 
@@ -11,24 +11,52 @@ namespace IceEngine  {
 		return instance;
 	}
 	
- 
-	double Timer::Tick() {
+ //
+	//float Timer::Tick() {
+	//	Uint32 current_time = SDL_GetTicks();
+	//	Uint32 elapsed_time = (current_time - last_frame_time) / 1000.0f;
+	//	last_frame_time = current_time;
+	//	if (elapsed_time < static_cast<Uint32>(1000.0f / FPS)) {
+	//		SDL_Delay(static_cast<Uint32>((1000.0f / FPS)) - elapsed_time);
+	//	}
+	//	return static_cast<float>(elapsed_time); // return in seconds
+	//}
+	//float Timer::Tick() {
+	//	Uint32 current_time = SDL_GetTicks();
+	//	Uint32 elapsed_time = current_time - last_frame_time;
+	//	last_frame_time = current_time;
 
-		uint64_t current_time = SDL_GetPerformanceCounter();
-		double duration = static_cast<double>(current_time - last_frame_time);
+	//	// Convert elapsed_time to seconds
+	//	float elapsed_seconds = static_cast<float>(elapsed_time) / 1000.0f;
 
-		double elapsed_time_milliseconds = duration / static_cast<double>(SDL_GetPerformanceFrequency());
+	//	if (elapsed_time < static_cast<Uint32>(1000.0f / FPS)) {
+	//		SDL_Delay(static_cast<Uint32>((1000.0f / FPS)) - elapsed_time);
+	//	}
+
+	//	return elapsed_seconds; // return in seconds
+	//}
+
+	float Timer::Tick() {
+		Uint32 current_time = SDL_GetTicks();
+		Uint32 elapsed_time = current_time - last_frame_time;
 		last_frame_time = current_time;
 
-		long long sleep_time = static_cast<long long>((1000.0f / FPS) - elapsed_time_milliseconds);
+		float elapsed_seconds = static_cast<float>(elapsed_time) / 1000.0f;
 
-		if (sleep_time > 0) {
-			SDL_Delay(static_cast<Uint32>(sleep_time));
+		// Calculate the time it should take for one frame
+		float frame_time = 1000.0f / FPS;
+
+		if (elapsed_seconds < static_cast<Uint32>(frame_time)) {
+			Uint32 delay_time = static_cast<Uint32>(frame_time - elapsed_seconds);
+
+			// Clamp the delay to a non-negative value
+			if (delay_time > 0) {
+				SDL_Delay(delay_time);
+			}
 		}
 
-		return elapsed_time_milliseconds / 1000.0f;
+		return elapsed_seconds; // return in seconds
 	}
-	
 
 	
 	

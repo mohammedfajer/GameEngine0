@@ -192,6 +192,7 @@
     <ClInclude Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imstb_truetype.h" />
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="DebugDraw.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Engine.h" />

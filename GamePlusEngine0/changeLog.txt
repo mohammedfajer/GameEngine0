@@ -84,3 +84,17 @@ Build Systems
 reinterpret_cast<>
 static_cast<>
 
+
+
+[  ] Fix Timing Issues
+[  ] Cleanup Unused files
+[  ] Build a nice ECS system
+[  ] Game Mode and Menu Mode
+[  ] Cleanup Transition Effects
+[  ] Camera in game changes 
+[  ] Player Animation
+[  ] Tilemap Quad Tree Collision 
+[  ] Particles
+[  ] AI
+
+
