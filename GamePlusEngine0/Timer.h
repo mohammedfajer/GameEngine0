@@ -45,8 +45,7 @@ namespace IceEngine {
 
 	/*
 		FPS_Counter fps_counter;
-
 		fps_counter.update();
-	 */
+	*/
 	
 }

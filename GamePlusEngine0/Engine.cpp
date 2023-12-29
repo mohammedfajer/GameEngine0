@@ -78,7 +78,7 @@ namespace IceEngine
 
 	void Engine::Run() 
 	{
-		float dt = Timer::Instance().Tick();
+		m_deltaTime = Timer::Instance().Tick();
 
 		InputManager::Instance().Update();
 
@@ -89,7 +89,7 @@ namespace IceEngine
 
 		m_window->Update();
 		
-		SceneManager::Instance().UpdateCurrentScene(dt);
+		SceneManager::Instance().UpdateCurrentScene(m_deltaTime);
 
 		Update();
 
