@@ -11,12 +11,7 @@
 namespace IceEngine {
 
 
-	enum class RunMode
-	{
-		GameMode,
-		EditorMode
-	};
-
+	
 	class Engine {
 	public:
 		static Engine& Instance();
@@ -39,7 +34,7 @@ namespace IceEngine {
 		Engine() = default;
 		~Engine();
 		Window *m_window;
-		RunMode m_runMode;
+		
 		
 	};
 }

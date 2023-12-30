@@ -149,6 +149,8 @@
     <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_draw.cpp" />
     <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_tables.cpp" />
     <ClCompile Include="C:\Users\moham\Downloads\imgui-docking (1)\imgui-docking\imgui_widgets.cpp" />
+    <ClCompile Include="core.cpp" />
+    <ClCompile Include="effects.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="GameObject.h" />
@@ -158,6 +160,7 @@
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="math.cpp" />
     <ClCompile Include="Menu.cpp" />
     <ClCompile Include="ParticlesScene.cpp" />
     <ClCompile Include="ParticleSystem.cpp" />
@@ -171,7 +174,7 @@
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="TextureLoader.cpp" />
     <ClCompile Include="TileMapEditor.cpp" />
-    <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="time.cpp" />
     <ClCompile Include="VertexArray.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="VertexBufferElement.cpp" />
@@ -193,8 +196,10 @@
     <ClInclude Include="Color.h" />
     <ClInclude Include="Component.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="core.h" />
     <ClInclude Include="DebugDraw.h" />
     <ClInclude Include="Defines.h" />
+    <ClInclude Include="effects.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="FontSystem.h" />
@@ -206,6 +211,7 @@
     <ClInclude Include="IndexBuffer.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="math.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="OrthographicCameraComponent.h" />
     <ClInclude Include="ParticlesScene.h" />
@@ -223,7 +229,7 @@
     <ClInclude Include="TextureComponent.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="Tilesystem.h" />
-    <ClInclude Include="Timer.h" />
+    <ClInclude Include="time.h" />
     <ClInclude Include="TransformComponent.h" />
     <ClInclude Include="VertexArray.h" />
     <ClInclude Include="VertexBuffer.h" />

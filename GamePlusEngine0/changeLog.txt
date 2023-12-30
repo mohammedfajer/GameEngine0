@@ -86,10 +86,10 @@ static_cast<>
 
 
 
-[  ] Fix Timing Issues
-[  ] Cleanup Unused files
-[  ] Build a nice ECS system
-[  ] Game Mode and Menu Mode
+[x] Fix Timing Issues
+[ e ] Cleanup Unused files
+
+[x] Game Mode and Menu Mode
 [  ] Cleanup Transition Effects
 [  ] Camera in game changes 
 [  ] Player Animation
@@ -97,4 +97,5 @@ static_cast<>
 [  ] Particles
 [  ] AI
 
+[  ] Build a nice ECS system
 

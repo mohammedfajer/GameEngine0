@@ -14,11 +14,15 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "SceneManager.h"
-#include "Timer.h"
+
 #include "Engine.h"
 
 #include <cassert>
 #include <cmath>
+#include "core.h"
+#include "math.h"
+#include "effects.h"
+#include "time.h"
 
 namespace TopDownShooter {
 	// Scene Transition
@@ -26,10 +30,6 @@ namespace TopDownShooter {
 	// Menu Options
 	// Music and Sound Effects
     
-
-
-
-
 	const char *scene_transition_vertex_shader_source_code = R"(
 		#version 330 core
 
@@ -57,183 +57,32 @@ namespace TopDownShooter {
 
 		void main() {
 			float value = texture(mask, fragTexCoord).r;
-			
-
 			float alpha;
 			if(u_switch_animation) {
 				alpha = smoothstep(cutoff, cutoff + smooth_size, value);
 			} else {
 				alpha = smoothstep(1 - value, 1- value + smooth_size, cutoff);
 			}
-				
-			
-     
-			
-
 			FragColor = vec4(vec3(0.0), alpha);  // Set color to black, adjust as needed
 		}
 	)";
 
-	struct Timer {
-		Uint32 startTime;
-		Uint32 duration;
-		Timer() = default;
-		Timer(Uint32 duration) : duration(static_cast<Uint32>(duration * 1000.0f)) { reset(); }
-
-		void set_time(Uint32 seconds) {
-			duration = seconds * 1000.0f;
-			reset();
-		}
-
-		void reset() { startTime = SDL_GetTicks(); }
-		bool isExpired() const {
-			Uint32 currentTime = SDL_GetTicks();
-			return (currentTime - startTime) >= duration;
-		}
-	};
-
-	struct Clock {
-		uint32_t last_tick_time = 0;
-		uint32_t delta = 0;
-
-		void tick() {
-			uint32_t tick_time = SDL_GetTicks();
-			delta = tick_time - last_tick_time;
-			last_tick_time = tick_time;
-		}
-	};
-    
-	struct Transition_Effect {
-		GLuint VAO;
-		GLuint VBO;
-		GLuint EBO;
-		GLuint texture_id;
-		float progress = 0.0f;
-		IceEngine::Shader shader;
-	};
-
-	float lerp(float a, float b, float t) {
-		return (1.0 - t) * a + b * t;
-	}
-
-	float clamp(float p) {
-		if (p < 0) p = 0.0f;
-		if (p > 1) p = 1.0f;
-		return p;
-	}
-
-	struct Transition_Manager {
-		
-		float duration;
-		Transition_Manager(float duration_in_seconds) {
-			duration = duration_in_seconds;
-		}
-
-		void update(Transition_Effect *effect, float dt) {
-			float increment_size = (1.0f / (duration * 1000.0f)) * dt;
-			effect->progress += lerp(0.0f, 1.0f, increment_size);
-
-			effect->progress = clamp(effect->progress);
-		}
-	};
-
-	/*
-		Transition_Manager tm (5.0f);
-
-		// Update
-		tm.update(&effect, dt);
-
-
 	
-	*/
-
-	void init_transition_effect(Transition_Effect *effect, const char *vs, const char *fs) {
-		effect->shader.LoadShaderFromString(vs, fs);
-
-		// Set up vertex data (assuming a rectangle covering the entire screen)
-		GLfloat vertices[] = {
-			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f, // bottom-left
-			1.0f, -1.0f, 0.0f, 1.0f, 0.0f,  // bottom-right
-			1.0f, 1.0f, 0.0f, 1.0f, 1.0f,   // top-right
-			-1.0f, 1.0f, 0.0f, 0.0f, 1.0f   // top-left
-		};
-
-		GLuint indices[] = {
-			0, 1, 2,  // first triangle
-			0, 2, 3   // second triangle
-		};
-
-		// Vertex Array Object
-		glGenVertexArrays(1, &effect->VAO);
-		glBindVertexArray(effect->VAO);
-
-		// Vertex Buffer Object
-		glGenBuffers(1, &effect->VBO);
-		glBindBuffer(GL_ARRAY_BUFFER, effect->VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-		// Element Buffer Object
-		glGenBuffers(1, &effect->EBO);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, effect->EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-		// Position attribute
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)0);
-		glEnableVertexAttribArray(0);
-
-		// Texture coordinate attribute
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid *)(3 * sizeof(GLfloat)));
-		glEnableVertexAttribArray(1);
-
-		// Unbind VAO
-		glBindVertexArray(0);
-
-	}
-
-	void set_mask_texture(Transition_Effect *effect) {
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, effect->texture_id);
-
-		//GLint boundTextureID;
-		//glGetIntegerv(GL_TEXTURE_BINDING_2D, &boundTextureID);
-		//std::cout << "Bound Texture ID: " << boundTextureID << std::endl;
-
-		effect->shader.Bind();
-		effect->shader.SetInt("mask", 0);
-		effect->shader.UnBind();
-	}
-
-	void set_cutoff(Transition_Effect *effect) {
-		effect->shader.Bind();
-		effect->shader.SetFloat("cutoff", effect->progress);
-		effect->shader.UnBind();
-	}
-
-	void switch_transition_animation(Transition_Effect *effect, bool v) {
-		effect->shader.Bind();
-		effect->shader.SetInt("u_switch_animation", v);
-		effect->shader.UnBind();
-	}
-
-	void render_transition_effect(Transition_Effect *effect) {
-		effect->shader.Bind();
-		glBindTexture(GL_TEXTURE_2D, effect->texture_id);
-		glBindVertexArray(effect->VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-		effect->shader.UnBind();
-	}
+    
+	
 
 
-	Clock myClock;
+	IceEngine::Clock myClock;
 
-	Transition_Effect effect;
+	IceEngine::Transition_Effect effect;
 	float duration = 5.0f;
 
-	Transition_Manager transition_manager(duration);
-	Timer transition_timer;
+	IceEngine::Transition_Manager transition_manager(duration);
+	IceEngine::Timer transition_timer;
 
 	IceEngine::Text menuText;
+	IceEngine::Text app_mode_text;
+
 	IceEngine::OrthographicCameraComponent *camera;
 	int indexSelected = 0;
     
@@ -248,6 +97,11 @@ namespace TopDownShooter {
 	std::vector<MenuText_Data> menuTextList;
 	IceEngine::Texture2D menuTexture;
 	IceEngine::Shader *shader;
+
+
+	glm::vec2 offset = { SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT - 300 };
+	IceEngine::FPS_Counter fps_counter;
+
     
 	const std::string vertex_shader = R"(
 		#version 330 core
@@ -283,18 +137,7 @@ namespace TopDownShooter {
     
 	
 
-	/*
-		Timer t(3.0f); // 3 seconds
-
-		if(t.isExpired()) {
-			// 3 seconds finished 
-		}
-	*/
-
-	glm::vec2 offset = { SCREEN_WIDTH / 2 - 160, SCREEN_HEIGHT - 300 };
 	
-
-	IceEngine::FPS_Counter fps_counter;
 
 
 
@@ -308,13 +151,12 @@ namespace TopDownShooter {
 		
 		mask_texture = IceEngine::TextureLoader::LoadTexture("./data/from_center.png");
 		effect.texture_id = mask_texture.id;
-																																							
 
-		init_transition_effect(&effect, scene_transition_vertex_shader_source_code,
+		IceEngine::init_transition_effect(&effect, scene_transition_vertex_shader_source_code,
 			scene_transition_fragment_shader_source_code);
 
 		
-		set_mask_texture(&effect);
+		IceEngine::set_mask_texture(&effect);
 
 		effect.shader.Bind();
 		effect.shader.SetFloat("smooth_size", 0.2f);
@@ -332,6 +174,11 @@ namespace TopDownShooter {
 		menuText.fontSize = 48;
 		menuText.projection = camera->projection;
 		menuText.setup();
+
+		app_mode_text.font_path = "./data/fonts/arial.ttf";
+		app_mode_text.fontSize = 58;
+		app_mode_text.projection = camera->projection;
+		app_mode_text.setup();
         
 		// load sprite sheet texture
 		menuTexture = IceEngine::TextureLoader::LoadTexture("./data/Asset0/menu_img.png");
@@ -378,7 +225,8 @@ namespace TopDownShooter {
 
 		// Update the base scene
 		Scene::Update(deltaTime);
-		static bool firstTime = false;
+		
+
 		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_RETURN)) {
 			if (indexSelected == 0) {
 				if (transition_timer.isExpired()) {
@@ -407,8 +255,6 @@ namespace TopDownShooter {
 		}
 
 		transition_manager.update(&effect, myClock.delta);
-
-		
 	}
 
 
@@ -460,9 +306,18 @@ namespace TopDownShooter {
 		IceEngine::Renderer::Flush();
 		
 	
-		switch_transition_animation(&effect, true);
-		set_cutoff(&effect);
-		render_transition_effect(&effect);
+		IceEngine::switch_transition_animation(&effect, true);
+		IceEngine::set_cutoff(&effect);
+		IceEngine::render_transition_effect(&effect);
 		fps_counter.update();
+
+		if (IceEngine::Core::app_mode == IceEngine::App_Mode::Game)
+		{
+			app_mode_text.draw("Game Mode", 10, 50, 1.0f, glm::vec3(0, 100, 100));
+		}
+		else
+		{
+			app_mode_text.draw("Editor Mode", 10, 50, 1.0f, glm::vec3(0, 100, 100));
+		}
 	}
 }

@@ -2,7 +2,7 @@
 #include "Logger.h"
 #include <string>
 
-#include "Timer.h"
+
 #include "InputManager.h"
 #include "SceneManager.h"
 
@@ -17,7 +17,8 @@
 #include "imgui_impl_sdl2.h"
 #include "imgui_impl_opengl3.h"
 
-#include "array.h"
+
+#include "core.h"
 
 namespace IceEngine 
 {
@@ -29,11 +30,13 @@ namespace IceEngine
 
 	void Engine::Start()
 	{
+		//Timer::Instance().StartRecordTime();
+
 		Logger::Instance().Log("Starting Engine");
 
-		TestArray();
 
-		m_runMode = RunMode::GameMode;
+
+	
 
 		m_window = new Window("Game", SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -60,13 +63,9 @@ namespace IceEngine
 	{
 		// Toggle Play mode or editor mode
 
-		if (InputManager::Instance().IsKeyDown(SDL_SCANCODE_E))
+		if (InputManager::Instance().IsKeyPressed(SDL_SCANCODE_E))
 		{
-			m_runMode = (m_runMode == RunMode::GameMode) ? RunMode::EditorMode : RunMode::GameMode;
-			if (m_runMode == RunMode::EditorMode)
-			{
-				Logger::Instance().Log("Editor Mode", LogLevel::SUCCESS);
-			}
+			Core::app_mode = (Core::app_mode == App_Mode::Game) ? App_Mode::Editor : App_Mode::Game;
 		}
 	}
 
@@ -78,7 +77,7 @@ namespace IceEngine
 
 	void Engine::Run() 
 	{
-		float dt = Timer::Instance().Tick();
+		float dt = Core::time_info.dt;
 
 		InputManager::Instance().Update();
 
