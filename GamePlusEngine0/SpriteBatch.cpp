@@ -1,6 +1,6 @@
 #include "SpriteBatch.h"
 #include "Defines.h"
-#include "Color.h"
+#include "graphics.h"
 #include <vector>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

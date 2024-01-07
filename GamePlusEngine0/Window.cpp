@@ -2,7 +2,7 @@
 
 #include "Logger.h"
 
-#include "Color.h"
+#include "graphics.h"
 #include "InputManager.h"
 #include "Engine.h"
 

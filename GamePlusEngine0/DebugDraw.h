@@ -21,7 +21,7 @@ namespace IceEngine {
 	// Ensure Each Class is Customized and Tested
 	
 
-	const char *point_vertex_shader_source = R"(
+	static const char *point_vertex_shader_source = R"(
 		#version 330 core
 		layout (location = 0) in vec2 aPos;
 
@@ -36,7 +36,7 @@ namespace IceEngine {
 		}
 	)";
 
-	const char *point_fragment_shader_source = R"(
+	static const char *point_fragment_shader_source = R"(
 		#version 330 core
 		out vec4 FragColor;
 
@@ -120,7 +120,7 @@ namespace IceEngine {
 		}
 	};
 
-	const char *circle_vertex_shader_source = R"(
+	static const  char *circle_vertex_shader_source = R"(
 		#version 330 core
 		layout (location = 0) in vec3 aPos;
 		uniform mat4 model;
@@ -133,7 +133,7 @@ namespace IceEngine {
 		}
 	)";
 
-	const char *circle_fragment_shader_source = R"(
+	static const  char *circle_fragment_shader_source = R"(
 		#version 330 core
 		out vec4 FragColor;
 		void main()
@@ -213,7 +213,7 @@ namespace IceEngine {
 	};
 
 
-	const char *line_vertex_shader_source = R"(
+	static const  char *line_vertex_shader_source = R"(
 		#version 330 core
 
 		layout (location = 0) in vec2 aPos;
@@ -234,7 +234,7 @@ namespace IceEngine {
 		}
 	)";
 
-	const char *line_fragment_shader_source = R"(
+	static const  char *line_fragment_shader_source = R"(
 		#version 330 core
 
 		out vec4 FragColor;
@@ -312,7 +312,7 @@ namespace IceEngine {
 	};
 	
 
-	const char *rect_vertex_shader_source = R"(
+	static const  char *rect_vertex_shader_source = R"(
 		#version 330 core
 		layout (location = 0) in vec2 aPos;
 	
@@ -326,12 +326,14 @@ namespace IceEngine {
 		}
 	)";
 
-	const char *rect_fragment_shader_source = R"(
+	static const  char *rect_fragment_shader_source = R"(
 		#version 330 core
 		out vec4 FragColor;
+		uniform vec3 color;
+
 		void main()
 		{
-			FragColor = vec4(252/255.0f, 186/255.0f, 3/255.0f, 1.0);
+			FragColor = vec4(color, 1.0);
 		}
 	)";
 
@@ -340,10 +342,11 @@ namespace IceEngine {
 		bool isOutline = false;
 		float thickness = 1.0f;
 		float rotation = 0.0f;
+		glm::vec3 color = { 252, 186, 3 };
 		Shader shader;
 	
 		void draw(int x, int y, int width, int height,
-		          const glm::mat4 &view, const glm::mat4 &projection) {
+		          const glm::mat4 &view, const glm::mat4 &projection, glm::vec3 color = { 252, 186, 3 }) {
 			shader.Bind();
 
 			// Translation
@@ -352,6 +355,7 @@ namespace IceEngine {
 			// Scale
 			model = glm::scale(model, glm::vec3(width, height, 1.0f));
 
+			shader.SetVec3("color", color / 255.0f);
 			shader.SetMat4("model", model);
 			shader.SetMat4("view", view);
 			shader.SetMat4("projection", projection);
@@ -723,7 +727,7 @@ namespace IceEngine {
 	};
 
 
-	const char *triangle_vertex_shader_source = R"(
+	static const char *triangle_vertex_shader_source = R"(
 		#version 330 core
 		layout (location = 0) in vec2 aPos;
 		uniform float pointSize;
@@ -736,7 +740,7 @@ namespace IceEngine {
 		}
 	)";
 
-	const char *triangle_fragment_shader_source = R"(
+	static const char *triangle_fragment_shader_source = R"(
 		#version 330 core
 		out vec4 FragColor;
 		void main() {
@@ -828,7 +832,7 @@ namespace IceEngine {
 	};
 
 	// Shader source code (replace with your actual shader code)
-	const char *closed_polygon_vertexShaderSource = R"(
+	static const char *closed_polygon_vertexShaderSource = R"(
 		#version 330 core
 		layout (location = 0) in vec2 aPos;
 		uniform mat4 model;
@@ -839,7 +843,7 @@ namespace IceEngine {
 		}
 	)";
 
-	const char *closed_polygon_fragmentShaderSource = R"(
+	static const char *closed_polygon_fragmentShaderSource = R"(
 		#version 330 core
 		out vec4 FragColor;
 		uniform vec3 color;

@@ -4,17 +4,12 @@
 
 START_NAMESPACE
 
-
 /*
 	Transition_Manager tm (5.0f);
 
 	// Update
 	tm.update(&effect, dt);
-
-
-
 */
-
 
 Transition_Manager::Transition_Manager(float duration_in_seconds) {
 	duration = duration_in_seconds;
@@ -22,12 +17,9 @@ Transition_Manager::Transition_Manager(float duration_in_seconds) {
 
 void Transition_Manager::update(Transition_Effect *effect, float dt) {
 	float increment_size = (1.0f / (duration * 1000.0f)) * dt;
-	effect->progress += IceEngine::lerp(0.0f, 1.0f, increment_size);
-
-	effect->progress = IceEngine::clamp(effect->progress);
+	effect->progress += lerp(0.0f, 1.0f, increment_size);
+	effect->progress = clamp(effect->progress);
 }
-
-
 
 void init_transition_effect(Transition_Effect *effect, const char *vs, const char *fs) {
 	effect->shader.LoadShaderFromString(vs, fs);

@@ -50,7 +50,7 @@ int main(int argc, char *argv[]) {
 		// Log to console
 		char buffer[256];
 		sprintf_s(buffer, "%.02fms/f, %.02ff/s\n", milliseconds_per_frame, frames_per_second);
-		std::cout << buffer << std::endl;
+		//std::cout << buffer << std::endl;
 
 
 		// Record delta time in seconds

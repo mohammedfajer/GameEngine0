@@ -5,6 +5,13 @@
 #include "Component.h"
 #include "Defines.h"
 
+
+
+
+
+
+
+
 namespace IceEngine
 {
 	struct OrthographicCameraComponent : public Component
@@ -45,18 +52,13 @@ namespace IceEngine
 			return screenCoordinates;
 		}
 
-		glm::mat4 GetViewMatrix() const 
-		{
+		glm::mat4 GetViewMatrix() const {
 			auto view = glm::translate(glm::mat4(1.0f), glm::vec3(-position.x, -position.y, 1.0)) * glm::scale(glm::mat4(1.0f), glm::vec3(zoom, zoom, 1.0f));
-
-		
-
 			return (view);
 		}
 
 		void Update(float deltaTime) override 
 		{
-			
 		}
 	};
 }

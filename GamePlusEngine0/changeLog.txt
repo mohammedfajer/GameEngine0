@@ -84,18 +84,33 @@ Build Systems
 reinterpret_cast<>
 static_cast<>
 
-
-
 [x] Fix Timing Issues
 [ e ] Cleanup Unused files
 
 [x] Game Mode and Menu Mode
-[  ] Cleanup Transition Effects
+[x] Cleanup Transition Effects
+
+[ ] Player Movement
+[ ] Animation
+[ ] Complete Player Movement
+
 [  ] Camera in game changes 
 [  ] Player Animation
 [  ] Tilemap Quad Tree Collision 
 [  ] Particles
 [  ] AI
-
 [  ] Build a nice ECS system
 
+
+---------------------------------------------------------------
+[] Cleanup Animation Scene and apply compression oriented to get animation working
+[] Get a player scene with animation and movement
+[] Get the camera behaviour done and apply compression oriented on that
+[] replace glm::vec2/3/4 and glm::mat4 with the apprivated ones, and same for types real32, i32, etc...
+[] Delete the OrthographicComponent.h/cpp
+
+
+texture .png
+texture2d
+flip
+math and speed for flipping 

@@ -2,6 +2,9 @@
 
 #include <stdint.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+
 #define START_NAMESPACE namespace IceEngine {
 #define END_NAMESPACE }
 
@@ -29,3 +32,9 @@ typedef i32 bool32;
 
 typedef float real32;
 typedef double real64;
+
+
+typedef glm::vec2 vec2;
+typedef glm::vec3 vec3;
+typedef glm::vec4 vec4;
+typedef glm::mat4 mat4;

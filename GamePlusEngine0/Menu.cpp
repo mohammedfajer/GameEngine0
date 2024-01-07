@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include "Defines.h"
 #include <SDL.h>
-#include "Color.h"
+#include "graphics.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -67,24 +67,19 @@ namespace TopDownShooter {
 		}
 	)";
 
+	static IceEngine::Clock myClock;
+
+	static IceEngine::Transition_Effect effect;
+	static float duration = 5.0f;
+
+	static IceEngine::Transition_Manager transition_manager(duration);
+	static IceEngine::Timer transition_timer;
+
+	static IceEngine::Text menuText;
 	
-    
-	
 
-
-	IceEngine::Clock myClock;
-
-	IceEngine::Transition_Effect effect;
-	float duration = 5.0f;
-
-	IceEngine::Transition_Manager transition_manager(duration);
-	IceEngine::Timer transition_timer;
-
-	IceEngine::Text menuText;
-	IceEngine::Text app_mode_text;
-
-	IceEngine::OrthographicCameraComponent *camera;
-	int indexSelected = 0;
+	static IceEngine::OrthographicCameraComponent *camera;
+	static int indexSelected = 0;
     
 	struct MenuText_Data {
 		std::string text;
@@ -175,11 +170,7 @@ namespace TopDownShooter {
 		menuText.projection = camera->projection;
 		menuText.setup();
 
-		app_mode_text.font_path = "./data/fonts/arial.ttf";
-		app_mode_text.fontSize = 58;
-		app_mode_text.projection = camera->projection;
-		app_mode_text.setup();
-        
+	 
 		// load sprite sheet texture
 		menuTexture = IceEngine::TextureLoader::LoadTexture("./data/Asset0/menu_img.png");
         
@@ -226,7 +217,6 @@ namespace TopDownShooter {
 		// Update the base scene
 		Scene::Update(deltaTime);
 		
-
 		if (IceEngine::InputManager::Instance().IsKeyPressed(SDL_SCANCODE_RETURN)) {
 			if (indexSelected == 0) {
 				if (transition_timer.isExpired()) {
@@ -256,17 +246,10 @@ namespace TopDownShooter {
 
 		transition_manager.update(&effect, myClock.delta);
 	}
-
-
-	
-
-
 	
 
 	void MenuScene::Render() {
-
 		
-
 		IceEngine::Color::SetClearColor({ 72, 59, 58, 255 });
 		glClear(GL_COLOR_BUFFER_BIT);
 
@@ -275,7 +258,7 @@ namespace TopDownShooter {
         
 		// Manually update the fake time
 		// Assuming 60 frames per second (you can adjust this value based on your frame rate)
-		//fakeElapsedTime += 0.016f; 
+		fakeElapsedTime += 0.016f; 
 		// Calculate a single interpolation factor for all texts
 		float interpolateFactor = std::min(1.0f, fakeElapsedTime / interpolateDuration);
         
@@ -294,6 +277,7 @@ namespace TopDownShooter {
 
 			menuText.draw(textData.text, interpolateX, interpolateY, 1.0f, textData.color);
 		}
+
 		fakeElapsedTime += 0.016f;
 		shader->Bind();
 		shader->SetMat4("projection", camera->projection);
@@ -304,20 +288,11 @@ namespace TopDownShooter {
                                       glm::vec2(1024*.3, 512 *0.3f), menuTexture.id);
 		IceEngine::Renderer::EndBatch();
 		IceEngine::Renderer::Flush();
-		
-	
+	 
 		IceEngine::switch_transition_animation(&effect, true);
 		IceEngine::set_cutoff(&effect);
 		IceEngine::render_transition_effect(&effect);
 		fps_counter.update();
-
-		if (IceEngine::Core::app_mode == IceEngine::App_Mode::Game)
-		{
-			app_mode_text.draw("Game Mode", 10, 50, 1.0f, glm::vec3(0, 100, 100));
-		}
-		else
-		{
-			app_mode_text.draw("Editor Mode", 10, 50, 1.0f, glm::vec3(0, 100, 100));
-		}
+		
 	}
 }
